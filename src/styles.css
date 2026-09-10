@@ -474,6 +474,19 @@ html, body {
   font-size: 1.2rem;
 }
 
+.btn-next {
+  background: var(--dracula-green);
+  color: var(--dracula-bg);
+  border-color: var(--dracula-green);
+  font-weight: 600;
+  padding: 6px 16px;
+  font-size: 0.8rem;
+}
+
+.btn-next:hover {
+  background: #6FFF9E;
+}
+
 /* Syntax highlighting colors - Dracula theme */
 .syntax-tag { color: var(--dracula-pink); }
 .syntax-attr { color: var(--dracula-green); }

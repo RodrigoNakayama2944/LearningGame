@@ -167,18 +167,17 @@ function checkAnswer() {
 
     if (isCorrect) {
       completedLevels.add(currentLevelIndex)
-      showResult(true, 'Correct! Well done!')
       updateLevelNav()
       spawnParticles()
       previewFrame.parentElement.classList.add('success-glow')
 
       if (currentLevelIndex < levels.length - 1) {
-        setTimeout(() => {
-          loadLevel(currentLevelIndex + 1)
-        }, 1800)
+        showResult(true, 'Correct! Well done!', true)
+      } else {
+        showResult(true, 'You completed all levels!', false)
       }
     } else {
-      showResult(false, 'Not quite right. Try again!')
+      showResult(false, 'Not quite right. Try again!', false)
     }
   }, 150)
 }
@@ -214,11 +213,24 @@ function closeReference() {
   referenceModal.classList.add('hidden')
 }
 
-function showResult(success, message) {
+function showResult(success, message, showNext) {
   resultBanner.classList.remove('hidden', 'success', 'error')
   resultBanner.classList.add(success ? 'success' : 'error')
   resultIcon.textContent = success ? '\u2713' : '\u2717'
   resultText.textContent = message
+
+  const existingBtn = resultBanner.querySelector('.btn-next')
+  if (existingBtn) existingBtn.remove()
+
+  if (showNext) {
+    const nextBtn = document.createElement('button')
+    nextBtn.className = 'btn btn-next'
+    nextBtn.textContent = 'Next Level \u2192'
+    nextBtn.addEventListener('click', () => {
+      loadLevel(currentLevelIndex + 1)
+    })
+    resultBanner.appendChild(nextBtn)
+  }
 }
 
 function hideResult() {

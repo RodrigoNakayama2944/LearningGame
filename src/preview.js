@@ -6,10 +6,7 @@ export function updatePreview(iframe, html, css) {
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100%;
+    min-height: 100vh;
     padding: 16px;
     background: #f8fafc;
     font-family: sans-serif;
