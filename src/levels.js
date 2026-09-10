@@ -1,7 +1,7 @@
 const levels = [
   {
     id: 1,
-    title: 'Center a Box',
+    title: 'margin: auto',
     description: 'The blue box is stuck in the top-left corner. Move it to the exact center of the gray area using CSS.',
     hint: 'Try using margin: auto on the box, but first give it a width smaller than the container.',
     html: `<div class="container">
@@ -49,7 +49,7 @@ const levels = [
   },
   {
     id: 2,
-    title: 'Flex Center',
+    title: 'Flexbox Centering',
     description: 'Use display: flex to perfectly center the blue box inside the container. This is the modern way!',
     hint: 'Combine display: flex with justify-content: center and align-items: center.',
     html: `<div class="container">
@@ -97,7 +97,7 @@ const levels = [
   },
   {
     id: 3,
-    title: 'Flex Direction Column',
+    title: 'Flexbox Column Layout',
     description: 'Stack the three boxes vertically, evenly spaced, and centered horizontally.',
     hint: 'Use flex-direction: column, justify-content: space-evenly, and align-items: center.',
     html: `<div class="container">
@@ -173,7 +173,7 @@ const levels = [
   },
   {
     id: 4,
-    title: 'Flex Gap',
+    title: 'Flexbox Spacing with gap',
     description: 'Arrange the three boxes in a horizontal row with exactly 20px of space between them, centered in the container.',
     hint: 'Use display: flex, justify-content: center, and the gap property for spacing.',
     html: `<div class="container">
@@ -229,7 +229,7 @@ const levels = [
   },
   {
     id: 5,
-    title: 'Grid Layout',
+    title: 'CSS Grid Basics',
     description: 'Create a 2x2 grid using CSS Grid. All cells should be equal size and have 10px gaps between them.',
     hint: 'Use display: grid, grid-template-columns: 1fr 1fr, and gap: 10px.',
     html: `<div class="grid">
@@ -391,7 +391,7 @@ const levels = [
   },
   {
     id: 7,
-    title: 'Flex Wrap',
+    title: 'Flexbox Wrapping',
     description: 'The boxes overflow the container. Make them wrap to the next line when there is not enough space, with 10px gaps.',
     hint: 'Use display: flex with flex-wrap: wrap and gap: 10px.',
     html: `<div class="container">
@@ -461,7 +461,7 @@ const levels = [
   },
   {
     id: 8,
-    title: 'Absolute Positioning',
+    title: 'Absolute + Relative Positioning',
     description: 'Position the blue circle in the exact center of the gray container using position: absolute. The container should be the reference point.',
     hint: 'Set the container to position: relative, the circle to position: absolute, then use top: 50%, left: 50%, and transform: translate(-50%, -50%).',
     html: `<div class="container">
@@ -513,7 +513,7 @@ const levels = [
   },
   {
     id: 9,
-    title: 'Flex Order',
+    title: 'Flexbox Order Property',
     description: 'The boxes are displayed in HTML order 1-2-3. Using the CSS order property, reverse them to display as 3-2-1 without changing the HTML.',
     hint: 'Set order: 3 on box-1, order: 2 on box-2, and order: 1 on box-3.',
     html: `<div class="container">
@@ -585,7 +585,7 @@ const levels = [
   },
   {
     id: 10,
-    title: 'Grid Responsive',
+    title: 'Responsive Grid with auto-fill',
     description: 'Create a grid that automatically fills columns as wide as 100px each, with 10px gaps. The grid should adapt to the container width.',
     hint: 'Use grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) with gap: 10px.',
     html: `<div class="grid">
