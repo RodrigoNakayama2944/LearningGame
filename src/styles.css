@@ -267,53 +267,33 @@ html, body {
 .editor-wrapper {
   flex: 1;
   position: relative;
-  overflow: auto;
+  overflow: hidden;
 }
 
-.editor-highlight,
+.editor-highlight {
+  display: none;
+}
+
 .editor-input {
   font-family: var(--font-mono);
   font-size: 0.8rem;
   line-height: 1.6;
   padding: 12px;
-  white-space: pre;
-  tab-size: 2;
-}
-
-.editor-highlight {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  overflow: hidden;
-  color: transparent;
-  margin: 0;
-}
-
-.editor-highlight code {
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-}
-
-.editor-input {
-  position: relative;
   width: 100%;
   height: 100%;
-  background: transparent;
-  color: transparent;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   caret-color: var(--accent);
   border: none;
   outline: none;
   resize: none;
-  z-index: 1;
   overflow: auto;
+  tab-size: 2;
+  white-space: pre;
 }
 
 .editor-input::selection {
-  background: rgba(88, 166, 255, 0.25);
+  background: rgba(88, 166, 255, 0.3);
 }
 
 .challenge-actions {

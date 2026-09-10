@@ -1,11 +1,8 @@
 import levels from './levels.js'
-import { highlightCSS } from './editor.js'
 import { updatePreview, updateTarget } from './preview.js'
 
 const editorInput = document.getElementById('editorInput')
-const highlightedCode = document.getElementById('highlightedCode')
 const lineNumbers = document.getElementById('lineNumbers')
-const editorContainer = document.getElementById('editorContainer')
 const previewFrame = document.getElementById('previewFrame')
 const targetFrame = document.getElementById('targetFrame')
 const targetWrapper = document.getElementById('targetWrapper')
@@ -71,7 +68,6 @@ function loadLevel(index) {
 
   currentCSS = level.starterCSS
   editorInput.value = level.starterCSS
-  updateHighlight()
   updateLineNumbers()
 
   updatePreview(previewFrame, level.html, level.starterCSS)
@@ -94,7 +90,6 @@ function setupEventListeners() {
 
 function onEditorInput() {
   currentCSS = editorInput.value
-  updateHighlight()
   updateLineNumbers()
   updatePreview(previewFrame, levels[currentLevelIndex].html, currentCSS)
   previewStatus.textContent = 'Updating...'
@@ -139,10 +134,6 @@ function onEditorKeydown(e) {
   }
 }
 
-function updateHighlight() {
-  highlightedCode.innerHTML = highlightCSS(editorInput.value)
-}
-
 function updateLineNumbers() {
   const lines = editorInput.value.split('\n').length
   lineNumbers.innerHTML = Array.from({ length: lines }, (_, i) =>
@@ -151,9 +142,6 @@ function updateLineNumbers() {
 }
 
 function syncScroll() {
-  const highlight = document.getElementById('editorHighlight')
-  highlight.scrollTop = editorInput.scrollTop
-  highlight.scrollLeft = editorInput.scrollLeft
   lineNumbers.scrollTop = editorInput.scrollTop
 }
 
