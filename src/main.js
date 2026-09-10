@@ -1,4 +1,4 @@
-import levels from './levels.js'
+import levels, { cssReference } from './levels.js'
 import { updatePreview, updateTarget } from './preview.js'
 
 const editorInput = document.getElementById('editorInput')
@@ -191,12 +191,9 @@ function toggleHint() {
 }
 
 function toggleReference() {
-  const level = levels[currentLevelIndex]
-  if (!level.reference) return
-  referenceBody.innerHTML = level.reference.map(ref => `
+  referenceBody.innerHTML = cssReference.map(prop => `
     <div class="reference-item">
-      <code class="reference-prop">${ref.prop}</code>
-      <span class="reference-desc">${ref.desc}</span>
+      <code class="reference-prop">${prop}</code>
     </div>
   `).join('')
   referenceModal.classList.toggle('hidden')

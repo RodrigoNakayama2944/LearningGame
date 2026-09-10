@@ -534,7 +534,7 @@ html, body {
 }
 
 .btn-reference:hover {
-  background: rgba(189, 147, 249, 0.1);
+  background: rgba(189, 147, 249, 0.15);
 }
 
 /* Reference Modal */
@@ -544,7 +544,7 @@ html, body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -561,7 +561,7 @@ html, body {
   border: 1px solid var(--dracula-current);
   border-radius: var(--radius-lg);
   width: 90%;
-  max-width: 400px;
+  max-width: 420px;
   max-height: 70vh;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
@@ -579,13 +579,13 @@ html, body {
   font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 600;
-  color: var(--dracula-purple);
+  color: var(--dracula-pink);
 }
 
 .reference-close {
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: var(--dracula-comment);
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0;
@@ -602,33 +602,23 @@ html, body {
   overflow-y: auto;
   max-height: calc(70vh - 60px);
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .reference-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 10px 12px;
+  padding: 6px 12px;
   background: var(--dracula-current);
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
 .reference-prop {
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--dracula-green);
-  background: rgba(80, 250, 123, 0.1);
-  padding: 2px 6px;
-  border-radius: 4px;
-  display: inline-block;
-  width: fit-content;
 }
 
 .reference-desc {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  line-height: 1.4;
+  display: none;
 }

@@ -1,13 +1,19 @@
+const cssReference = [
+  'display', 'position', 'width', 'height',
+  'margin', 'padding', 'border', 'border-radius',
+  'background', 'color', 'font-size', 'font-weight',
+  'text-align', 'justify-content', 'align-items',
+  'flex-direction', 'flex-wrap', 'gap', 'order',
+  'grid-template-columns', 'grid-template-areas',
+  'grid-area', 'top', 'left', 'transform',
+]
+
 const levels = [
   {
     id: 1,
     title: 'margin: auto',
     description: 'The blue box is stuck in the top-left corner. Move it to the exact center of the gray area using CSS.',
     hint: 'Try using margin: auto on the box, but first give it a width smaller than the container.',
-    reference: [
-      { prop: 'margin: auto', desc: 'Centers a block element horizontally' },
-      { prop: 'margin-top: 60px', desc: 'Adds space above the element' },
-    ],
     html: `<div class="container">
   <div class="box"></div>
 </div>`,
@@ -49,11 +55,6 @@ const levels = [
     title: 'Flexbox Centering',
     description: 'Use display: flex to perfectly center the blue box inside the container. This is the modern way!',
     hint: 'Combine display: flex with justify-content: center and align-items: center.',
-    reference: [
-      { prop: 'display: flex', desc: 'Enables flexbox on the container' },
-      { prop: 'justify-content: center', desc: 'Centers items horizontally' },
-      { prop: 'align-items: center', desc: 'Centers items vertically' },
-    ],
     html: `<div class="container">
   <div class="box"></div>
 </div>`,
@@ -96,11 +97,6 @@ const levels = [
     title: 'Flexbox Column Layout',
     description: 'Stack the three boxes vertically, evenly spaced, and centered horizontally.',
     hint: 'Use flex-direction: column, justify-content: space-evenly, and align-items: center.',
-    reference: [
-      { prop: 'flex-direction: column', desc: 'Stacks items vertically' },
-      { prop: 'justify-content: space-evenly', desc: 'Distributes space evenly between items' },
-      { prop: 'align-items: center', desc: 'Centers items on the cross axis' },
-    ],
     html: `<div class="container">
   <div class="box box-1">1</div>
   <div class="box box-2">2</div>
@@ -152,11 +148,6 @@ const levels = [
     title: 'Flexbox Spacing with gap',
     description: 'Arrange the three boxes in a horizontal row with exactly 20px of space between them, centered in the container.',
     hint: 'Use display: flex, justify-content: center, and the gap property for spacing.',
-    reference: [
-      { prop: 'display: flex', desc: 'Enables flexbox layout' },
-      { prop: 'justify-content: center', desc: 'Centers items along main axis' },
-      { prop: 'gap: 20px', desc: 'Adds space between flex items' },
-    ],
     html: `<div class="container">
   <div class="box box-1"></div>
   <div class="box box-2"></div>
@@ -199,11 +190,6 @@ const levels = [
     title: 'CSS Grid Basics',
     description: 'Create a 2x2 grid using CSS Grid. All cells should be equal size and have 10px gaps between them.',
     hint: 'Use display: grid, grid-template-columns: 1fr 1fr, and gap: 10px.',
-    reference: [
-      { prop: 'display: grid', desc: 'Enables CSS Grid layout' },
-      { prop: 'grid-template-columns: 1fr 1fr', desc: 'Creates two equal columns' },
-      { prop: 'gap: 10px', desc: 'Adds space between grid items' },
-    ],
     html: `<div class="grid">
   <div class="cell cell-1">1</div>
   <div class="cell cell-2">2</div>
@@ -253,11 +239,6 @@ const levels = [
     title: 'Grid Template Areas',
     description: 'Use grid-template-areas to create a layout with a header spanning full width, a sidebar on the left, main content in the center, and a footer spanning full width.',
     hint: 'Define grid-template-areas with "header header", "sidebar main", "footer footer", then assign area to each element.',
-    reference: [
-      { prop: 'grid-template-areas', desc: 'Defines named areas in the grid' },
-      { prop: 'grid-area: name', desc: 'Places an item into a named area' },
-      { prop: 'grid-template-columns: 80px 1fr', desc: 'Sidebar 80px, main fills rest' },
-    ],
     html: `<div class="layout">
   <header class="header">Header</header>
   <aside class="sidebar">Sidebar</aside>
@@ -317,11 +298,6 @@ const levels = [
     title: 'Flexbox Wrapping',
     description: 'The boxes overflow the container. Make them wrap to the next line when there is not enough space, with 10px gaps.',
     hint: 'Use display: flex with flex-wrap: wrap and gap: 10px.',
-    reference: [
-      { prop: 'display: flex', desc: 'Enables flexbox layout' },
-      { prop: 'flex-wrap: wrap', desc: 'Allows items to wrap to next line' },
-      { prop: 'gap: 10px', desc: 'Adds space between items' },
-    ],
     html: `<div class="container">
   <div class="box">A</div>
   <div class="box">B</div>
@@ -368,11 +344,6 @@ const levels = [
     title: 'Absolute + Relative Positioning',
     description: 'Position the blue circle in the exact center of the gray container using position: absolute. The container should be the reference point.',
     hint: 'Set the container to position: relative, the circle to position: absolute, then use top: 50%, left: 50%, and transform: translate(-50%, -50%).',
-    reference: [
-      { prop: 'position: relative', desc: 'Makes element a positioning reference' },
-      { prop: 'position: absolute', desc: 'Removes element from normal flow' },
-      { prop: 'transform: translate(-50%, -50%)', desc: 'Shifts element by half its size' },
-    ],
     html: `<div class="container">
   <div class="circle"></div>
 </div>`,
@@ -428,11 +399,6 @@ const levels = [
     title: 'Flexbox Order Property',
     description: 'The boxes are displayed in HTML order 1-2-3. Using the CSS order property, reverse them to display as 3-2-1 without changing the HTML.',
     hint: 'Set order: 3 on box-1, order: 2 on box-2, and order: 1 on box-3.',
-    reference: [
-      { prop: 'order: 3', desc: 'Moves item to appear later in the row' },
-      { prop: 'order: 1', desc: 'Moves item to appear earlier in the row' },
-      { prop: 'order: 0', desc: 'Default order for all items' },
-    ],
     html: `<div class="container">
   <div class="box box-1">1</div>
   <div class="box box-2">2</div>
@@ -490,11 +456,6 @@ const levels = [
     title: 'Responsive Grid with auto-fill',
     description: 'Create a grid that automatically fills columns as wide as 100px each, with 10px gaps. The grid should adapt to the container width.',
     hint: 'Use grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) with gap: 10px.',
-    reference: [
-      { prop: 'repeat(auto-fill, minmax(100px, 1fr))', desc: 'Auto-fits columns at minimum 100px' },
-      { prop: 'display: grid', desc: 'Enables CSS Grid layout' },
-      { prop: 'gap: 10px', desc: 'Adds space between grid items' },
-    ],
     html: `<div class="grid">
   <div class="card">Card 1</div>
   <div class="card">Card 2</div>
@@ -538,4 +499,5 @@ const levels = [
   }
 ]
 
+export { cssReference }
 export default levels
