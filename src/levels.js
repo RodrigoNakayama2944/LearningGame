@@ -14,6 +14,11 @@ const levels = [
     title: 'margin: auto',
     description: 'The blue box is stuck in the top-left corner. Move it to the exact center of the gray area using CSS.',
     hint: 'Try using margin: auto on the box, but first give it a width smaller than the container.',
+    explanation: [
+      'margin: auto centers the box horizontally: the browser divides the leftover space equally on the left and right.',
+      'margin-top: 60px moves the box down until its middle aligns with the container\u2019s middle (60px + half of 80px = 100px = half of 200px).',
+      'This trick works because a block element with a fixed width leaves the sides free for auto margins.'
+    ],
     html: `<div class="container">
   <div class="box"></div>
 </div>`,
@@ -80,6 +85,12 @@ const levels = [
     title: 'Flexbox Centering',
     description: 'Use display: flex to perfectly center the blue box inside the container. This is the modern way!',
     hint: 'Combine display: flex with justify-content: center and align-items: center.',
+    explanation: [
+      'display: flex turns the container into a flex container; its children become flex items.',
+      'justify-content: center centers the box on the main axis (horizontal).',
+      'align-items: center centers the box on the cross axis (vertical).',
+      'Flexbox centers content without magic numbers, so it works at any size.'
+    ],
     html: `<div class="container">
   <div class="box"></div>
 </div>`,
@@ -133,6 +144,11 @@ const levels = [
     title: 'Flexbox Column Layout',
     description: 'Stack the three boxes vertically, evenly spaced, and centered horizontally.',
     hint: 'Use flex-direction: column, justify-content: space-evenly, and align-items: center.',
+    explanation: [
+      'flex-direction: column changes the main axis to vertical, stacking the boxes from top to bottom.',
+      'justify-content: space-evenly divides the free space equally before, between, and after every box.',
+      'align-items: center keeps every box centered horizontally (the cross axis in column mode).'
+    ],
     html: `<div class="container">
   <div class="box box-1">1</div>
   <div class="box box-2">2</div>
@@ -213,6 +229,11 @@ const levels = [
     title: 'Flexbox Spacing with gap',
     description: 'Arrange the three boxes in a horizontal row with exactly 20px of space between them, centered in the container.',
     hint: 'Use display: flex, justify-content: center, and the gap property for spacing.',
+    explanation: [
+      'display: flex + justify-content: center puts the three boxes in a centered horizontal row.',
+      'align-items: center aligns them vertically in the middle of the container.',
+      'gap: 20px reserves exactly 20px between boxes, with no margins and no math.'
+    ],
     html: `<div class="container">
   <div class="box box-1"></div>
   <div class="box box-2"></div>
@@ -272,6 +293,11 @@ const levels = [
     title: 'CSS Grid Basics',
     description: 'Create a 2x2 grid using CSS Grid. All cells should be equal size and have 10px gaps between them.',
     hint: 'Use display: grid, grid-template-columns: 1fr 1fr, and gap: 10px.',
+    explanation: [
+      'display: grid switches the container to CSS Grid layout.',
+      'grid-template-columns: 1fr 1fr creates two equal flexible columns, so the four cells flow into two rows.',
+      'gap: 10px adds 10px of space between every row and column.'
+    ],
     html: `<div class="grid">
   <div class="cell cell-1">1</div>
   <div class="cell cell-2">2</div>
@@ -348,6 +374,11 @@ const levels = [
     title: 'Grid Template Areas',
     description: 'Use grid-template-areas to create a layout with a header spanning full width, a sidebar on the left, main content in the center, and a footer spanning full width.',
     hint: 'Define grid-template-areas with "header header", "sidebar main", "footer footer", then assign area to each element.',
+    explanation: [
+      'grid-template-areas draws the layout as plain text: a header across the top, sidebar + main in the middle, and a footer below.',
+      'grid-template-columns and grid-template-rows describe the three columns and three rows those areas use.',
+      'grid-area assigns each element to one of the named areas defined in the template.'
+    ],
     html: `<div class="layout">
   <header class="header">Header</header>
   <aside class="sidebar">Sidebar</aside>
@@ -463,6 +494,10 @@ const levels = [
     title: 'Flexbox Wrapping',
     description: 'The boxes overflow the container. Make them wrap to the next line when there is not enough space, with 10px gaps.',
     hint: 'Use display: flex with flex-wrap: wrap and gap: 10px.',
+    explanation: [
+      'flex-wrap: wrap lets items flow onto a new line when they do not fit, instead of shrinking.',
+      'gap: 10px keeps exactly 10px between every box, in any row.'
+    ],
     html: `<div class="container">
   <div class="box">A</div>
   <div class="box">B</div>
@@ -535,6 +570,12 @@ const levels = [
     title: 'Absolute + Relative Positioning',
     description: 'Position the blue circle in the exact center of the gray container using position: absolute. The container should be the reference point.',
     hint: 'Set the container to position: relative, the circle to position: absolute, then use top: 50%, left: 50%, and transform: translate(-50%, -50%).',
+    explanation: [
+      'position: relative on the container makes it the reference point for absolutely positioned children.',
+      'position: absolute pulls the circle out of normal flow, so other elements ignore it.',
+      'top: 50% + left: 50% put the circle\u2019s top-left corner at the container\u2019s center.',
+      'transform: translate(-50%, -50%) slides the circle back by half its own size for a perfect center.'
+    ],
     html: `<div class="container">
   <div class="circle"></div>
 </div>`,
@@ -572,21 +613,6 @@ const levels = [
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-}`,
-      `.container {
-  width: 250px;
-  height: 250px;
-  background: #e2e8f0;
-  border-radius: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.circle {
-  width: 60px;
-  height: 60px;
-  background: #3b82f6;
-  border-radius: 50%;
 }`
     ],
     validate(iframe) {
@@ -609,6 +635,11 @@ const levels = [
     title: 'Flexbox Order Property',
     description: 'The boxes are displayed in HTML order 1-2-3. Using the CSS order property, reverse them to display as 3-2-1 without changing the HTML.',
     hint: 'Set order: 3 on box-1, order: 2 on box-2, and order: 1 on box-3.',
+    explanation: [
+      'display: flex enables ordering, since in normal flow the order always follows the HTML.',
+      'order: <n> changes the visual order without touching the HTML, keeping the markup meaningful.',
+      'Items are laid out from lowest order value to highest.'
+    ],
     html: `<div class="container">
   <div class="box box-1">1</div>
   <div class="box box-2">2</div>
@@ -681,6 +712,11 @@ const levels = [
     title: 'Responsive Grid with auto-fill',
     description: 'Create a grid that automatically fills columns as wide as 100px each, with 10px gaps. The grid should adapt to the container width.',
     hint: 'Use grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) with gap: 10px.',
+    explanation: [
+      'grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) creates as many 100px-wide columns as fit and fills the container.',
+      'minmax(100px, 1fr) means each column is at least 100px and can grow to share the leftover space.',
+      'With 340px of width you get three columns per row, and the grid adapts automatically to other widths.'
+    ],
     html: `<div class="grid">
   <div class="card">Card 1</div>
   <div class="card">Card 2</div>

@@ -444,8 +444,8 @@ html, body {
 
 .result-banner {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 10px;
   padding: 14px 24px;
   border-top: 1px solid var(--dracula-current);
@@ -456,6 +456,53 @@ html, body {
 
 .result-banner.hidden {
   display: none;
+}
+
+.result-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.result-explanation {
+  width: 100%;
+  max-width: 560px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.result-explanation.hidden {
+  display: none;
+}
+
+.result-explanation ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.result-explanation li {
+  padding-left: 16px;
+  position: relative;
+}
+
+.result-explanation li::before {
+  content: '\2022';
+  position: absolute;
+  left: 0;
+  color: var(--dracula-cyan);
+}
+
+.explanation-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--dracula-purple);
 }
 
 .result-banner.success {
@@ -481,6 +528,7 @@ html, body {
   font-weight: 600;
   padding: 6px 16px;
   font-size: 0.8rem;
+  margin-top: 2px;
 }
 
 .btn-next:hover {

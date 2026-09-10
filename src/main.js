@@ -16,6 +16,7 @@ const progressText = document.getElementById('progressText')
 const resultBanner = document.getElementById('resultBanner')
 const resultIcon = document.getElementById('resultIcon')
 const resultText = document.getElementById('resultText')
+const resultExplanation = document.getElementById('resultExplanation')
 const previewStatus = document.getElementById('previewStatus')
 const btnCheck = document.getElementById('btnCheck')
 const btnReset = document.getElementById('btnReset')
@@ -174,9 +175,9 @@ function checkAnswer() {
       previewFrame.parentElement.classList.add('success-glow')
 
       if (currentLevelIndex < levels.length - 1) {
-        showResult(true, 'Correct! Well done!', true)
+        showResult(true, 'Correct! Well done!', true, level.explanation)
       } else {
-        showResult(true, 'You completed all levels!', false)
+        showResult(true, 'You completed all levels!', false, level.explanation)
       }
     } else {
       showResult(false, 'Not quite right. Try again!', false)
@@ -222,11 +223,19 @@ function closeReference() {
   referenceModal.classList.add('hidden')
 }
 
-function showResult(success, message, showNext) {
+function showResult(success, message, showNext, explanation) {
   resultBanner.classList.remove('hidden', 'success', 'error')
   resultBanner.classList.add(success ? 'success' : 'error')
   resultIcon.textContent = success ? '\u2713' : '\u2717'
   resultText.textContent = message
+
+  resultExplanation.innerHTML = ''
+  resultExplanation.classList.toggle('hidden', !success || !explanation)
+  if (success && explanation) {
+    resultExplanation.innerHTML = `<span class="explanation-label">How it works:</span><ul>` + explanation
+      .map(point => `<li>${point}</li>`)
+      .join('') + `</ul>`
+  }
 
   const existingBtn = resultBanner.querySelector('.btn-next')
   if (existingBtn) existingBtn.remove()
@@ -244,6 +253,7 @@ function showResult(success, message, showNext) {
 
 function hideResult() {
   resultBanner.classList.add('hidden')
+  resultExplanation.innerHTML = ''
   previewFrame.parentElement.classList.remove('success-glow')
 }
 
