@@ -32,7 +32,8 @@ const levels = [
 
   /* ?? center the box ?? */
 }`,
-    targetCSS: `.container {
+    solutions: [
+      `.container {
   width: 300px;
   height: 200px;
   background: #e2e8f0;
@@ -46,14 +47,31 @@ const levels = [
   margin: auto;
   margin-top: 60px;
 }`,
+      `.container {
+  width: 300px;
+  height: 200px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.box {
+  width: 80px;
+  height: 80px;
+  background: #3b82f6;
+  border-radius: 8px;
+}`
+    ],
     validate(iframe) {
       const box = iframe.contentDocument.querySelector('.box')
       if (!box) return false
       const container = iframe.contentDocument.querySelector('.container')
       const cRect = container.getBoundingClientRect()
       const bRect = box.getBoundingClientRect()
-      const centeredX = Math.abs((bRect.left + bRect.right) / 2 - (cRect.left + cRect.right) / 2) < 15
-      const centeredY = Math.abs((bRect.top + bRect.bottom) / 2 - (cRect.top + cRect.bottom) / 2) < 15
+      if (cRect.width === 0 || cRect.height === 0) return false
+      const centeredX = Math.abs((bRect.left + bRect.right) / 2 - (cRect.left + cRect.right) / 2) < 20
+      const centeredY = Math.abs((bRect.top + bRect.bottom) / 2 - (cRect.top + cRect.bottom) / 2) < 20
       return centeredX && centeredY
     }
   },
@@ -80,7 +98,8 @@ const levels = [
   background: #3b82f6;
   border-radius: 8px;
 }`,
-    targetCSS: `.container {
+    solutions: [
+      `.container {
   width: 300px;
   height: 200px;
   background: #e2e8f0;
@@ -94,15 +113,18 @@ const levels = [
   height: 80px;
   background: #3b82f6;
   border-radius: 8px;
-}`,
+}`
+    ],
     validate(iframe) {
       const box = iframe.contentDocument.querySelector('.box')
       if (!box) return false
       const container = iframe.contentDocument.querySelector('.container')
+      if (!container) return false
       const cRect = container.getBoundingClientRect()
       const bRect = box.getBoundingClientRect()
-      const centeredX = Math.abs((bRect.left + bRect.right) / 2 - (cRect.left + cRect.right) / 2) < 15
-      const centeredY = Math.abs((bRect.top + bRect.bottom) / 2 - (cRect.top + cRect.bottom) / 2) < 15
+      if (cRect.width === 0 || cRect.height === 0) return false
+      const centeredX = Math.abs((bRect.left + bRect.right) / 2 - (cRect.left + cRect.right) / 2) < 20
+      const centeredY = Math.abs((bRect.top + bRect.bottom) / 2 - (cRect.top + cRect.bottom) / 2) < 20
       return centeredX && centeredY
     }
   },
@@ -141,7 +163,8 @@ const levels = [
 .box-1 { background: #3b82f6; }
 .box-2 { background: #8b5cf6; }
 .box-3 { background: #ec4899; }`,
-    targetCSS: `.container {
+    solutions: [
+      `.container {
   width: 200px;
   height: 280px;
   background: #e2e8f0;
@@ -164,11 +187,13 @@ const levels = [
 }
 .box-1 { background: #3b82f6; }
 .box-2 { background: #8b5cf6; }
-.box-3 { background: #ec4899; }`,
+.box-3 { background: #ec4899; }`
+    ],
     validate(iframe) {
       const boxes = iframe.contentDocument.querySelectorAll('.box')
       if (boxes.length !== 3) return false
       const container = iframe.contentDocument.querySelector('.container')
+      if (!container) return false
       const style = iframe.contentWindow.getComputedStyle(container)
       if (style.flexDirection !== 'column') return false
       const cRect = container.getBoundingClientRect()
@@ -176,11 +201,11 @@ const levels = [
       for (const box of boxes) {
         const r = box.getBoundingClientRect()
         const bx = (r.left + r.right) / 2
-        if (Math.abs(bx - centerX) > 20) return false
+        if (Math.abs(bx - centerX) > 25) return false
       }
       const gap = boxes[1].getBoundingClientRect().top - boxes[0].getBoundingClientRect().bottom
       const gap2 = boxes[2].getBoundingClientRect().top - boxes[1].getBoundingClientRect().bottom
-      return Math.abs(gap - gap2) < 15
+      return Math.abs(gap - gap2) < 20
     }
   },
   {
@@ -211,7 +236,8 @@ const levels = [
 .box-1 { background: #3b82f6; }
 .box-2 { background: #8b5cf6; }
 .box-3 { background: #ec4899; }`,
-    targetCSS: `.container {
+    solutions: [
+      `.container {
   width: 320px;
   height: 120px;
   background: #e2e8f0;
@@ -228,15 +254,17 @@ const levels = [
 }
 .box-1 { background: #3b82f6; }
 .box-2 { background: #8b5cf6; }
-.box-3 { background: #ec4899; }`,
+.box-3 { background: #ec4899; }`
+    ],
     validate(iframe) {
       const boxes = iframe.contentDocument.querySelectorAll('.box')
       if (boxes.length !== 3) return false
       const container = iframe.contentDocument.querySelector('.container')
+      if (!container) return false
       const cStyle = iframe.contentWindow.getComputedStyle(container)
       if (cStyle.display !== 'flex') return false
       const gap = boxes[1].getBoundingClientRect().left - boxes[0].getBoundingClientRect().right
-      return Math.abs(gap - 20) < 8
+      return Math.abs(gap - 20) < 12
     }
   },
   {
@@ -274,7 +302,8 @@ const levels = [
 .cell-2 { background: #8b5cf6; }
 .cell-3 { background: #ec4899; }
 .cell-4 { background: #f59e0b; }`,
-    targetCSS: `.grid {
+    solutions: [
+      `.grid {
   width: 240px;
   height: 240px;
   background: #e2e8f0;
@@ -296,7 +325,8 @@ const levels = [
 .cell-1 { background: #3b82f6; }
 .cell-2 { background: #8b5cf6; }
 .cell-3 { background: #ec4899; }
-.cell-4 { background: #f59e0b; }`,
+.cell-4 { background: #f59e0b; }`
+    ],
     validate(iframe) {
       const grid = iframe.contentDocument.querySelector('.grid')
       if (!grid) return false
@@ -307,10 +337,10 @@ const levels = [
       const r1 = cells[0].getBoundingClientRect()
       const r2 = cells[1].getBoundingClientRect()
       const r3 = cells[2].getBoundingClientRect()
-      const colWidth = Math.abs(r1.width - r2.width) < 5
-      const rowHeight = Math.abs(r1.height - r3.height) < 5
+      const colWidth = Math.abs(r1.width - r2.width) < 8
+      const rowHeight = Math.abs(r1.height - r3.height) < 8
       const gap = Math.abs(r2.left - r1.right)
-      return colWidth && rowHeight && gap > 5 && gap < 20
+      return colWidth && rowHeight && gap > 5 && gap < 25
     }
   },
   {
@@ -389,7 +419,8 @@ const levels = [
 
   /* ?? assign grid area ?? */
 }`,
-    targetCSS: `.layout {
+    solutions: [
+      `.layout {
   width: 320px;
   height: 280px;
   background: #e2e8f0;
@@ -407,7 +438,8 @@ const levels = [
 .header { grid-area: header; background: #3b82f6; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; font-size: 0.8rem; }
 .sidebar { grid-area: sidebar; background: #8b5cf6; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; font-size: 0.8rem; }
 .main { grid-area: main; background: #10b981; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; font-size: 0.8rem; }
-.footer { grid-area: footer; background: #f59e0b; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; font-size: 0.8rem; }`,
+.footer { grid-area: footer; background: #f59e0b; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; font-size: 0.8rem; }`
+    ],
     validate(iframe) {
       const layout = iframe.contentDocument.querySelector('.layout')
       if (!layout) return false
@@ -421,8 +453,8 @@ const levels = [
       const hR = header.getBoundingClientRect()
       const fR = footer.getBoundingClientRect()
       const lR = layout.getBoundingClientRect()
-      const headerSpansFull = Math.abs(hR.width - (lR.width - 16)) < 15
-      const footerSpansFull = Math.abs(fR.width - (lR.width - 16)) < 15
+      const headerSpansFull = Math.abs(hR.width - (lR.width - 16)) < 20
+      const footerSpansFull = Math.abs(fR.width - (lR.width - 16)) < 20
       return headerSpansFull && footerSpansFull
     }
   },
@@ -460,7 +492,8 @@ const levels = [
   font-weight: bold;
   color: white;
 }`,
-    targetCSS: `.container {
+    solutions: [
+      `.container {
   width: 200px;
   padding: 10px;
   background: #e2e8f0;
@@ -480,7 +513,8 @@ const levels = [
   font-family: sans-serif;
   font-weight: bold;
   color: white;
-}`,
+}`
+    ],
     validate(iframe) {
       const container = iframe.contentDocument.querySelector('.container')
       if (!container) return false
@@ -521,7 +555,8 @@ const levels = [
 
   /* ?? position absolutely and center ?? */
 }`,
-    targetCSS: `.container {
+    solutions: [
+      `.container {
   width: 250px;
   height: 250px;
   background: #e2e8f0;
@@ -538,17 +573,35 @@ const levels = [
   left: 50%;
   transform: translate(-50%, -50%);
 }`,
+      `.container {
+  width: 250px;
+  height: 250px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.circle {
+  width: 60px;
+  height: 60px;
+  background: #3b82f6;
+  border-radius: 50%;
+}`
+    ],
     validate(iframe) {
       const circle = iframe.contentDocument.querySelector('.circle')
       if (!circle) return false
       const style = iframe.contentWindow.getComputedStyle(circle)
       if (style.position !== 'absolute') return false
       const container = iframe.contentDocument.querySelector('.container')
+      if (!container) return false
       const cRect = container.getBoundingClientRect()
       const cCircle = circle.getBoundingClientRect()
+      if (cRect.width === 0 || cRect.height === 0) return false
       const cx = Math.abs((cCircle.left + cCircle.right) / 2 - (cRect.left + cRect.right) / 2)
       const cy = Math.abs((cCircle.top + cCircle.bottom) / 2 - (cRect.top + cRect.bottom) / 2)
-      return cx < 10 && cy < 10
+      return cx < 15 && cy < 15
     }
   },
   {
@@ -588,7 +641,8 @@ const levels = [
 .box-1 { background: #3b82f6; /* ?? reverse order ?? */ }
 .box-2 { background: #8b5cf6; /* ?? reverse order ?? */ }
 .box-3 { background: #ec4899; /* ?? reverse order ?? */ }`,
-    targetCSS: `.container {
+    solutions: [
+      `.container {
   width: 280px;
   height: 100px;
   background: #e2e8f0;
@@ -612,7 +666,8 @@ const levels = [
 }
 .box-1 { background: #3b82f6; order: 3; }
 .box-2 { background: #8b5cf6; order: 2; }
-.box-3 { background: #ec4899; order: 1; }`,
+.box-3 { background: #ec4899; order: 1; }`
+    ],
     validate(iframe) {
       const boxes = iframe.contentDocument.querySelectorAll('.box')
       if (boxes.length !== 3) return false
@@ -653,7 +708,8 @@ const levels = [
   font-weight: bold;
   font-size: 0.85rem;
 }`,
-    targetCSS: `.grid {
+    solutions: [
+      `.grid {
   width: 340px;
   background: #e2e8f0;
   border-radius: 8px;
@@ -672,11 +728,35 @@ const levels = [
   font-weight: bold;
   font-size: 0.85rem;
 }`,
+      `.grid {
+  width: 340px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.card {
+  background: #3b82f6;
+  color: white;
+  border-radius: 6px;
+  padding: 20px;
+  text-align: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 0.85rem;
+  min-width: 100px;
+  flex: 1;
+}`
+    ],
     validate(iframe) {
       const grid = iframe.contentDocument.querySelector('.grid')
       if (!grid) return false
       const style = iframe.contentWindow.getComputedStyle(grid)
-      if (style.display !== 'grid') return false
+      const isGrid = style.display === 'grid'
+      const isFlex = style.display === 'flex'
+      if (!isGrid && !isFlex) return false
       const cards = iframe.contentDocument.querySelectorAll('.card')
       if (cards.length !== 6) return false
       const rows = new Set()

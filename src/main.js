@@ -29,6 +29,7 @@ const referenceClose = document.getElementById('referenceClose')
 let currentLevelIndex = 0
 let completedLevels = new Set()
 let currentCSS = ''
+let solutionIndex = 0
 
 function init() {
   buildLevelNav()
@@ -63,6 +64,7 @@ function updateLevelNav() {
 
 function loadLevel(index) {
   currentLevelIndex = index
+  solutionIndex = 0
   const level = levels[index]
 
   levelBadge.textContent = `Level ${level.id}`
@@ -77,7 +79,7 @@ function loadLevel(index) {
   updateLineNumbers()
 
   updatePreview(previewFrame, level.html, level.starterCSS)
-  updateTarget(targetFrame, level.html, level.targetCSS)
+  updateTarget(targetFrame, level.html, level.solutions[0])
   targetWrapper.classList.add('visible')
 
   hideResult()
@@ -193,11 +195,18 @@ function toggleHint() {
 
 function showAnswer() {
   const level = levels[currentLevelIndex]
-  editorInput.value = level.targetCSS
-  currentCSS = level.targetCSS
+  const solution = level.solutions[solutionIndex % level.solutions.length]
+  editorInput.value = solution
+  currentCSS = solution
   updateLineNumbers()
-  updatePreview(previewFrame, level.html, level.targetCSS)
-  showResult(false, 'Answer loaded. Try to understand it before moving on!')
+  updatePreview(previewFrame, level.html, solution)
+  solutionIndex++
+  const count = level.solutions.length
+  if (count > 1) {
+    showResult(false, `Answer loaded (solution ${(solutionIndex - 1) % count + 1} of ${count}). Click again for another way!`)
+  } else {
+    showResult(false, 'Answer loaded. Try to understand it before moving on!')
+  }
 }
 
 function toggleReference() {
