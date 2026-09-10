@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSS Quest — Learn CSS by Playing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/styles.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <h1 class="logo">&lt;CSS Quest/&gt;</h1>
+      <span class="subtitle">Learn CSS by Playing</span>
+    </div>
+    <nav class="level-nav" id="levelNav"></nav>
+    <div class="header-right">
+      <span class="progress-text" id="progressText">0 / 0</span>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="challenge-panel">
+      <div class="challenge-header">
+        <span class="level-badge" id="levelBadge">Level 1</span>
+        <h2 class="challenge-title" id="challengeTitle"></h2>
+      </div>
+      <p class="challenge-description" id="challengeDescription"></p>
+      <div class="hint-box" id="hintBox">
+        <span class="hint-label">Hint:</span>
+        <p class="hint-text" id="hintText"></p>
+      </div>
+      <div class="editor-section">
+        <div class="editor-header">
+          <span class="editor-tab active">style.css</span>
+          <span class="editor-label">Write your CSS here</span>
+        </div>
+        <div class="editor-container" id="editorContainer">
+          <div class="line-numbers" id="lineNumbers"></div>
+          <div class="editor-wrapper">
+            <pre class="editor-highlight" id="editorHighlight"><code id="highlightedCode"></code></pre>
+            <textarea class="editor-input" id="editorInput" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="challenge-actions">
+        <button class="btn btn-check" id="btnCheck">Check Answer</button>
+        <button class="btn btn-reset" id="btnReset">Reset</button>
+        <button class="btn btn-hint" id="btnHint">Show Hint</button>
+      </div>
+    </section>
+
+    <section class="preview-panel">
+      <div class="preview-header">
+        <span class="preview-label">Live Preview</span>
+        <span class="preview-status" id="previewStatus">Updating...</span>
+      </div>
+      <div class="preview-container">
+        <div class="preview-frame-wrapper">
+          <iframe id="previewFrame" sandbox="allow-scripts"></iframe>
+        </div>
+        <div class="target-wrapper" id="targetWrapper">
+          <span class="target-label">Target</span>
+          <div class="target-frame-wrapper">
+            <iframe id="targetFrame" sandbox="allow-scripts"></iframe>
+          </div>
+        </div>
+      </div>
+      <div class="result-banner hidden" id="resultBanner">
+        <span class="result-icon" id="resultIcon"></span>
+        <span class="result-text" id="resultText"></span>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
