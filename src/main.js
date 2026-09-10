@@ -20,6 +20,10 @@ const previewStatus = document.getElementById('previewStatus')
 const btnCheck = document.getElementById('btnCheck')
 const btnReset = document.getElementById('btnReset')
 const btnHint = document.getElementById('btnHint')
+const btnReference = document.getElementById('btnReference')
+const referenceModal = document.getElementById('referenceModal')
+const referenceBody = document.getElementById('referenceBody')
+const referenceClose = document.getElementById('referenceClose')
 
 let currentLevelIndex = 0
 let completedLevels = new Set()
@@ -65,6 +69,7 @@ function loadLevel(index) {
   challengeDescription.textContent = level.description
   hintText.textContent = level.hint
   hintBox.classList.remove('visible')
+  closeReference()
 
   currentCSS = level.starterCSS
   editorInput.value = level.starterCSS
@@ -86,6 +91,11 @@ function setupEventListeners() {
   btnCheck.addEventListener('click', checkAnswer)
   btnReset.addEventListener('click', resetLevel)
   btnHint.addEventListener('click', toggleHint)
+  btnReference.addEventListener('click', toggleReference)
+  referenceClose.addEventListener('click', closeReference)
+  referenceModal.addEventListener('click', (e) => {
+    if (e.target === referenceModal) closeReference()
+  })
 }
 
 function onEditorInput() {
@@ -180,6 +190,22 @@ function toggleHint() {
   btnHint.textContent = hintBox.classList.contains('visible') ? 'Hide Hint' : 'Show Hint'
 }
 
+function toggleReference() {
+  const level = levels[currentLevelIndex]
+  if (!level.reference) return
+  referenceBody.innerHTML = level.reference.map(ref => `
+    <div class="reference-item">
+      <code class="reference-prop">${ref.prop}</code>
+      <span class="reference-desc">${ref.desc}</span>
+    </div>
+  `).join('')
+  referenceModal.classList.toggle('hidden')
+}
+
+function closeReference() {
+  referenceModal.classList.add('hidden')
+}
+
 function showResult(success, message) {
   resultBanner.classList.remove('hidden', 'success', 'error')
   resultBanner.classList.add(success ? 'success' : 'error')
@@ -193,7 +219,7 @@ function hideResult() {
 }
 
 function spawnParticles() {
-  const colors = ['#3FB950', '#58A6FF', '#D2A8FF', '#F0883E', '#F778BA']
+  const colors = ['#50FA7B', '#BD93F9', '#FF79C6', '#8BE9FD', '#F1FA8C']
   const bannerRect = resultBanner.getBoundingClientRect()
   const cx = bannerRect.left + bannerRect.width / 2
   const cy = bannerRect.top + bannerRect.height / 2

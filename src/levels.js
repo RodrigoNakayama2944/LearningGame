@@ -4,21 +4,20 @@ const levels = [
     title: 'margin: auto',
     description: 'The blue box is stuck in the top-left corner. Move it to the exact center of the gray area using CSS.',
     hint: 'Try using margin: auto on the box, but first give it a width smaller than the container.',
+    reference: [
+      { prop: 'margin: auto', desc: 'Centers a block element horizontally' },
+      { prop: 'margin-top: 60px', desc: 'Adds space above the element' },
+    ],
     html: `<div class="container">
   <div class="box"></div>
 </div>`,
-    starterCSS: `.container {
-  width: 300px;
-  height: 200px;
-  background: #e2e8f0;
-  border-radius: 8px;
-}
-
-.box {
+    starterCSS: `.box {
   width: 80px;
   height: 80px;
   background: #3b82f6;
   border-radius: 8px;
+
+  /* add your code here */
 }`,
     targetCSS: `.container {
   width: 300px;
@@ -26,7 +25,6 @@ const levels = [
   background: #e2e8f0;
   border-radius: 8px;
 }
-
 .box {
   width: 80px;
   height: 80px;
@@ -38,7 +36,6 @@ const levels = [
     validate(iframe) {
       const box = iframe.contentDocument.querySelector('.box')
       if (!box) return false
-      const style = iframe.contentWindow.getComputedStyle(box)
       const container = iframe.contentDocument.querySelector('.container')
       const cRect = container.getBoundingClientRect()
       const bRect = box.getBoundingClientRect()
@@ -52,6 +49,11 @@ const levels = [
     title: 'Flexbox Centering',
     description: 'Use display: flex to perfectly center the blue box inside the container. This is the modern way!',
     hint: 'Combine display: flex with justify-content: center and align-items: center.',
+    reference: [
+      { prop: 'display: flex', desc: 'Enables flexbox on the container' },
+      { prop: 'justify-content: center', desc: 'Centers items horizontally' },
+      { prop: 'align-items: center', desc: 'Centers items vertically' },
+    ],
     html: `<div class="container">
   <div class="box"></div>
 </div>`,
@@ -60,13 +62,8 @@ const levels = [
   height: 200px;
   background: #e2e8f0;
   border-radius: 8px;
-}
 
-.box {
-  width: 80px;
-  height: 80px;
-  background: #3b82f6;
-  border-radius: 8px;
+  /* add flexbox here */
 }`,
     targetCSS: `.container {
   width: 300px;
@@ -77,7 +74,6 @@ const levels = [
   justify-content: center;
   align-items: center;
 }
-
 .box {
   width: 80px;
   height: 80px;
@@ -100,6 +96,11 @@ const levels = [
     title: 'Flexbox Column Layout',
     description: 'Stack the three boxes vertically, evenly spaced, and centered horizontally.',
     hint: 'Use flex-direction: column, justify-content: space-evenly, and align-items: center.',
+    reference: [
+      { prop: 'flex-direction: column', desc: 'Stacks items vertically' },
+      { prop: 'justify-content: space-evenly', desc: 'Distributes space evenly between items' },
+      { prop: 'align-items: center', desc: 'Centers items on the cross axis' },
+    ],
     html: `<div class="container">
   <div class="box box-1">1</div>
   <div class="box box-2">2</div>
@@ -110,23 +111,10 @@ const levels = [
   height: 280px;
   background: #e2e8f0;
   border-radius: 8px;
-}
-
-.box {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  color: white;
-}
 
-.box-1 { background: #3b82f6; }
-.box-2 { background: #8b5cf6; }
-.box-3 { background: #ec4899; }`,
+  /* change direction and spacing */
+}`,
     targetCSS: `.container {
   width: 200px;
   height: 280px;
@@ -137,19 +125,7 @@ const levels = [
   justify-content: space-evenly;
   align-items: center;
 }
-
-.box {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  color: white;
-}
-
+.box { width: 60px; height: 60px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; }
 .box-1 { background: #3b82f6; }
 .box-2 { background: #8b5cf6; }
 .box-3 { background: #ec4899; }`,
@@ -176,6 +152,11 @@ const levels = [
     title: 'Flexbox Spacing with gap',
     description: 'Arrange the three boxes in a horizontal row with exactly 20px of space between them, centered in the container.',
     hint: 'Use display: flex, justify-content: center, and the gap property for spacing.',
+    reference: [
+      { prop: 'display: flex', desc: 'Enables flexbox layout' },
+      { prop: 'justify-content: center', desc: 'Centers items along main axis' },
+      { prop: 'gap: 20px', desc: 'Adds space between flex items' },
+    ],
     html: `<div class="container">
   <div class="box box-1"></div>
   <div class="box box-2"></div>
@@ -186,17 +167,9 @@ const levels = [
   height: 120px;
   background: #e2e8f0;
   border-radius: 8px;
-}
 
-.box {
-  width: 70px;
-  height: 70px;
-  border-radius: 8px;
-}
-
-.box-1 { background: #3b82f6; }
-.box-2 { background: #8b5cf6; }
-.box-3 { background: #ec4899; }`,
+  /* add flexbox, centering, and gap */
+}`,
     targetCSS: `.container {
   width: 320px;
   height: 120px;
@@ -207,13 +180,7 @@ const levels = [
   align-items: center;
   gap: 20px;
 }
-
-.box {
-  width: 70px;
-  height: 70px;
-  border-radius: 8px;
-}
-
+.box { width: 70px; height: 70px; border-radius: 8px; }
 .box-1 { background: #3b82f6; }
 .box-2 { background: #8b5cf6; }
 .box-3 { background: #ec4899; }`,
@@ -232,6 +199,11 @@ const levels = [
     title: 'CSS Grid Basics',
     description: 'Create a 2x2 grid using CSS Grid. All cells should be equal size and have 10px gaps between them.',
     hint: 'Use display: grid, grid-template-columns: 1fr 1fr, and gap: 10px.',
+    reference: [
+      { prop: 'display: grid', desc: 'Enables CSS Grid layout' },
+      { prop: 'grid-template-columns: 1fr 1fr', desc: 'Creates two equal columns' },
+      { prop: 'gap: 10px', desc: 'Adds space between grid items' },
+    ],
     html: `<div class="grid">
   <div class="cell cell-1">1</div>
   <div class="cell cell-2">2</div>
@@ -243,23 +215,9 @@ const levels = [
   height: 240px;
   background: #e2e8f0;
   border-radius: 8px;
-}
 
-.cell {
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  color: white;
-  font-size: 1.2rem;
-}
-
-.cell-1 { background: #3b82f6; }
-.cell-2 { background: #8b5cf6; }
-.cell-3 { background: #ec4899; }
-.cell-4 { background: #f59e0b; }`,
+  /* create a 2x2 grid */
+}`,
     targetCSS: `.grid {
   width: 240px;
   height: 240px;
@@ -269,18 +227,7 @@ const levels = [
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
-
-.cell {
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  color: white;
-  font-size: 1.2rem;
-}
-
+.cell { border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; font-size: 1.2rem; }
 .cell-1 { background: #3b82f6; }
 .cell-2 { background: #8b5cf6; }
 .cell-3 { background: #ec4899; }
@@ -295,7 +242,6 @@ const levels = [
       const r1 = cells[0].getBoundingClientRect()
       const r2 = cells[1].getBoundingClientRect()
       const r3 = cells[2].getBoundingClientRect()
-      const r4 = cells[3].getBoundingClientRect()
       const colWidth = Math.abs(r1.width - r2.width) < 5
       const rowHeight = Math.abs(r1.height - r3.height) < 5
       const gap = Math.abs(r2.left - r1.right)
@@ -307,6 +253,11 @@ const levels = [
     title: 'Grid Template Areas',
     description: 'Use grid-template-areas to create a layout with a header spanning full width, a sidebar on the left, main content in the center, and a footer spanning full width.',
     hint: 'Define grid-template-areas with "header header", "sidebar main", "footer footer", then assign area to each element.',
+    reference: [
+      { prop: 'grid-template-areas', desc: 'Defines named areas in the grid' },
+      { prop: 'grid-area: name', desc: 'Places an item into a named area' },
+      { prop: 'grid-template-columns: 80px 1fr', desc: 'Sidebar 80px, main fills rest' },
+    ],
     html: `<div class="layout">
   <header class="header">Header</header>
   <aside class="sidebar">Sidebar</aside>
@@ -318,23 +269,12 @@ const levels = [
   height: 280px;
   background: #e2e8f0;
   border-radius: 8px;
+  display: grid;
+
+  /* define columns, rows, and areas */
 }
 
-.header, .sidebar, .main, .footer {
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  color: white;
-  font-size: 0.8rem;
-}
-
-.header { background: #3b82f6; }
-.sidebar { background: #8b5cf6; }
-.main { background: #10b981; }
-.footer { background: #f59e0b; }`,
+/* assign grid-area to each element */`,
     targetCSS: `.layout {
   width: 320px;
   height: 280px;
@@ -350,27 +290,10 @@ const levels = [
   gap: 8px;
   padding: 8px;
 }
-
-.header { grid-area: header; }
-.sidebar { grid-area: sidebar; }
-.main { grid-area: main; }
-.footer { grid-area: footer; }
-
-.header, .sidebar, .main, .footer {
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  color: white;
-  font-size: 0.8rem;
-}
-
-.header { background: #3b82f6; }
-.sidebar { background: #8b5cf6; }
-.main { background: #10b981; }
-.footer { background: #f59e0b; }`,
+.header { grid-area: header; background: #3b82f6; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; font-size: 0.8rem; }
+.sidebar { grid-area: sidebar; background: #8b5cf6; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; font-size: 0.8rem; }
+.main { grid-area: main; background: #10b981; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; font-size: 0.8rem; }
+.footer { grid-area: footer; background: #f59e0b; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; font-size: 0.8rem; }`,
     validate(iframe) {
       const layout = iframe.contentDocument.querySelector('.layout')
       if (!layout) return false
@@ -394,6 +317,11 @@ const levels = [
     title: 'Flexbox Wrapping',
     description: 'The boxes overflow the container. Make them wrap to the next line when there is not enough space, with 10px gaps.',
     hint: 'Use display: flex with flex-wrap: wrap and gap: 10px.',
+    reference: [
+      { prop: 'display: flex', desc: 'Enables flexbox layout' },
+      { prop: 'flex-wrap: wrap', desc: 'Allows items to wrap to next line' },
+      { prop: 'gap: 10px', desc: 'Adds space between items' },
+    ],
     html: `<div class="container">
   <div class="box">A</div>
   <div class="box">B</div>
@@ -407,19 +335,8 @@ const levels = [
   padding: 10px;
   background: #e2e8f0;
   border-radius: 8px;
-}
 
-.box {
-  width: 55px;
-  height: 55px;
-  background: #3b82f6;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  color: white;
+  /* add flexbox with wrapping */
 }`,
     targetCSS: `.container {
   width: 200px;
@@ -430,19 +347,7 @@ const levels = [
   flex-wrap: wrap;
   gap: 10px;
 }
-
-.box {
-  width: 55px;
-  height: 55px;
-  background: #3b82f6;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  color: white;
-}`,
+.box { width: 55px; height: 55px; background: #3b82f6; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; }`,
     validate(iframe) {
       const container = iframe.contentDocument.querySelector('.container')
       if (!container) return false
@@ -453,8 +358,7 @@ const levels = [
       const rows = new Set()
       for (const box of boxes) {
         const r = box.getBoundingClientRect()
-        const row = Math.round(r.top)
-        rows.add(row)
+        rows.add(Math.round(r.top))
       }
       return rows.size >= 2
     }
@@ -464,6 +368,11 @@ const levels = [
     title: 'Absolute + Relative Positioning',
     description: 'Position the blue circle in the exact center of the gray container using position: absolute. The container should be the reference point.',
     hint: 'Set the container to position: relative, the circle to position: absolute, then use top: 50%, left: 50%, and transform: translate(-50%, -50%).',
+    reference: [
+      { prop: 'position: relative', desc: 'Makes element a positioning reference' },
+      { prop: 'position: absolute', desc: 'Removes element from normal flow' },
+      { prop: 'transform: translate(-50%, -50%)', desc: 'Shifts element by half its size' },
+    ],
     html: `<div class="container">
   <div class="circle"></div>
 </div>`,
@@ -472,6 +381,8 @@ const levels = [
   height: 250px;
   background: #e2e8f0;
   border-radius: 8px;
+
+  /* make this a positioning context */
 }
 
 .circle {
@@ -479,6 +390,8 @@ const levels = [
   height: 60px;
   background: #3b82f6;
   border-radius: 50%;
+
+  /* position absolutely and center */
 }`,
     targetCSS: `.container {
   width: 250px;
@@ -487,7 +400,6 @@ const levels = [
   border-radius: 8px;
   position: relative;
 }
-
 .circle {
   width: 60px;
   height: 60px;
@@ -516,6 +428,11 @@ const levels = [
     title: 'Flexbox Order Property',
     description: 'The boxes are displayed in HTML order 1-2-3. Using the CSS order property, reverse them to display as 3-2-1 without changing the HTML.',
     hint: 'Set order: 3 on box-1, order: 2 on box-2, and order: 1 on box-3.',
+    reference: [
+      { prop: 'order: 3', desc: 'Moves item to appear later in the row' },
+      { prop: 'order: 1', desc: 'Moves item to appear earlier in the row' },
+      { prop: 'order: 0', desc: 'Default order for all items' },
+    ],
     html: `<div class="container">
   <div class="box box-1">1</div>
   <div class="box box-2">2</div>
@@ -545,9 +462,7 @@ const levels = [
   font-size: 1.2rem;
 }
 
-.box-1 { background: #3b82f6; }
-.box-2 { background: #8b5cf6; }
-.box-3 { background: #ec4899; }`,
+/* reverse the order: 1-2-3 -> 3-2-1 */`,
     targetCSS: `.container {
   width: 280px;
   height: 100px;
@@ -558,20 +473,7 @@ const levels = [
   gap: 10px;
   padding: 0 15px;
 }
-
-.box {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  color: white;
-  font-size: 1.2rem;
-}
-
+.box { width: 60px; height: 60px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; font-size: 1.2rem; }
 .box-1 { background: #3b82f6; order: 3; }
 .box-2 { background: #8b5cf6; order: 2; }
 .box-3 { background: #ec4899; order: 1; }`,
@@ -588,6 +490,11 @@ const levels = [
     title: 'Responsive Grid with auto-fill',
     description: 'Create a grid that automatically fills columns as wide as 100px each, with 10px gaps. The grid should adapt to the container width.',
     hint: 'Use grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) with gap: 10px.',
+    reference: [
+      { prop: 'repeat(auto-fill, minmax(100px, 1fr))', desc: 'Auto-fits columns at minimum 100px' },
+      { prop: 'display: grid', desc: 'Enables CSS Grid layout' },
+      { prop: 'gap: 10px', desc: 'Adds space between grid items' },
+    ],
     html: `<div class="grid">
   <div class="card">Card 1</div>
   <div class="card">Card 2</div>
@@ -601,17 +508,8 @@ const levels = [
   background: #e2e8f0;
   border-radius: 8px;
   padding: 10px;
-}
 
-.card {
-  background: #3b82f6;
-  color: white;
-  border-radius: 6px;
-  padding: 20px;
-  text-align: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  font-size: 0.85rem;
+  /* create a responsive grid */
 }`,
     targetCSS: `.grid {
   width: 340px;
@@ -622,17 +520,7 @@ const levels = [
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 10px;
 }
-
-.card {
-  background: #3b82f6;
-  color: white;
-  border-radius: 6px;
-  padding: 20px;
-  text-align: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  font-size: 0.85rem;
-}`,
+.card { background: #3b82f6; color: white; border-radius: 6px; padding: 20px; text-align: center; font-family: sans-serif; font-weight: bold; font-size: 0.85rem; }`,
     validate(iframe) {
       const grid = iframe.contentDocument.querySelector('.grid')
       if (!grid) return false

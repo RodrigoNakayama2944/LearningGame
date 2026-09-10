@@ -7,34 +7,45 @@
 }
 
 :root {
-  --bg-primary: #0D1117;
-  --bg-secondary: #161B22;
-  --bg-tertiary: #1C2128;
-  --bg-hover: #21262D;
-  --border: #30363D;
-  --border-bright: #484F58;
-  --text-primary: #E6EDF3;
-  --text-secondary: #8B949E;
-  --text-muted: #6E7681;
-  --accent: #58A6FF;
-  --accent-dim: #1F6FEB;
-  --success: #3FB950;
-  --success-dim: #238636;
-  --error: #F85149;
-  --error-dim: #DA3633;
-  --warning: #D29922;
-  --syntax-tag: #7EE787;
-  --syntax-attr: #79C0FF;
-  --syntax-value: #A5D6FF;
-  --syntax-selector: #D2A8FF;
-  --syntax-property: #FF7B72;
-  --syntax-punctuation: #8B949E;
-  --syntax-comment: #6E7681;
+  --bg-primary: #282A36;
+  --bg-secondary: #21222C;
+  --bg-tertiary: #343746;
+  --bg-hover: #44475A;
+  --border: #44475A;
+  --border-bright: #6272A4;
+  --text-primary: #F8F8F2;
+  --text-secondary: #CCC;
+  --text-muted: #6272A4;
+  --accent: #BD93F9;
+  --accent-dim: #6C3FBF;
+  --success: #50FA7B;
+  --success-dim: #2D8B4E;
+  --error: #FF5555;
+  --error-dim: #CC3333;
+  --warning: #F1FA8C;
+  --syntax-tag: #FF79C6;
+  --syntax-attr: #50FA7B;
+  --syntax-value: #F1FA8C;
+  --syntax-selector: #BD93F9;
+  --syntax-property: #FF79C6;
+  --syntax-punctuation: #F8F8F2;
+  --syntax-comment: #6272A4;
   --radius: 8px;
   --radius-lg: 12px;
   --font-display: 'Space Grotesk', sans-serif;
   --font-body: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+  --dracula-bg: #282A36;
+  --dracula-current: #44475A;
+  --dracula-fg: #F8F8F2;
+  --dracula-comment: #6272A4;
+  --dracula-cyan: #8BE9FD;
+  --dracula-green: #50FA7B;
+  --dracula-orange: #FFB86C;
+  --dracula-pink: #FF79C6;
+  --dracula-purple: #BD93F9;
+  --dracula-red: #FF5555;
+  --dracula-yellow: #F1FA8C;
 }
 
 html, body {
@@ -51,7 +62,7 @@ html, body {
   justify-content: space-between;
   padding: 0 24px;
   height: 56px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--dracula-current);
   background: var(--bg-secondary);
 }
 
@@ -65,14 +76,14 @@ html, body {
   font-family: var(--font-display);
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--dracula-pink);
   letter-spacing: -0.02em;
 }
 
 .subtitle {
   font-size: 0.8rem;
-  color: var(--text-muted);
-  border-left: 1px solid var(--border);
+  color: var(--dracula-comment);
+  border-left: 1px solid var(--dracula-current);
   padding-left: 12px;
 }
 
@@ -85,7 +96,7 @@ html, body {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: 2px solid var(--border);
+  border: 2px solid var(--dracula-current);
   background: transparent;
   color: var(--text-muted);
   font-family: var(--font-mono);
@@ -99,18 +110,18 @@ html, body {
 }
 
 .level-dot:hover {
-  border-color: var(--accent);
+  border-color: var(--dracula-purple);
   color: var(--text-primary);
 }
 
 .level-dot.active {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: var(--bg-primary);
+  border-color: var(--dracula-purple);
+  background: var(--dracula-purple);
+  color: var(--dracula-bg);
 }
 
 .level-dot.completed {
-  border-color: var(--success);
+  border-color: var(--dracula-green);
   background: var(--success-dim);
   color: var(--text-primary);
 }
@@ -137,7 +148,7 @@ html, body {
 .challenge-panel {
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--dracula-current);
   overflow-y: auto;
   padding: 24px;
   gap: 16px;
@@ -153,9 +164,9 @@ html, body {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--accent);
-  background: rgba(88, 166, 255, 0.1);
-  border: 1px solid rgba(88, 166, 255, 0.3);
+  color: var(--dracula-purple);
+  background: rgba(189, 147, 249, 0.1);
+  border: 1px solid rgba(189, 147, 249, 0.3);
   padding: 4px 10px;
   border-radius: 20px;
   white-space: nowrap;
@@ -177,8 +188,8 @@ html, body {
 
 .hint-box {
   display: none;
-  background: rgba(210, 153, 34, 0.08);
-  border: 1px solid rgba(210, 153, 34, 0.3);
+  background: rgba(241, 250, 140, 0.08);
+  border: 1px solid rgba(241, 250, 140, 0.3);
   border-radius: var(--radius);
   padding: 12px 16px;
   gap: 6px;
@@ -193,7 +204,7 @@ html, body {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--warning);
+  color: var(--dracula-yellow);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -216,8 +227,8 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border);
+  background: var(--dracula-current);
+  border: 1px solid var(--dracula-current);
   border-bottom: none;
   border-radius: var(--radius) var(--radius) 0 0;
 }
@@ -225,14 +236,14 @@ html, body {
 .editor-tab {
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--dracula-comment);
   padding: 4px 8px;
   border-radius: 4px;
 }
 
 .editor-tab.active {
-  background: var(--bg-hover);
-  color: var(--text-primary);
+  background: var(--dracula-bg);
+  color: var(--dracula-fg);
 }
 
 .editor-label {
@@ -243,10 +254,10 @@ html, body {
 .editor-container {
   flex: 1;
   display: flex;
-  border: 1px solid var(--border);
+  border: 1px solid var(--dracula-current);
   border-radius: 0 0 var(--radius) var(--radius);
   overflow: hidden;
-  background: var(--bg-primary);
+  background: var(--dracula-bg);
 }
 
 .line-numbers {
@@ -257,10 +268,10 @@ html, body {
   font-family: var(--font-mono);
   font-size: 0.8rem;
   line-height: 1.6;
-  color: var(--text-muted);
+  color: var(--dracula-comment);
   user-select: none;
-  background: var(--bg-secondary);
-  border-right: 1px solid var(--border);
+  background: var(--dracula-bg);
+  border-right: 1px solid var(--dracula-current);
   overflow: hidden;
 }
 
@@ -281,9 +292,9 @@ html, body {
   padding: 12px;
   width: 100%;
   height: 100%;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  caret-color: var(--accent);
+  background: var(--dracula-bg);
+  color: var(--dracula-fg);
+  caret-color: var(--dracula-purple);
   border: none;
   outline: none;
   resize: none;
@@ -293,7 +304,7 @@ html, body {
 }
 
 .editor-input::selection {
-  background: rgba(88, 166, 255, 0.3);
+  background: var(--dracula-current);
 }
 
 .challenge-actions {
@@ -307,28 +318,30 @@ html, body {
   font-weight: 500;
   padding: 8px 20px;
   border-radius: var(--radius);
-  border: 1px solid var(--border);
+  border: 1px solid var(--dracula-current);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .btn-check {
-  background: var(--accent-dim);
-  color: white;
-  border-color: var(--accent);
+  background: var(--dracula-purple);
+  color: var(--dracula-bg);
+  border-color: var(--dracula-purple);
+  font-weight: 600;
 }
 
 .btn-check:hover {
-  background: var(--accent);
+  background: #A87DE8;
 }
 
 .btn-reset {
-  background: var(--bg-tertiary);
+  background: var(--dracula-current);
   color: var(--text-secondary);
+  border-color: var(--dracula-current);
 }
 
 .btn-reset:hover {
-  background: var(--bg-hover);
+  background: var(--dracula-bg);
   color: var(--text-primary);
 }
 
@@ -338,8 +351,8 @@ html, body {
 }
 
 .btn-hint:hover {
-  color: var(--warning);
-  border-color: var(--warning);
+  color: var(--dracula-yellow);
+  border-color: var(--dracula-yellow);
 }
 
 .preview-panel {
@@ -354,14 +367,14 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: 12px 24px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--dracula-current);
 }
 
 .preview-label {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--dracula-cyan);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -383,7 +396,7 @@ html, body {
 .preview-frame-wrapper,
 .target-frame-wrapper {
   flex: 1;
-  border: 1px solid var(--border);
+  border: 1px solid var(--dracula-current);
   border-radius: var(--radius);
   overflow: hidden;
   background: white;
@@ -425,7 +438,7 @@ html, body {
   justify-content: center;
   gap: 10px;
   padding: 14px 24px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--dracula-current);
   font-weight: 500;
   font-size: 0.9rem;
   transition: all 0.3s ease;
@@ -436,36 +449,36 @@ html, body {
 }
 
 .result-banner.success {
-  background: rgba(63, 185, 80, 0.1);
-  border-top-color: var(--success);
-  color: var(--success);
+  background: rgba(80, 250, 123, 0.1);
+  border-top-color: var(--dracula-green);
+  color: var(--dracula-green);
 }
 
 .result-banner.error {
-  background: rgba(248, 81, 73, 0.08);
-  border-top-color: var(--error);
-  color: var(--error);
+  background: rgba(255, 85, 85, 0.1);
+  border-top-color: var(--dracula-red);
+  color: var(--dracula-red);
 }
 
 .result-icon {
   font-size: 1.2rem;
 }
 
-/* Syntax highlighting colors */
-.syntax-tag { color: var(--syntax-tag); }
-.syntax-attr { color: var(--syntax-attr); }
-.syntax-value { color: var(--syntax-value); }
-.syntax-selector { color: var(--syntax-selector); }
-.syntax-property { color: var(--syntax-property); }
-.syntax-punctuation { color: var(--syntax-punctuation); }
-.syntax-comment { color: var(--syntax-comment); font-style: italic; }
-.syntax-string { color: var(--syntax-value); }
-.syntax-number { color: var(--syntax-attr); }
+/* Syntax highlighting colors - Dracula theme */
+.syntax-tag { color: var(--dracula-pink); }
+.syntax-attr { color: var(--dracula-green); }
+.syntax-value { color: var(--dracula-yellow); }
+.syntax-selector { color: var(--dracula-purple); }
+.syntax-property { color: var(--dracula-pink); }
+.syntax-punctuation { color: var(--dracula-fg); }
+.syntax-comment { color: var(--dracula-comment); font-style: italic; }
+.syntax-string { color: var(--dracula-yellow); }
+.syntax-number { color: var(--dracula-purple); }
 
 /* Success glow animation */
 @keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 5px rgba(63, 185, 80, 0.3); }
-  50% { box-shadow: 0 0 20px rgba(63, 185, 80, 0.6), 0 0 40px rgba(63, 185, 80, 0.2); }
+  0%, 100% { box-shadow: 0 0 5px rgba(80, 250, 123, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(80, 250, 123, 0.6), 0 0 40px rgba(80, 250, 123, 0.2); }
 }
 
 .preview-frame-wrapper.success-glow {
@@ -494,21 +507,128 @@ html, body {
   }
 }
 
-/* Scrollbar */
+/* Scrollbar - Dracula theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+  background: var(--dracula-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
+  background: var(--dracula-current);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--border-bright);
+  background: var(--dracula-comment);
+}
+
+/* Reference button */
+.btn-reference {
+  background: transparent;
+  color: var(--dracula-purple);
+  border-color: var(--dracula-purple);
+}
+
+.btn-reference:hover {
+  background: rgba(189, 147, 249, 0.1);
+}
+
+/* Reference Modal */
+.reference-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.reference-modal.hidden {
+  display: none;
+}
+
+.reference-content {
+  background: var(--dracula-bg);
+  border: 1px solid var(--dracula-current);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 400px;
+  max-height: 70vh;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.reference-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--dracula-current);
+}
+
+.reference-header h3 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--dracula-purple);
+}
+
+.reference-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.reference-close:hover {
+  color: var(--dracula-red);
+}
+
+.reference-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  max-height: calc(70vh - 60px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reference-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  background: var(--dracula-current);
+  border-radius: 6px;
+}
+
+.reference-prop {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--dracula-green);
+  background: rgba(80, 250, 123, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.reference-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
 }
