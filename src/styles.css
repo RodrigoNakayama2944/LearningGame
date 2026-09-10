@@ -355,6 +355,16 @@ html, body {
   border-color: var(--dracula-yellow);
 }
 
+.btn-answer {
+  background: transparent;
+  color: var(--dracula-orange);
+  border-color: var(--dracula-orange);
+}
+
+.btn-answer:hover {
+  background: rgba(255, 184, 108, 0.15);
+}
+
 .preview-panel {
   display: flex;
   flex-direction: column;
@@ -616,7 +626,7 @@ html, body {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--dracula-green);
+  color: var(--dracula-cyan);
 }
 
 .reference-desc {

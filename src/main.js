@@ -20,6 +20,7 @@ const previewStatus = document.getElementById('previewStatus')
 const btnCheck = document.getElementById('btnCheck')
 const btnReset = document.getElementById('btnReset')
 const btnHint = document.getElementById('btnHint')
+const btnAnswer = document.getElementById('btnAnswer')
 const btnReference = document.getElementById('btnReference')
 const referenceModal = document.getElementById('referenceModal')
 const referenceBody = document.getElementById('referenceBody')
@@ -91,6 +92,7 @@ function setupEventListeners() {
   btnCheck.addEventListener('click', checkAnswer)
   btnReset.addEventListener('click', resetLevel)
   btnHint.addEventListener('click', toggleHint)
+  btnAnswer.addEventListener('click', showAnswer)
   btnReference.addEventListener('click', toggleReference)
   referenceClose.addEventListener('click', closeReference)
   referenceModal.addEventListener('click', (e) => {
@@ -188,6 +190,15 @@ function resetLevel() {
 function toggleHint() {
   hintBox.classList.toggle('visible')
   btnHint.textContent = hintBox.classList.contains('visible') ? 'Hide Hint' : 'Show Hint'
+}
+
+function showAnswer() {
+  const level = levels[currentLevelIndex]
+  editorInput.value = level.targetCSS
+  currentCSS = level.targetCSS
+  updateLineNumbers()
+  updatePreview(previewFrame, level.html, level.targetCSS)
+  showResult(false, 'Answer loaded. Try to understand it before moving on!')
 }
 
 function toggleReference() {
