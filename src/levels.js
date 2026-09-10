@@ -17,13 +17,20 @@ const levels = [
     html: `<div class="container">
   <div class="box"></div>
 </div>`,
-    starterCSS: `.box {
+    starterCSS: `.container {
+  width: 300px;
+  height: 200px;
+  background: #e2e8f0;
+  border-radius: 8px;
+}
+
+.box {
   width: 80px;
   height: 80px;
   background: #3b82f6;
   border-radius: 8px;
 
-  /* add your code here */
+  /* ?? center the box ?? */
 }`,
     targetCSS: `.container {
   width: 300px;
@@ -64,7 +71,14 @@ const levels = [
   background: #e2e8f0;
   border-radius: 8px;
 
-  /* add flexbox here */
+  /* ?? center the box with flexbox ?? */
+}
+
+.box {
+  width: 80px;
+  height: 80px;
+  background: #3b82f6;
+  border-radius: 8px;
 }`,
     targetCSS: `.container {
   width: 300px;
@@ -109,8 +123,24 @@ const levels = [
   border-radius: 8px;
   display: flex;
 
-  /* change direction and spacing */
-}`,
+  /* ?? stack vertically, space evenly, center ?? */
+}
+
+.box {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  color: white;
+}
+
+.box-1 { background: #3b82f6; }
+.box-2 { background: #8b5cf6; }
+.box-3 { background: #ec4899; }`,
     targetCSS: `.container {
   width: 200px;
   height: 280px;
@@ -121,7 +151,17 @@ const levels = [
   justify-content: space-evenly;
   align-items: center;
 }
-.box { width: 60px; height: 60px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; }
+.box {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  color: white;
+}
 .box-1 { background: #3b82f6; }
 .box-2 { background: #8b5cf6; }
 .box-3 { background: #ec4899; }`,
@@ -159,8 +199,18 @@ const levels = [
   background: #e2e8f0;
   border-radius: 8px;
 
-  /* add flexbox, centering, and gap */
-}`,
+  /* ?? flex, center, 20px gap ?? */
+}
+
+.box {
+  width: 70px;
+  height: 70px;
+  border-radius: 8px;
+}
+
+.box-1 { background: #3b82f6; }
+.box-2 { background: #8b5cf6; }
+.box-3 { background: #ec4899; }`,
     targetCSS: `.container {
   width: 320px;
   height: 120px;
@@ -171,7 +221,11 @@ const levels = [
   align-items: center;
   gap: 20px;
 }
-.box { width: 70px; height: 70px; border-radius: 8px; }
+.box {
+  width: 70px;
+  height: 70px;
+  border-radius: 8px;
+}
 .box-1 { background: #3b82f6; }
 .box-2 { background: #8b5cf6; }
 .box-3 { background: #ec4899; }`,
@@ -202,8 +256,24 @@ const levels = [
   background: #e2e8f0;
   border-radius: 8px;
 
-  /* create a 2x2 grid */
-}`,
+  /* ?? create a 2x2 grid with 10px gaps ?? */
+}
+
+.cell {
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  color: white;
+  font-size: 1.2rem;
+}
+
+.cell-1 { background: #3b82f6; }
+.cell-2 { background: #8b5cf6; }
+.cell-3 { background: #ec4899; }
+.cell-4 { background: #f59e0b; }`,
     targetCSS: `.grid {
   width: 240px;
   height: 240px;
@@ -213,7 +283,16 @@ const levels = [
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
-.cell { border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; font-size: 1.2rem; }
+.cell {
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  color: white;
+  font-size: 1.2rem;
+}
 .cell-1 { background: #3b82f6; }
 .cell-2 { background: #8b5cf6; }
 .cell-3 { background: #ec4899; }
@@ -252,10 +331,64 @@ const levels = [
   border-radius: 8px;
   display: grid;
 
-  /* define columns, rows, and areas */
+  /* ?? define columns, rows, and areas ?? */
 }
 
-/* assign grid-area to each element */`,
+.header {
+  background: #3b82f6;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  color: white;
+  font-size: 0.8rem;
+
+  /* ?? assign grid area ?? */
+}
+
+.sidebar {
+  background: #8b5cf6;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  color: white;
+  font-size: 0.8rem;
+
+  /* ?? assign grid area ?? */
+}
+
+.main {
+  background: #10b981;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  color: white;
+  font-size: 0.8rem;
+
+  /* ?? assign grid area ?? */
+}
+
+.footer {
+  background: #f59e0b;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  color: white;
+  font-size: 0.8rem;
+
+  /* ?? assign grid area ?? */
+}`,
     targetCSS: `.layout {
   width: 320px;
   height: 280px;
@@ -312,7 +445,20 @@ const levels = [
   background: #e2e8f0;
   border-radius: 8px;
 
-  /* add flexbox with wrapping */
+  /* ?? add flex with wrapping and 10px gap ?? */
+}
+
+.box {
+  width: 55px;
+  height: 55px;
+  background: #3b82f6;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  color: white;
 }`,
     targetCSS: `.container {
   width: 200px;
@@ -323,7 +469,18 @@ const levels = [
   flex-wrap: wrap;
   gap: 10px;
 }
-.box { width: 55px; height: 55px; background: #3b82f6; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; }`,
+.box {
+  width: 55px;
+  height: 55px;
+  background: #3b82f6;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  color: white;
+}`,
     validate(iframe) {
       const container = iframe.contentDocument.querySelector('.container')
       if (!container) return false
@@ -353,7 +510,7 @@ const levels = [
   background: #e2e8f0;
   border-radius: 8px;
 
-  /* make this a positioning context */
+  /* ?? make this a positioning context ?? */
 }
 
 .circle {
@@ -362,7 +519,7 @@ const levels = [
   background: #3b82f6;
   border-radius: 50%;
 
-  /* position absolutely and center */
+  /* ?? position absolutely and center ?? */
 }`,
     targetCSS: `.container {
   width: 250px;
@@ -428,7 +585,9 @@ const levels = [
   font-size: 1.2rem;
 }
 
-/* reverse the order: 1-2-3 -> 3-2-1 */`,
+.box-1 { background: #3b82f6; /* ?? reverse order ?? */ }
+.box-2 { background: #8b5cf6; /* ?? reverse order ?? */ }
+.box-3 { background: #ec4899; /* ?? reverse order ?? */ }`,
     targetCSS: `.container {
   width: 280px;
   height: 100px;
@@ -439,7 +598,18 @@ const levels = [
   gap: 10px;
   padding: 0 15px;
 }
-.box { width: 60px; height: 60px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; font-size: 1.2rem; }
+.box {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  color: white;
+  font-size: 1.2rem;
+}
 .box-1 { background: #3b82f6; order: 3; }
 .box-2 { background: #8b5cf6; order: 2; }
 .box-3 { background: #ec4899; order: 1; }`,
@@ -470,7 +640,18 @@ const levels = [
   border-radius: 8px;
   padding: 10px;
 
-  /* create a responsive grid */
+  /* ?? create a responsive grid ?? */
+}
+
+.card {
+  background: #3b82f6;
+  color: white;
+  border-radius: 6px;
+  padding: 20px;
+  text-align: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 0.85rem;
 }`,
     targetCSS: `.grid {
   width: 340px;
@@ -481,7 +662,16 @@ const levels = [
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 10px;
 }
-.card { background: #3b82f6; color: white; border-radius: 6px; padding: 20px; text-align: center; font-family: sans-serif; font-weight: bold; font-size: 0.85rem; }`,
+.card {
+  background: #3b82f6;
+  color: white;
+  border-radius: 6px;
+  padding: 20px;
+  text-align: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 0.85rem;
+}`,
     validate(iframe) {
       const grid = iframe.contentDocument.querySelector('.grid')
       if (!grid) return false
