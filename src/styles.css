@@ -413,6 +413,10 @@ html, body {
   min-height: 0;
 }
 
+.preview-frame-wrapper {
+  position: relative;
+}
+
 .preview-frame-wrapper iframe,
 .target-frame-wrapper iframe {
   width: 100%;
@@ -576,6 +580,121 @@ html, body {
     opacity: 0;
     transform: translate(var(--tx), var(--ty)) scale(0);
   }
+}
+
+/* Visual feedback: PASS / TRY AGAIN stamps */
+.stamp {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(-8deg) scale(2.4);
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 28px;
+  border-radius: var(--radius);
+  border: 4px solid currentColor;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 60;
+}
+
+.stamp.pass {
+  color: var(--dracula-green);
+  background: rgba(80, 250, 123, 0.14);
+  border-color: var(--dracula-green);
+  text-shadow: 0 0 18px rgba(80, 250, 123, 0.55);
+  box-shadow: 0 0 34px rgba(80, 250, 123, 0.35), 0 12px 30px rgba(0, 0, 0, 0.45);
+  animation: stampIn 0.45s cubic-bezier(0.2, 1.5, 0.4, 1) forwards;
+}
+
+.stamp.fail {
+  color: var(--dracula-red);
+  background: rgba(255, 85, 85, 0.12);
+  border-color: var(--dracula-red);
+  text-shadow: 0 0 18px rgba(255, 85, 85, 0.55);
+  box-shadow: 0 0 30px rgba(255, 85, 85, 0.35), 0 12px 30px rgba(0, 0, 0, 0.45);
+  animation:
+    stampIn 0.3s cubic-bezier(0.2, 1.5, 0.4, 1) forwards,
+    stampShake 0.3s ease-in-out 0.32s 2;
+}
+
+.stamp-icon {
+  font-size: 1.4rem;
+}
+
+@keyframes stampIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-8deg) scale(2.6);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(-6deg) scale(0.92);
+  }
+  80% {
+    transform: translate(-50%, -50%) rotate(-7deg) scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(-7deg) scale(1);
+  }
+}
+
+@keyframes stampShake {
+  0%, 100% { transform: translate(-50%, -50%) rotate(-7deg); }
+  25% { transform: translate(calc(-50% - 8px), -50%) rotate(-5deg); }
+  75% { transform: translate(calc(-50% + 8px), -50%) rotate(-9deg); }
+}
+
+/* Full-screen color flash */
+.vignette-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  animation: flashFade 0.9s ease-out forwards;
+}
+
+.vignette-flash.pass {
+  background: radial-gradient(circle at 50% 45%, rgba(80, 250, 123, 0.05) 0%, rgba(80, 250, 123, 0.28) 72%, transparent 100%);
+}
+
+.vignette-flash.fail {
+  background: radial-gradient(circle at 50% 45%, rgba(255, 85, 85, 0.05) 0%, rgba(255, 85, 85, 0.22) 72%, transparent 100%);
+}
+
+@keyframes flashFade {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Wrong answer: red glow + editor shake */
+.preview-frame-wrapper.fail-flash {
+  animation: wrongGlow 0.6s ease-in-out 3;
+  border-color: var(--error);
+}
+
+@keyframes wrongGlow {
+  0%, 100% { box-shadow: 0 0 4px rgba(255, 85, 85, 0.3); }
+  50% { box-shadow: 0 0 18px rgba(255, 85, 85, 0.55); }
+}
+
+.editor-container.shake {
+  animation: editorShake 0.4s ease-in-out 2;
+  border-color: var(--error);
+}
+
+@keyframes editorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  60% { transform: translateX(5px); }
+  80% { transform: translateX(-3px); }
 }
 
 /* Scrollbar - Dracula theme */

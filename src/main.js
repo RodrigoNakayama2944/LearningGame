@@ -173,6 +173,8 @@ function checkAnswer() {
       updateLevelNav()
       spawnParticles()
       previewFrame.parentElement.classList.add('success-glow')
+      flashScreen('pass')
+      applyStamp(previewFrame.parentElement, 'pass', 'Correct!')
 
       if (currentLevelIndex < levels.length - 1) {
         showResult(true, 'Correct! Well done!', true, level.explanation)
@@ -180,6 +182,10 @@ function checkAnswer() {
         showResult(true, 'You completed all levels!', false, level.explanation)
       }
     } else {
+      flashScreen('fail')
+      applyStamp(previewFrame.parentElement, 'fail', 'Try again')
+      wrongFeedback()
+
       showResult(false, 'Not quite right. Try again!', false)
     }
   }, 150)
@@ -254,7 +260,37 @@ function showResult(success, message, showNext, explanation) {
 function hideResult() {
   resultBanner.classList.add('hidden')
   resultExplanation.innerHTML = ''
-  previewFrame.parentElement.classList.remove('success-glow')
+  previewFrame.parentElement.classList.remove('success-glow', 'fail-flash')
+  editorContainer.classList.remove('shake')
+}
+
+function flashScreen(kind) {
+  document.querySelectorAll('.vignette-flash').forEach(f => f.remove())
+  const flash = document.createElement('div')
+  flash.className = 'vignette-flash ' + kind
+  document.body.appendChild(flash)
+  setTimeout(() => flash.remove(), 1000)
+}
+
+function applyStamp(host, kind, text) {
+  host.querySelectorAll('.stamp').forEach(s => s.remove())
+  const stamp = document.createElement('div')
+  stamp.className = 'stamp ' + kind
+  const icon = kind === 'pass' ? '\u2713' : '\u2717'
+  stamp.innerHTML = `<span class="stamp-icon">${icon}</span><span class="stamp-text">${text}</span>`
+  host.appendChild(stamp)
+  setTimeout(() => stamp.remove(), 1700)
+}
+
+function wrongFeedback() {
+  const wrapper = previewFrame.parentElement
+  wrapper.classList.remove('fail-flash')
+  void wrapper.offsetWidth
+  wrapper.classList.add('fail-flash')
+
+  editorContainer.classList.remove('shake')
+  void editorContainer.offsetWidth
+  editorContainer.classList.add('shake')
 }
 
 function spawnParticles() {
