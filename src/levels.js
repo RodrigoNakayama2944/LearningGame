@@ -10,8 +10,8 @@ const levels = [
   {
     id: 1,
     title: 'Flexbox Centering',
-    description: 'Use display: flex to perfectly center the blue box inside the container. This is the modern way!',
-    hint: 'Combine display: flex with justify-content: center and align-items: center.',
+    description: 'The container is already a flex container. Perfectly center the blue box inside it using flexbox.',
+    hint: 'The container already has display: flex. Add justify-content: center and align-items: center.',
     explanation: [
       'display: flex turns the container into a flex container; its children become flex items.',
       'justify-content: center centers the box on the main axis (horizontal).',
@@ -26,8 +26,9 @@ const levels = [
   height: 200px;
   background: #e2e8f0;
   border-radius: 8px;
+  display: flex;
 
-  /* ?? center the box with flexbox ?? */
+  /* ?? center the box ?? */
 }
 
 .box {
@@ -155,7 +156,7 @@ const levels = [
     id: 3,
     title: 'Flexbox Spacing with gap',
     description: 'Arrange the three boxes in a horizontal row with exactly 20px of space between them, centered in the container.',
-    hint: 'Use display: flex, justify-content: center, and the gap property for spacing.',
+    hint: 'The container already has display: flex. Add justify-content: center, align-items: center, and gap: 20px.',
     explanation: [
       'display: flex + justify-content: center puts the three boxes in a centered horizontal row.',
       'align-items: center aligns them vertically in the middle of the container.',
@@ -171,8 +172,9 @@ const levels = [
   height: 120px;
   background: #e2e8f0;
   border-radius: 8px;
+  display: flex;
 
-  /* ?? flex, center, 20px gap ?? */
+  /* ?? center, 20px gap ?? */
 }
 
 .box {
@@ -219,7 +221,7 @@ const levels = [
     id: 4,
     title: 'Flexbox Wrapping',
     description: 'The boxes overflow the container. Make them wrap to the next line when there is not enough space, with 10px gaps.',
-    hint: 'Use display: flex with flex-wrap: wrap and gap: 10px.',
+    hint: 'The container already has display: flex. Add flex-wrap: wrap and gap: 10px.',
     explanation: [
       'flex-wrap: wrap lets items flow onto a new line when they do not fit, instead of shrinking.',
       'gap: 10px keeps exactly 10px between every box, in any row.'
@@ -237,8 +239,9 @@ const levels = [
   padding: 10px;
   background: #e2e8f0;
   border-radius: 8px;
+  display: flex;
 
-  /* ?? add flex with wrapping and 10px gap ?? */
+  /* ?? wrapping and 10px gap ?? */
 }
 
 .box {
@@ -372,7 +375,7 @@ const levels = [
     id: 6,
     title: 'Responsive Flexbox Wrapping',
     description: 'Make the six cards fill the container responsively, wrapping onto new lines so they always fit no matter the width.',
-    hint: 'Use display: flex with flex-wrap: wrap, gap: 10px, and give each card a flexible base size with flex: 1 1 100px.',
+    hint: 'The container already has display: flex. Add flex-wrap: wrap, gap: 10px, and flex: 1 1 100px on each card.',
     explanation: [
       'display: flex turns the container into a flex container where every card is a flex item.',
       'flex-wrap: wrap lets cards flow to a new line when they run out of space, instead of crushing them together.',
@@ -392,8 +395,9 @@ const levels = [
   background: #e2e8f0;
   border-radius: 8px;
   padding: 10px;
+  display: flex;
 
-  /* ?? create a responsive flexbox layout ?? */
+  /* ?? responsive flexbox layout ?? */
 }
 
 .card {
