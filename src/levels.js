@@ -1,87 +1,14 @@
 const cssReference = [
-  'display', 'position', 'width', 'height',
-  'margin', 'padding', 'border', 'border-radius',
+  'display', 'flex', 'width', 'height',
+  'padding', 'border', 'border-radius',
   'background', 'color', 'font-size', 'font-weight',
   'text-align', 'justify-content', 'align-items',
   'flex-direction', 'flex-wrap', 'gap', 'order',
-  'grid-template-columns', 'grid-template-areas',
-  'grid-area', 'top', 'left', 'transform',
 ]
 
 const levels = [
   {
     id: 1,
-    title: 'margin: auto',
-    description: 'The blue box is stuck in the top-left corner. Move it to the exact center of the gray area using CSS.',
-    hint: 'Try using margin: auto on the box, but first give it a width smaller than the container.',
-    explanation: [
-      'margin: auto centers the box horizontally: the browser divides the leftover space equally on the left and right.',
-      'margin-top: 60px moves the box down until its middle aligns with the container\u2019s middle (60px + half of 80px = 100px = half of 200px).',
-      'This trick works because a block element with a fixed width leaves the sides free for auto margins.'
-    ],
-    html: `<div class="container">
-  <div class="box"></div>
-</div>`,
-    starterCSS: `.container {
-  width: 300px;
-  height: 200px;
-  background: #e2e8f0;
-  border-radius: 8px;
-}
-
-.box {
-  width: 80px;
-  height: 80px;
-  background: #3b82f6;
-  border-radius: 8px;
-
-  /* ?? center the box ?? */
-}`,
-    solutions: [
-      `.container {
-  width: 300px;
-  height: 200px;
-  background: #e2e8f0;
-  border-radius: 8px;
-}
-.box {
-  width: 80px;
-  height: 80px;
-  background: #3b82f6;
-  border-radius: 8px;
-  margin: auto;
-  margin-top: 60px;
-}`,
-      `.container {
-  width: 300px;
-  height: 200px;
-  background: #e2e8f0;
-  border-radius: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.box {
-  width: 80px;
-  height: 80px;
-  background: #3b82f6;
-  border-radius: 8px;
-}`
-    ],
-    validate(iframe) {
-      const box = iframe.contentDocument.querySelector('.box')
-      if (!box) return false
-      const container = iframe.contentDocument.querySelector('.container')
-      const cRect = container.getBoundingClientRect()
-      const bRect = box.getBoundingClientRect()
-      if (cRect.width === 0 || cRect.height === 0) return false
-      const centeredX = Math.abs((bRect.left + bRect.right) / 2 - (cRect.left + cRect.right) / 2) < 20
-      const centeredY = Math.abs((bRect.top + bRect.bottom) / 2 - (cRect.top + cRect.bottom) / 2) < 20
-      return centeredX && centeredY
-    }
-  },
-  {
-    id: 2,
     title: 'Flexbox Centering',
     description: 'Use display: flex to perfectly center the blue box inside the container. This is the modern way!',
     hint: 'Combine display: flex with justify-content: center and align-items: center.',
@@ -140,7 +67,7 @@ const levels = [
     }
   },
   {
-    id: 3,
+    id: 2,
     title: 'Flexbox Column Layout',
     description: 'Stack the three boxes vertically, evenly spaced, and centered horizontally.',
     hint: 'Use flex-direction: column, justify-content: space-evenly, and align-items: center.',
@@ -225,7 +152,7 @@ const levels = [
     }
   },
   {
-    id: 4,
+    id: 3,
     title: 'Flexbox Spacing with gap',
     description: 'Arrange the three boxes in a horizontal row with exactly 20px of space between them, centered in the container.',
     hint: 'Use display: flex, justify-content: center, and the gap property for spacing.',
@@ -289,208 +216,7 @@ const levels = [
     }
   },
   {
-    id: 5,
-    title: 'CSS Grid Basics',
-    description: 'Create a 2x2 grid using CSS Grid. All cells should be equal size and have 10px gaps between them.',
-    hint: 'Use display: grid, grid-template-columns: 1fr 1fr, and gap: 10px.',
-    explanation: [
-      'display: grid switches the container to CSS Grid layout.',
-      'grid-template-columns: 1fr 1fr creates two equal flexible columns, so the four cells flow into two rows.',
-      'gap: 10px adds 10px of space between every row and column.'
-    ],
-    html: `<div class="grid">
-  <div class="cell cell-1">1</div>
-  <div class="cell cell-2">2</div>
-  <div class="cell cell-3">3</div>
-  <div class="cell cell-4">4</div>
-</div>`,
-    starterCSS: `.grid {
-  width: 240px;
-  height: 240px;
-  background: #e2e8f0;
-  border-radius: 8px;
-
-  /* ?? create a 2x2 grid with 10px gaps ?? */
-}
-
-.cell {
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  color: white;
-  font-size: 1.2rem;
-}
-
-.cell-1 { background: #3b82f6; }
-.cell-2 { background: #8b5cf6; }
-.cell-3 { background: #ec4899; }
-.cell-4 { background: #f59e0b; }`,
-    solutions: [
-      `.grid {
-  width: 240px;
-  height: 240px;
-  background: #e2e8f0;
-  border-radius: 8px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.cell {
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  color: white;
-  font-size: 1.2rem;
-}
-.cell-1 { background: #3b82f6; }
-.cell-2 { background: #8b5cf6; }
-.cell-3 { background: #ec4899; }
-.cell-4 { background: #f59e0b; }`
-    ],
-    validate(iframe) {
-      const grid = iframe.contentDocument.querySelector('.grid')
-      if (!grid) return false
-      const style = iframe.contentWindow.getComputedStyle(grid)
-      if (style.display !== 'grid') return false
-      const cells = iframe.contentDocument.querySelectorAll('.cell')
-      if (cells.length !== 4) return false
-      const r1 = cells[0].getBoundingClientRect()
-      const r2 = cells[1].getBoundingClientRect()
-      const r3 = cells[2].getBoundingClientRect()
-      const colWidth = Math.abs(r1.width - r2.width) < 8
-      const rowHeight = Math.abs(r1.height - r3.height) < 8
-      const gap = Math.abs(r2.left - r1.right)
-      return colWidth && rowHeight && gap > 5 && gap < 25
-    }
-  },
-  {
-    id: 6,
-    title: 'Grid Template Areas',
-    description: 'Use grid-template-areas to create a layout with a header spanning full width, a sidebar on the left, main content in the center, and a footer spanning full width.',
-    hint: 'Define grid-template-areas with "header header", "sidebar main", "footer footer", then assign area to each element.',
-    explanation: [
-      'grid-template-areas draws the layout as plain text: a header across the top, sidebar + main in the middle, and a footer below.',
-      'grid-template-columns and grid-template-rows describe the three columns and three rows those areas use.',
-      'grid-area assigns each element to one of the named areas defined in the template.'
-    ],
-    html: `<div class="layout">
-  <header class="header">Header</header>
-  <aside class="sidebar">Sidebar</aside>
-  <main class="main">Main Content</main>
-  <footer class="footer">Footer</footer>
-</div>`,
-    starterCSS: `.layout {
-  width: 320px;
-  height: 280px;
-  background: #e2e8f0;
-  border-radius: 8px;
-  display: grid;
-
-  /* ?? define columns, rows, and areas ?? */
-}
-
-.header {
-  background: #3b82f6;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  color: white;
-  font-size: 0.8rem;
-
-  /* ?? assign grid area ?? */
-}
-
-.sidebar {
-  background: #8b5cf6;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  color: white;
-  font-size: 0.8rem;
-
-  /* ?? assign grid area ?? */
-}
-
-.main {
-  background: #10b981;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  color: white;
-  font-size: 0.8rem;
-
-  /* ?? assign grid area ?? */
-}
-
-.footer {
-  background: #f59e0b;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  color: white;
-  font-size: 0.8rem;
-
-  /* ?? assign grid area ?? */
-}`,
-    solutions: [
-      `.layout {
-  width: 320px;
-  height: 280px;
-  background: #e2e8f0;
-  border-radius: 8px;
-  display: grid;
-  grid-template-columns: 80px 1fr;
-  grid-template-rows: 50px 1fr 50px;
-  grid-template-areas:
-    "header header"
-    "sidebar main"
-    "footer footer";
-  gap: 8px;
-  padding: 8px;
-}
-.header { grid-area: header; background: #3b82f6; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; font-size: 0.8rem; }
-.sidebar { grid-area: sidebar; background: #8b5cf6; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; font-size: 0.8rem; }
-.main { grid-area: main; background: #10b981; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; font-size: 0.8rem; }
-.footer { grid-area: footer; background: #f59e0b; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; font-weight: bold; color: white; font-size: 0.8rem; }`
-    ],
-    validate(iframe) {
-      const layout = iframe.contentDocument.querySelector('.layout')
-      if (!layout) return false
-      const style = iframe.contentWindow.getComputedStyle(layout)
-      if (style.display !== 'grid') return false
-      const header = iframe.contentDocument.querySelector('.header')
-      const sidebar = iframe.contentDocument.querySelector('.sidebar')
-      const main = iframe.contentDocument.querySelector('.main')
-      const footer = iframe.contentDocument.querySelector('.footer')
-      if (!header || !sidebar || !main || !footer) return false
-      const hR = header.getBoundingClientRect()
-      const fR = footer.getBoundingClientRect()
-      const lR = layout.getBoundingClientRect()
-      const headerSpansFull = Math.abs(hR.width - (lR.width - 16)) < 20
-      const footerSpansFull = Math.abs(fR.width - (lR.width - 16)) < 20
-      return headerSpansFull && footerSpansFull
-    }
-  },
-  {
-    id: 7,
+    id: 4,
     title: 'Flexbox Wrapping',
     description: 'The boxes overflow the container. Make them wrap to the next line when there is not enough space, with 10px gaps.',
     hint: 'Use display: flex with flex-wrap: wrap and gap: 10px.',
@@ -566,72 +292,7 @@ const levels = [
     }
   },
   {
-    id: 8,
-    title: 'Absolute + Relative Positioning',
-    description: 'Position the blue circle in the exact center of the gray container using position: absolute. The container should be the reference point.',
-    hint: 'Set the container to position: relative, the circle to position: absolute, then use top: 50%, left: 50%, and transform: translate(-50%, -50%).',
-    explanation: [
-      'position: relative on the container makes it the reference point for absolutely positioned children.',
-      'position: absolute pulls the circle out of normal flow, so other elements ignore it.',
-      'top: 50% + left: 50% put the circle\u2019s top-left corner at the container\u2019s center.',
-      'transform: translate(-50%, -50%) slides the circle back by half its own size for a perfect center.'
-    ],
-    html: `<div class="container">
-  <div class="circle"></div>
-</div>`,
-    starterCSS: `.container {
-  width: 250px;
-  height: 250px;
-  background: #e2e8f0;
-  border-radius: 8px;
-
-  /* ?? make this a positioning context ?? */
-}
-
-.circle {
-  width: 60px;
-  height: 60px;
-  background: #3b82f6;
-  border-radius: 50%;
-
-  /* ?? position absolutely and center ?? */
-}`,
-    solutions: [
-      `.container {
-  width: 250px;
-  height: 250px;
-  background: #e2e8f0;
-  border-radius: 8px;
-  position: relative;
-}
-.circle {
-  width: 60px;
-  height: 60px;
-  background: #3b82f6;
-  border-radius: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}`
-    ],
-    validate(iframe) {
-      const circle = iframe.contentDocument.querySelector('.circle')
-      if (!circle) return false
-      const style = iframe.contentWindow.getComputedStyle(circle)
-      if (style.position !== 'absolute') return false
-      const container = iframe.contentDocument.querySelector('.container')
-      if (!container) return false
-      const cRect = container.getBoundingClientRect()
-      const cCircle = circle.getBoundingClientRect()
-      if (cRect.width === 0 || cRect.height === 0) return false
-      const cx = Math.abs((cCircle.left + cCircle.right) / 2 - (cRect.left + cRect.right) / 2)
-      const cy = Math.abs((cCircle.top + cCircle.bottom) / 2 - (cRect.top + cRect.bottom) / 2)
-      return cx < 15 && cy < 15
-    }
-  },
-  {
-    id: 9,
+    id: 5,
     title: 'Flexbox Order Property',
     description: 'The boxes are displayed in HTML order 1-2-3. Using the CSS order property, reverse them to display as 3-2-1 without changing the HTML.',
     hint: 'Set order: 3 on box-1, order: 2 on box-2, and order: 1 on box-3.',
@@ -708,14 +369,15 @@ const levels = [
     }
   },
   {
-    id: 10,
-    title: 'Responsive Grid with auto-fill',
-    description: 'Create a grid that automatically fills columns as wide as 100px each, with 10px gaps. The grid should adapt to the container width.',
-    hint: 'Use grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) with gap: 10px.',
+    id: 6,
+    title: 'Responsive Flexbox Wrapping',
+    description: 'Make the six cards fill the container responsively, wrapping onto new lines so they always fit no matter the width.',
+    hint: 'Use display: flex with flex-wrap: wrap, gap: 10px, and give each card a flexible base size with flex: 1 1 100px.',
     explanation: [
-      'grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) creates as many 100px-wide columns as fit and fills the container.',
-      'minmax(100px, 1fr) means each column is at least 100px and can grow to share the leftover space.',
-      'With 340px of width you get three columns per row, and the grid adapts automatically to other widths.'
+      'display: flex turns the container into a flex container where every card is a flex item.',
+      'flex-wrap: wrap lets cards flow to a new line when they run out of space, instead of crushing them together.',
+      'flex: 1 1 100px gives each card a base size of 100px and lets it grow to share the leftover space.',
+      'With 340px of width you get three cards per row, and the layout adapts automatically to any container width.'
     ],
     html: `<div class="grid">
   <div class="card">Card 1</div>
@@ -731,7 +393,7 @@ const levels = [
   border-radius: 8px;
   padding: 10px;
 
-  /* ?? create a responsive grid ?? */
+  /* ?? create a responsive flexbox layout ?? */
 }
 
 .card {
@@ -745,25 +407,6 @@ const levels = [
   font-size: 0.85rem;
 }`,
     solutions: [
-      `.grid {
-  width: 340px;
-  background: #e2e8f0;
-  border-radius: 8px;
-  padding: 10px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 10px;
-}
-.card {
-  background: #3b82f6;
-  color: white;
-  border-radius: 6px;
-  padding: 20px;
-  text-align: center;
-  font-family: sans-serif;
-  font-weight: bold;
-  font-size: 0.85rem;
-}`,
       `.grid {
   width: 340px;
   background: #e2e8f0;
@@ -784,6 +427,25 @@ const levels = [
   font-size: 0.85rem;
   min-width: 100px;
   flex: 1;
+}`,
+      `.grid {
+  width: 340px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+}
+.card {
+  background: #3b82f6;
+  color: white;
+  border-radius: 6px;
+  padding: 20px;
+  text-align: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 0.85rem;
 }`
     ],
     validate(iframe) {

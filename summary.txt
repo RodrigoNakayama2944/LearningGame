@@ -1,0 +1,103 @@
+CSS QUEST - PROJECT SUMMARY
+===========================
+
+WHAT THIS IS
+------------
+A CSS puzzle game ("CSS Quest") that teaches HTML/CSS basics with a live
+preview like Flexbox Froggy. The game is FOCUSED ON FLEXBOX (display: flex),
+since flexbox is the most important layout skill. Built with Vite (simple
+HTML/CSS/JS, no React) and deployed on GitHub Pages.
+
+REPOSITORY
+----------
+- Repo: https://github.com/RodrigoNakayama2944/LearningGame.git
+- Branch: main
+- Live site: https://RodrigoNakayama2944.github.io/LearningGame/
+- Deployment: GitHub Actions auto-builds and deploys on every push to main
+  (.github/workflows/deploy.yml). Pages source must be "GitHub Actions".
+
+PROJECT RULES (AGENTS.md)
+-------------------------
+- Respond in English
+- Do not recreate the project from scratch (no "npm create vite" / "npm init")
+- Do not install new libraries without need
+- No database, no login, no real personal data
+- Do not edit node_modules
+- Keep code simple; use Portuguese names when possible
+- Explain: (1) file changed, (2) what changed, (3) why, (4) how to test,
+  (5) which concept appears
+- Keep previous iterations in mind so we can go back when needed
+
+GAME FEATURES
+-------------
+- 6 levels in src/levels.js (all flexbox)
+- Editor with line numbers + live preview iframe (updates on every keystroke)
+- Target iframe showing the goal (uses level.solutions[0])
+- Hint box, Check Answer, Reset, Show Answer, CSS Reference buttons
+- Dracula theme throughout (bg #282A36, cyan #8BE9FD, green #50FA7B ...)
+- "Next Level ->" green button (no auto-advance)
+- CSS Reference modal: property names only, cyan chips
+- Multiple solutions per level (when they apply); "Show Answer" cycles them
+- After solving a level, a "How it works:" explanation is shown in the result
+  banner explaining the CSS tools used and why they work
+
+LEVELS (6)
+----------
+1.  Flexbox Centering (justify-content + align-items)
+2.  Flexbox Column Layout (flex-direction: column)
+3.  Flexbox Spacing with gap
+4.  Flexbox Wrapping (flex-wrap: wrap)
+5.  Flexbox Order Property
+6.  Responsive Flexbox Wrapping (flex-wrap + flex: 1 1 100px)
+    - Primary answer uses flexbox; a CSS Grid solution still exists as an
+      alternate (Show Answer cycles: flex first, grid second)
+
+REMOVED LEVELS (previous 10 -> 6)
+---------------------------------
+- Level "margin: auto" (non-flexbox) - removed
+- Level "CSS Grid Basics" (grid) - removed
+- Level "Grid Template Areas" (grid) - removed
+- Level "Absolute + Relative Positioning" (non-flexbox) - removed
+
+IMPORTANT FIXES / DECISIONS
+---------------------------
+- Preview body is NEUTRAL (no display:flex centering) so validations match
+  the real rendered layout.
+- updatePreview and updateTarget in src/preview.js now use an IDENTICAL
+  document template (a single renderDoc helper), so the same CSS renders the
+  same way in both iframes.
+- Validators check geometry (positions, sizes, computed styles), NOT the exact
+  CSS string, with ±20px / ±12px tolerances.
+- Full CSS starter code shown with `/* ?? ... ?? */` comments marking answers.
+- Check Answer marks level completed, shows explanation + green Next Level
+  button.
+- The game intentionally teaches flexbox only: all remaining levels use
+  display: flex, and the CSS Reference only lists flexbox + box-model props.
+- Level 6 (Responsive Flexbox Wrapping) keeps a grid alternate solution, but
+  the flex answer comes FIRST so Show Answer and the target display flex.
+
+KEY FILES
+---------
+- index.html: layout, modal, buttons
+- vite.config.js: base '/LearningGame/' for GitHub Pages
+- src/levels.js: 6 levels (html, starterCSS, solutions[], explanation[],
+  validate, cssReference export)
+- src/main.js: game logic, solution cycling, check, next level, explanation
+- src/styles.css: Dracula theme, editor, modal, result banner
+- src/preview.js: iframe rendering (updatePreview, updateTarget)
+- src/editor.js: old syntax highlighter (unused)
+- .github/workflows/deploy.yml: auto-deploy pipeline
+
+GIT LOG (recent commits)
+------------------------
+- 2d51a86 Align preview and target iframes, and explain tools after each level
+- 7a6c58a Add multiple solutions, fix validation, and improve answer preview
+- 601aba4 Fix preview centering and add Next Level button
+- 433c839 Show full CSS with marked answers and Dracula-styled reference tags
+- 05ac12f Add Show Answer button and update reference tag colors
+- 5490796 Simplify CSS reference to show property names only with Dracula styling
+
+SESSION WORKFLOW
+----------------
+- After every change/answer, ASK the user if they want to push changes to
+  GitHub before doing so. Only push/commit when the user says yes.
