@@ -51,6 +51,16 @@
         <button class="btn btn-answer" id="btnAnswer">Show Answer</button>
         <button class="btn btn-reference" id="btnReference">CSS Reference</button>
       </div>
+      <div class="explanation-panel hidden" id="explanationPanel">
+        <div class="explanation-header">
+          <span class="explanation-label">How it works:</span>
+          <div class="explanation-actions">
+            <button class="explanation-btn" id="btnCollapseExplanation" title="Shrink the explanation" aria-label="Shrink the explanation">&#9662;</button>
+            <button class="explanation-btn" id="btnCloseExplanation" title="Remove the explanation" aria-label="Remove the explanation">&#10005;</button>
+          </div>
+        </div>
+        <div class="explanation-body" id="explanationBody"></div>
+      </div>
     </section>
 
     <div class="reference-modal hidden" id="referenceModal">
@@ -70,12 +80,12 @@
       </div>
       <div class="preview-container">
         <div class="preview-frame-wrapper">
-          <iframe id="previewFrame" sandbox="allow-scripts"></iframe>
+          <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
         </div>
         <div class="target-wrapper" id="targetWrapper">
           <span class="target-label">Target</span>
           <div class="target-frame-wrapper">
-            <iframe id="targetFrame" sandbox="allow-scripts"></iframe>
+            <iframe id="targetFrame" sandbox="allow-scripts allow-same-origin"></iframe>
           </div>
         </div>
       </div>
@@ -84,7 +94,6 @@
           <span class="result-icon" id="resultIcon"></span>
           <span class="result-text" id="resultText"></span>
         </div>
-        <div class="result-explanation" id="resultExplanation"></div>
       </div>
     </section>
   </main>

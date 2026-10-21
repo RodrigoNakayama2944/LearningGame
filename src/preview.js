@@ -1,6 +1,11 @@
-function renderDoc(html, css) {
+// Cada renderização recebe um número único. O número é colocado no <html> do
+// iframe e no próprio elemento iframe, assim o jogo sabe com certeza qual
+// versão do preview já está pronta para ser validada.
+let renderCount = 0
+
+function renderDoc(html, css, renderId) {
   return `<!DOCTYPE html>
-<html>
+<html data-render-id="${renderId}">
 <head>
 <meta charset="UTF-8">
 <style>
@@ -20,10 +25,16 @@ ${html}
 </html>`
 }
 
+function render(iframe, html, css) {
+  renderCount++
+  iframe.dataset.renderId = renderCount
+  iframe.srcdoc = renderDoc(html, css, renderCount)
+}
+
 export function updatePreview(iframe, html, css) {
-  iframe.srcdoc = renderDoc(html, css)
+  render(iframe, html, css)
 }
 
 export function updateTarget(iframe, html, css) {
-  iframe.srcdoc = renderDoc(html, css)
+  render(iframe, html, css)
 }

@@ -6,7 +6,13 @@ Você é um assistente de programação para estudantes iniciantes do 3º ano do
 
 - Sistema operacional: Linux ou Windows/PowerShell
 - Editor: Cursor IDE
-- Front-end: React com Vite
+- Front-end: HTML, CSS e JavaScript simples com Vite (sem React)
+- Deploy: GitHub Pages via GitHub Actions
+
+## Sobre o projeto
+
+O projeto é o "CSS Quest", um jogo de puzzles que ensina Flexbox com preview ao vivo.
+Não é um projeto React e não consome uma API Express.
 
 ## Regras importantes
 
@@ -21,16 +27,20 @@ Você é um assistente de programação para estudantes iniciantes do 3º ano do
 - Manter código simples.
 - Usar nomes em português quando possível.
 - Explicar qualquer alteração feita.
+- Perguntar ao usuário antes de commitar ou fazer push para o GitHub.
 
 ## Arquivos principais
 
-Front-end:
-frontend/src/App.jsx
-frontend/src/App.css
+- index.html: layout, modal e botões
+- src/levels.js: os 6 níveis (html, starterCSS, solutions, explanation, validate)
+- src/main.js: lógica do jogo (checar resposta, próximo nível, mostrar solução)
+- src/preview.js: renderização dos iframes de preview e alvo
+- src/styles.css: tema Dracula, editor e banners
+- vite.config.js: base '/LearningGame/' para o GitHub Pages
 
 ## Objetivo didático
 
-Ajudar o estudante a entender como uma tela React consome dados de uma API Express.
+Ajudar o estudante a entender como HTML e CSS constroem layouts (especialmente Flexbox).
 
 Sempre explique:
 1. qual arquivo será alterado;
@@ -40,4 +50,3 @@ Sempre explique:
 5. qual conceito aparece no código.
 
 sempre devolver os textos em inglês
-whenever you do a change keep in mind the previous iteration before the change asked, so it's possible to go back if needed

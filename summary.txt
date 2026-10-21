@@ -32,14 +32,28 @@ GAME FEATURES
 -------------
 - 6 levels in src/levels.js (all flexbox)
 - Editor with line numbers + live preview iframe (updates on every keystroke)
-- Target iframe showing the goal (uses level.solutions[0])
+- Target iframe showing the goal (uses level.solutions[0].css)
 - Hint box, Check Answer, Reset, Show Answer, CSS Reference buttons
 - Dracula theme throughout (bg #282A36, cyan #8BE9FD, green #50FA7B ...)
 - "Next Level ->" green button (no auto-advance)
 - CSS Reference modal: property names only, cyan chips
 - Multiple solutions per level (when they apply); "Show Answer" cycles them
-- After solving a level, a "How it works:" explanation is shown in the result
-  banner explaining the CSS tools used and why they work
+- After solving a level, a "How it works:" panel appears in the LEFT column
+  (below the buttons) with one entry per element (HTML selector or CSS
+  property) explaining what it does, plus a "Key idea:" tip at the end.
+- The explanation panel also appears when the student clicks "Show Answer"
+  (info style banner, cyan) and explains the solution that was loaded.
+- The explanation panel has two small buttons in its header:
+  ▾ shrinks it to the title only (▸ expands it again) and ✕ removes it.
+  Asking for the answer again (Show Answer) brings the panel back.
+- The "Show Answer" button turns into "✕ Clear Answer" while a solution is
+  loaded: clicking it removes the solution from the editor and brings back
+  the starter code. Typing in the editor also turns it back to "Show Answer".
+- The celebration (particles, screen flash, "Correct!" stamp) happens only
+  ONCE per level visit. Pressing "Check Answer" again on a level that was
+  already solved keeps the banner and the explanation, with no new effects.
+- The explanation shown after solving matches the answer the student wrote
+  (a Grid answer on level 6 gets the Grid explanation).
 
 LEVELS (6)
 ----------
@@ -66,6 +80,9 @@ IMPORTANT FIXES / DECISIONS
 - updatePreview and updateTarget in src/preview.js now use an IDENTICAL
   document template (a single renderDoc helper), so the same CSS renders the
   same way in both iframes.
+- Every render gets a unique id (data-render-id on <html> + dataset on the
+  iframe). The game only validates when the preview shows the latest id, so
+  the answer is never checked against an outdated preview.
 - Validators check geometry (positions, sizes, computed styles), NOT the exact
   CSS string, with ±20px / ±12px tolerances.
 - Full CSS starter code shown with `/* ?? ... ?? */` comments marking answers.
@@ -76,15 +93,24 @@ IMPORTANT FIXES / DECISIONS
 - Level 6 (Responsive Flexbox Wrapping) keeps a grid alternate solution, but
   the flex answer comes FIRST so Show Answer and the target display flex.
 
+LEVEL DATA FORMAT
+-----------------
+- Each level: id, title, description, hint, html, starterCSS, solutions[], validate
+- Each solution: { css, explanation[], tip }
+  - css: the complete CSS of the answer
+  - explanation: array of { label, text } - label is the element/property
+    name (e.g. "justify-content: center"), text explains what it does
+  - tip: the main idea of the level, shown in a highlighted box
+
 KEY FILES
 ---------
-- index.html: layout, modal, buttons
+- index.html: layout, modal, buttons, explanation panel
 - vite.config.js: base '/LearningGame/' for GitHub Pages
-- src/levels.js: 6 levels (html, starterCSS, solutions[], explanation[],
+- src/levels.js: 6 levels (html, starterCSS, solutions[{css, explanation, tip}],
   validate, cssReference export)
 - src/main.js: game logic, solution cycling, check, next level, explanation
-- src/styles.css: Dracula theme, editor, modal, result banner
-- src/preview.js: iframe rendering (updatePreview, updateTarget)
+- src/styles.css: Dracula theme, editor, modal, result banner, explanation panel
+- src/preview.js: iframe rendering (updatePreview, updateTarget) with render id
 - src/editor.js: old syntax highlighter (unused)
 - .github/workflows/deploy.yml: auto-deploy pipeline
 

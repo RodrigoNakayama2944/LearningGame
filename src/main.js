@@ -2,6 +2,7 @@ import levels, { cssReference } from './levels.js'
 import { updatePreview, updateTarget } from './preview.js'
 
 const editorInput = document.getElementById('editorInput')
+const editorContainer = document.getElementById('editorContainer')
 const lineNumbers = document.getElementById('lineNumbers')
 const previewFrame = document.getElementById('previewFrame')
 const targetFrame = document.getElementById('targetFrame')
@@ -16,7 +17,10 @@ const progressText = document.getElementById('progressText')
 const resultBanner = document.getElementById('resultBanner')
 const resultIcon = document.getElementById('resultIcon')
 const resultText = document.getElementById('resultText')
-const resultExplanation = document.getElementById('resultExplanation')
+const explanationPanel = document.getElementById('explanationPanel')
+const explanationBody = document.getElementById('explanationBody')
+const btnCollapseExplanation = document.getElementById('btnCollapseExplanation')
+const btnCloseExplanation = document.getElementById('btnCloseExplanation')
 const previewStatus = document.getElementById('previewStatus')
 const btnCheck = document.getElementById('btnCheck')
 const btnReset = document.getElementById('btnReset')
@@ -31,6 +35,13 @@ let currentLevelIndex = 0
 let completedLevels = new Set()
 let currentCSS = ''
 let solutionIndex = 0
+// Evita repetir a celebração (partículas, flash e carimbo) quando o aluno
+// clica em "Check Answer" de novo no mesmo nível.
+let levelCelebrated = false
+// Estado do painel de explicação: recolhido (só o título) ou fechado (some).
+let explanationCollapsed = false
+// Verdadeiro quando o botão "Show Answer" placed uma solução no editor.
+let answerLoaded = false
 
 function init() {
   buildLevelNav()
@@ -66,6 +77,9 @@ function updateLevelNav() {
 function loadLevel(index) {
   currentLevelIndex = index
   solutionIndex = 0
+  levelCelebrated = false
+  answerLoaded = false
+  explanationCollapsed = false
   const level = levels[index]
 
   levelBadge.textContent = `Level ${level.id}`
@@ -80,11 +94,13 @@ function loadLevel(index) {
   updateLineNumbers()
 
   updatePreview(previewFrame, level.html, level.starterCSS)
-  updateTarget(targetFrame, level.html, level.solutions[0])
+  updateTarget(targetFrame, level.html, level.solutions[0].css)
   targetWrapper.classList.add('visible')
 
   hideResult()
   updateLevelNav()
+  updateAnswerButton()
+  updateCollapseButton()
   editorInput.focus()
 }
 
@@ -97,6 +113,8 @@ function setupEventListeners() {
   btnHint.addEventListener('click', toggleHint)
   btnAnswer.addEventListener('click', showAnswer)
   btnReference.addEventListener('click', toggleReference)
+  btnCollapseExplanation.addEventListener('click', toggleExplanation)
+  btnCloseExplanation.addEventListener('click', closeExplanation)
   referenceClose.addEventListener('click', closeReference)
   referenceModal.addEventListener('click', (e) => {
     if (e.target === referenceModal) closeReference()
@@ -105,6 +123,12 @@ function setupEventListeners() {
 
 function onEditorInput() {
   currentCSS = editorInput.value
+  // O aluno mexeu no código: a solução carregada pelo "Show Answer" já não
+  // está mais no editor, então o botão volta a ser "Show Answer".
+  if (answerLoaded) {
+    answerLoaded = false
+    updateAnswerButton()
+  }
   updateLineNumbers()
   updatePreview(previewFrame, levels[currentLevelIndex].html, currentCSS)
   previewStatus.textContent = 'Updating...'
@@ -162,33 +186,85 @@ function syncScroll() {
 
 function checkAnswer() {
   const level = levels[currentLevelIndex]
+  const startedAt = Date.now()
 
   updatePreview(previewFrame, level.html, currentCSS)
 
-  setTimeout(() => {
-    const isCorrect = level.validate(previewFrame)
-
-    if (isCorrect) {
-      completedLevels.add(currentLevelIndex)
-      updateLevelNav()
-      spawnParticles()
-      previewFrame.parentElement.classList.add('success-glow')
-      flashScreen('pass')
-      applyStamp(previewFrame.parentElement, 'pass', 'Correct!')
-
-      if (currentLevelIndex < levels.length - 1) {
-        showResult(true, 'Correct! Well done!', true, level.explanation)
-      } else {
-        showResult(true, 'You completed all levels!', false, level.explanation)
-      }
-    } else {
-      flashScreen('fail')
-      applyStamp(previewFrame.parentElement, 'fail', 'Try again')
-      wrongFeedback()
-
-      showResult(false, 'Not quite right. Try again!', false)
+  // A validação só pode acontecer quando o preview já mostra a versão mais
+  // recente do CSS, senão o preview "corrigido" e a resposta não batem.
+  const tryCheck = () => {
+    if (isPreviewReady() || Date.now() - startedAt > 2000) {
+      applyCheckResult(level)
+      return
     }
-  }, 150)
+    setTimeout(tryCheck, 60)
+  }
+
+  setTimeout(tryCheck, 50)
+}
+
+function isPreviewReady() {
+  const doc = previewFrame.contentDocument
+  if (!doc || !doc.body) return false
+  return doc.documentElement.dataset.renderId === previewFrame.dataset.renderId
+}
+
+function applyCheckResult(level) {
+  let isCorrect = false
+  try {
+    isCorrect = level.validate(previewFrame)
+  } catch (error) {
+    isCorrect = false
+  }
+
+  if (isCorrect) {
+    completedLevels.add(currentLevelIndex)
+    updateLevelNav()
+    // A celebração acontece só na primeira resposta correta do nível.
+    // Se o aluno clicar em "Check Answer" de novo, o resultado é
+    // atualizado sem partículas, sem flash e sem carimbo.
+    showLevelSuccess(level, !levelCelebrated)
+    levelCelebrated = true
+  } else {
+    flashScreen('fail')
+    applyStamp(previewFrame.parentElement, 'fail', 'Try again')
+    wrongFeedback()
+
+    showResult('error', 'Not quite right. Try again!', false)
+  }
+}
+
+function showLevelSuccess(level, celebrate) {
+  const isLastLevel = currentLevelIndex >= levels.length - 1
+  const message = isLastLevel ? 'You completed all levels!' : 'Correct! Well done!'
+
+  if (celebrate) {
+    spawnParticles()
+    previewFrame.parentElement.classList.add('success-glow')
+    flashScreen('pass')
+    applyStamp(previewFrame.parentElement, 'pass', 'Correct!')
+  }
+
+  // O painel de explicação só abre sozinho na primeira resposta correta.
+  showResult('success', message, !isLastLevel, getExplanationFor(level, currentCSS), celebrate)
+}
+
+// Escolhe a explicação que combina com o código escrito pelo aluno.
+// Se ele usar a outra solução (ex.: Grid no nível 6), a explicação
+// mostrada também é a da solução que ele escreveu.
+function getExplanationFor(level, css) {
+  const clean = (text) => text.replace(/\s+/g, '').toLowerCase()
+  const studentCss = clean(css)
+
+  const exact = level.solutions.find(solution => clean(solution.css) === studentCss)
+  if (exact) return exact
+
+  const keyword = level.solutions.find(solution => {
+    const display = solution.css.match(/display:\s*(flex|grid)/)
+    return display && studentCss.includes(clean(display[0]))
+  })
+
+  return keyword || level.solutions[0]
 }
 
 function resetLevel() {
@@ -201,19 +277,84 @@ function toggleHint() {
 }
 
 function showAnswer() {
+  // Se já existe uma solução carregada, o botão remove ela e devolve o
+  // código inicial para o aluno tentar de novo.
+  if (answerLoaded) {
+    clearAnswer()
+    return
+  }
+
   const level = levels[currentLevelIndex]
   const solution = level.solutions[solutionIndex % level.solutions.length]
-  editorInput.value = solution
-  currentCSS = solution
+  editorInput.value = solution.css
+  currentCSS = solution.css
+  answerLoaded = true
   updateLineNumbers()
-  updatePreview(previewFrame, level.html, solution)
+  updatePreview(previewFrame, level.html, solution.css)
+  updateAnswerButton()
   solutionIndex++
   const count = level.solutions.length
+  // Se o nível já foi resolvido, o botão "Next Level" continua disponível.
+  const showNext = levelCelebrated && currentLevelIndex < levels.length - 1
+  // O aluno pediu a resposta, então a explicação abre de novo.
+  explanationCollapsed = false
+  updateCollapseButton()
   if (count > 1) {
-    showResult(false, `Answer loaded (solution ${(solutionIndex - 1) % count + 1} of ${count}). Click again for another way!`)
+    showResult('info', `Answer loaded (solution ${(solutionIndex - 1) % count + 1} of ${count}). Click again for another way!`, showNext, solution, true)
   } else {
-    showResult(false, 'Answer loaded. Try to understand it before moving on!')
+    showResult('info', 'Answer loaded. Read the explanation below to understand every property!', showNext, solution, true)
   }
+}
+
+function clearAnswer() {
+  const level = levels[currentLevelIndex]
+  editorInput.value = level.starterCSS
+  currentCSS = level.starterCSS
+  answerLoaded = false
+  updateLineNumbers()
+  updatePreview(previewFrame, level.html, currentCSS)
+  updateAnswerButton()
+
+  // O banner continua mostrando o acerto (sem efeitos novos) quando o nível
+  // já estava resolvido, senão ele é escondido.
+  if (levelCelebrated) {
+    showLevelSuccess(level, false)
+  } else {
+    hideBanner()
+  }
+}
+
+// O botão muda entre "Show Answer" e "Clear Answer" conforme o estado.
+function updateAnswerButton() {
+  if (answerLoaded) {
+    btnAnswer.textContent = '\u2715 Clear Answer'
+    btnAnswer.title = 'Remove the answer and bring back the starter code'
+    btnAnswer.classList.add('loaded')
+  } else {
+    btnAnswer.textContent = 'Show Answer'
+    btnAnswer.title = 'Load a solution into the editor'
+    btnAnswer.classList.remove('loaded')
+  }
+}
+
+// Recolhe o painel de explicação, deixando só o título visível.
+function toggleExplanation() {
+  explanationCollapsed = !explanationCollapsed
+  explanationPanel.classList.toggle('explanation-collapsed', explanationCollapsed)
+  updateCollapseButton()
+}
+
+function updateCollapseButton() {
+  btnCollapseExplanation.innerHTML = explanationCollapsed ? '&#9656;' : '&#9662;'
+  btnCollapseExplanation.title = explanationCollapsed
+    ? 'Expand the explanation'
+    : 'Shrink the explanation'
+}
+
+// Remove o painel de explicação. Ele volta a aparecer quando o aluno pede
+// a resposta de novo (botão "Show Answer") ou resolve o nível.
+function closeExplanation() {
+  explanationPanel.classList.add('hidden')
 }
 
 function toggleReference() {
@@ -229,18 +370,23 @@ function closeReference() {
   referenceModal.classList.add('hidden')
 }
 
-function showResult(success, message, showNext, explanation) {
-  resultBanner.classList.remove('hidden', 'success', 'error')
-  resultBanner.classList.add(success ? 'success' : 'error')
-  resultIcon.textContent = success ? '\u2713' : '\u2717'
+function showResult(kind, message, showNext, detail, openPanel) {
+  resultBanner.classList.remove('hidden', 'success', 'error', 'info')
+  resultBanner.classList.add(kind)
+  resultIcon.textContent = kind === 'success' ? '\u2713' : kind === 'error' ? '\u2717' : '\u2139'
   resultText.textContent = message
 
-  resultExplanation.innerHTML = ''
-  resultExplanation.classList.toggle('hidden', !success || !explanation)
-  if (success && explanation) {
-    resultExplanation.innerHTML = `<span class="explanation-label">How it works:</span><ul>` + explanation
-      .map(point => `<li>${point}</li>`)
-      .join('') + `</ul>`
+  // Sem explicação (erro) o painel continua como está, para o aluno não
+  // perder o texto que já estava lendo.
+  if (detail) {
+    const scrollTop = explanationBody.scrollTop
+    explanationBody.innerHTML = renderExplanation(detail)
+    explanationBody.scrollTop = scrollTop
+    // openPanel = false respeita o escolha do aluno (recolhido ou fechado).
+    if (openPanel) {
+      explanationPanel.classList.remove('hidden')
+      explanationPanel.classList.toggle('explanation-collapsed', explanationCollapsed)
+    }
   }
 
   const existingBtn = resultBanner.querySelector('.btn-next')
@@ -257,11 +403,37 @@ function showResult(success, message, showNext, explanation) {
   }
 }
 
+// Monta a explicação detalhada: uma lista com o nome de cada elemento
+// (seletor HTML ou propriedade CSS) e o que ele faz.
+function renderExplanation(detail) {
+  if (!detail) return ''
+
+  const items = (detail.explanation || [])
+    .map(item => `
+      <li class="explanation-item">
+        <code class="explanation-term">${item.label}</code>
+        <span class="explanation-text">${item.text}</span>
+      </li>`)
+    .join('')
+
+  const tip = detail.tip
+    ? `<p class="explanation-tip"><span class="explanation-tip-label">Key idea:</span> ${detail.tip}</p>`
+    : ''
+
+  return `<ul class="explanation-list">${items}</ul>${tip}`
+}
+
 function hideResult() {
-  resultBanner.classList.add('hidden')
-  resultExplanation.innerHTML = ''
+  hideBanner()
+  explanationPanel.classList.add('hidden')
+  explanationPanel.classList.remove('explanation-collapsed')
+  explanationBody.innerHTML = ''
   previewFrame.parentElement.classList.remove('success-glow', 'fail-flash')
   editorContainer.classList.remove('shake')
+}
+
+function hideBanner() {
+  resultBanner.classList.add('hidden')
 }
 
 function flashScreen(kind) {
