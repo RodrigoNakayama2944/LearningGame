@@ -1,5 +1,15 @@
-import levels, { cssReference } from './levels.js'
+import levels, { cssTagsGuide } from './levels.js'
 import { updatePreview, updateTarget } from './preview.js'
+import {
+  languages,
+  LANGUAGE_KEY,
+  getLanguage,
+  setLanguage,
+  getLanguageName,
+  getLevelText,
+  getTagText,
+  t
+} from './i18n.js'
 
 const editorInput = document.getElementById('editorInput')
 const editorContainer = document.getElementById('editorContainer')
@@ -25,28 +35,36 @@ const previewStatus = document.getElementById('previewStatus')
 const btnCheck = document.getElementById('btnCheck')
 const btnReset = document.getElementById('btnReset')
 const btnHint = document.getElementById('btnHint')
-const btnAnswer = document.getElementById('btnAnswer')
-const btnReference = document.getElementById('btnReference')
-const referenceModal = document.getElementById('referenceModal')
-const referenceBody = document.getElementById('referenceBody')
-const referenceClose = document.getElementById('referenceClose')
+const btnTags = document.getElementById('btnTags')
+const tagsModal = document.getElementById('tagsModal')
+const tagsBody = document.getElementById('tagsBody')
+const tagsClose = document.getElementById('tagsClose')
+const btnLanguage = document.getElementById('btnLanguage')
+const languageMenu = document.getElementById('languageMenu')
 
 let currentLevelIndex = 0
 let completedLevels = new Set()
 let currentCSS = ''
-let solutionIndex = 0
 // Evita repetir a celebração (partículas, flash e carimbo) quando o aluno
 // clica em "Check Answer" de novo no mesmo nível.
 let levelCelebrated = false
 // Estado do painel de explicação: recolhido (só o título) ou fechado (some).
 let explanationCollapsed = false
-// Verdadeiro quando o botão "Show Answer" placed uma solução no editor.
-let answerLoaded = false
+// Último resultado mostrado no banner, guardado para poder ser traduzido
+// de novo quando o aluno troca de idioma.
+let lastResult = null
+// Verdadeiro quando o preview já terminou de atualizar.
+let previewIsLive = false
 
 function init() {
+  // O idioma escolhido fica guardado no navegador do aluno.
+  const savedLanguage = localStorage.getItem(LANGUAGE_KEY)
+  if (savedLanguage) setLanguage(savedLanguage)
+
   buildLevelNav()
   loadLevel(0)
   setupEventListeners()
+  applyLanguage()
 }
 
 function buildLevelNav() {
@@ -55,7 +73,7 @@ function buildLevelNav() {
     const dot = document.createElement('button')
     dot.className = 'level-dot'
     dot.textContent = level.id
-    dot.title = level.title
+    dot.title = getLevelText(level).title
     dot.addEventListener('click', () => loadLevel(index))
     levelNav.appendChild(dot)
   })
@@ -76,30 +94,28 @@ function updateLevelNav() {
 
 function loadLevel(index) {
   currentLevelIndex = index
-  solutionIndex = 0
   levelCelebrated = false
-  answerLoaded = false
   explanationCollapsed = false
   const level = levels[index]
+  const text = getLevelText(level)
 
-  levelBadge.textContent = `Level ${level.id}`
-  challengeTitle.textContent = level.title
-  challengeDescription.textContent = level.description
-  hintText.textContent = level.hint
+  levelBadge.textContent = t('levelBadge', { n: level.id })
+  challengeTitle.textContent = text.title
+  challengeDescription.textContent = text.description
+  hintText.textContent = text.hint
   hintBox.classList.remove('visible')
-  closeReference()
+  closeTagsGuide()
 
-  currentCSS = level.starterCSS
-  editorInput.value = level.starterCSS
+  currentCSS = text.starterCSS
+  editorInput.value = text.starterCSS
   updateLineNumbers()
 
-  updatePreview(previewFrame, level.html, level.starterCSS)
-  updateTarget(targetFrame, level.html, level.solutions[0].css)
+  updatePreview(previewFrame, level.html, text.starterCSS)
+  updateTarget(targetFrame, level.html, text.solutions[0].css)
   targetWrapper.classList.add('visible')
 
   hideResult()
   updateLevelNav()
-  updateAnswerButton()
   updateCollapseButton()
   editorInput.focus()
 }
@@ -111,30 +127,35 @@ function setupEventListeners() {
   btnCheck.addEventListener('click', checkAnswer)
   btnReset.addEventListener('click', resetLevel)
   btnHint.addEventListener('click', toggleHint)
-  btnAnswer.addEventListener('click', showAnswer)
-  btnReference.addEventListener('click', toggleReference)
+  btnTags.addEventListener('click', toggleTagsGuide)
   btnCollapseExplanation.addEventListener('click', toggleExplanation)
   btnCloseExplanation.addEventListener('click', closeExplanation)
-  referenceClose.addEventListener('click', closeReference)
-  referenceModal.addEventListener('click', (e) => {
-    if (e.target === referenceModal) closeReference()
+  tagsClose.addEventListener('click', closeTagsGuide)
+  tagsModal.addEventListener('click', (e) => {
+    if (e.target === tagsModal) closeTagsGuide()
+  })
+  btnLanguage.addEventListener('click', toggleLanguageMenu)
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.language-picker')) closeLanguageMenu()
+  })
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeTagsGuide()
+      closeLanguageMenu()
+    }
   })
 }
 
 function onEditorInput() {
   currentCSS = editorInput.value
-  // O aluno mexeu no código: a solução carregada pelo "Show Answer" já não
-  // está mais no editor, então o botão volta a ser "Show Answer".
-  if (answerLoaded) {
-    answerLoaded = false
-    updateAnswerButton()
-  }
   updateLineNumbers()
   updatePreview(previewFrame, levels[currentLevelIndex].html, currentCSS)
-  previewStatus.textContent = 'Updating...'
+  previewIsLive = false
+  previewStatus.textContent = t('updating')
   clearTimeout(previewStatus._timeout)
   previewStatus._timeout = setTimeout(() => {
-    previewStatus.textContent = 'Live'
+    previewIsLive = true
+    previewStatus.textContent = t('live')
   }, 300)
 }
 
@@ -230,13 +251,13 @@ function applyCheckResult(level) {
     applyStamp(previewFrame.parentElement, 'fail', 'Try again')
     wrongFeedback()
 
-    showResult('error', 'Not quite right. Try again!', false)
+    showResult('error', 'resultError', false)
   }
 }
 
 function showLevelSuccess(level, celebrate) {
   const isLastLevel = currentLevelIndex >= levels.length - 1
-  const message = isLastLevel ? 'You completed all levels!' : 'Correct! Well done!'
+  const messageKey = isLastLevel ? 'resultLastLevel' : 'resultSuccess'
 
   if (celebrate) {
     spawnParticles()
@@ -246,7 +267,7 @@ function showLevelSuccess(level, celebrate) {
   }
 
   // O painel de explicação só abre sozinho na primeira resposta correta.
-  showResult('success', message, !isLastLevel, getExplanationFor(level, currentCSS), celebrate)
+  showResult('success', messageKey, !isLastLevel, getExplanationFor(level, currentCSS), celebrate, {}, { level, css: currentCSS })
 }
 
 // Escolhe a explicação que combina com o código escrito pelo aluno.
@@ -255,16 +276,18 @@ function showLevelSuccess(level, celebrate) {
 function getExplanationFor(level, css) {
   const clean = (text) => text.replace(/\s+/g, '').toLowerCase()
   const studentCss = clean(css)
+  const solutions = getLevelText(level).solutions
 
-  const exact = level.solutions.find(solution => clean(solution.css) === studentCss)
-  if (exact) return exact
+  const exact = level.solutions.findIndex(solution => clean(solution.css) === studentCss)
+  if (exact >= 0) return solutions[exact]
 
-  const keyword = level.solutions.find(solution => {
+  const keyword = level.solutions.findIndex(solution => {
     const display = solution.css.match(/display:\s*(flex|grid)/)
     return display && studentCss.includes(clean(display[0]))
   })
+  if (keyword >= 0) return solutions[keyword]
 
-  return keyword || level.solutions[0]
+  return solutions[0]
 }
 
 function resetLevel() {
@@ -273,68 +296,12 @@ function resetLevel() {
 
 function toggleHint() {
   hintBox.classList.toggle('visible')
-  btnHint.textContent = hintBox.classList.contains('visible') ? 'Hide Hint' : 'Show Hint'
+  updateHintButton()
 }
 
-function showAnswer() {
-  // Se já existe uma solução carregada, o botão remove ela e devolve o
-  // código inicial para o aluno tentar de novo.
-  if (answerLoaded) {
-    clearAnswer()
-    return
-  }
-
-  const level = levels[currentLevelIndex]
-  const solution = level.solutions[solutionIndex % level.solutions.length]
-  editorInput.value = solution.css
-  currentCSS = solution.css
-  answerLoaded = true
-  updateLineNumbers()
-  updatePreview(previewFrame, level.html, solution.css)
-  updateAnswerButton()
-  solutionIndex++
-  const count = level.solutions.length
-  // Se o nível já foi resolvido, o botão "Next Level" continua disponível.
-  const showNext = levelCelebrated && currentLevelIndex < levels.length - 1
-  // O aluno pediu a resposta, então a explicação abre de novo.
-  explanationCollapsed = false
-  updateCollapseButton()
-  if (count > 1) {
-    showResult('info', `Answer loaded (solution ${(solutionIndex - 1) % count + 1} of ${count}). Click again for another way!`, showNext, solution, true)
-  } else {
-    showResult('info', 'Answer loaded. Read the explanation below to understand every property!', showNext, solution, true)
-  }
-}
-
-function clearAnswer() {
-  const level = levels[currentLevelIndex]
-  editorInput.value = level.starterCSS
-  currentCSS = level.starterCSS
-  answerLoaded = false
-  updateLineNumbers()
-  updatePreview(previewFrame, level.html, currentCSS)
-  updateAnswerButton()
-
-  // O banner continua mostrando o acerto (sem efeitos novos) quando o nível
-  // já estava resolvido, senão ele é escondido.
-  if (levelCelebrated) {
-    showLevelSuccess(level, false)
-  } else {
-    hideBanner()
-  }
-}
-
-// O botão muda entre "Show Answer" e "Clear Answer" conforme o estado.
-function updateAnswerButton() {
-  if (answerLoaded) {
-    btnAnswer.textContent = '\u2715 Clear Answer'
-    btnAnswer.title = 'Remove the answer and bring back the starter code'
-    btnAnswer.classList.add('loaded')
-  } else {
-    btnAnswer.textContent = 'Show Answer'
-    btnAnswer.title = 'Load a solution into the editor'
-    btnAnswer.classList.remove('loaded')
-  }
+// O botão mostra "Mostrar Dica" ou "Esconder Dica" conforme o estado.
+function updateHintButton() {
+  btnHint.textContent = hintBox.classList.contains('visible') ? t('hideHint') : t('showHint')
 }
 
 // Recolhe o painel de explicação, deixando só o título visível.
@@ -347,34 +314,102 @@ function toggleExplanation() {
 function updateCollapseButton() {
   btnCollapseExplanation.innerHTML = explanationCollapsed ? '&#9656;' : '&#9662;'
   btnCollapseExplanation.title = explanationCollapsed
-    ? 'Expand the explanation'
-    : 'Shrink the explanation'
+    ? t('expandExplanation')
+    : t('shrinkExplanation')
+  btnCollapseExplanation.setAttribute('aria-label', btnCollapseExplanation.title)
 }
 
-// Remove o painel de explicação. Ele volta a aparecer quando o aluno pede
-// a resposta de novo (botão "Show Answer") ou resolve o nível.
+// Remove o painel de explicação. Ele volta a aparecer quando o aluno
+// resolve o nível.
 function closeExplanation() {
   explanationPanel.classList.add('hidden')
 }
 
-function toggleReference() {
-  referenceBody.innerHTML = cssReference.map(prop => `
-    <div class="reference-item">
-      <code class="reference-prop">${prop}</code>
-    </div>
-  `).join('')
-  referenceModal.classList.toggle('hidden')
+// Abre e fecha o guia de tags CSS. O conteúdo é montado de novo a cada
+// abertura, então o aluno sempre começa com todas as tags fechadas.
+function toggleTagsGuide() {
+  if (tagsModal.classList.contains('hidden')) {
+    renderTagsGuide()
+    tagsModal.classList.remove('hidden')
+  } else {
+    closeTagsGuide()
+  }
 }
 
-function closeReference() {
-  referenceModal.classList.add('hidden')
+function closeTagsGuide() {
+  tagsModal.classList.add('hidden')
 }
 
-function showResult(kind, message, showNext, detail, openPanel) {
+// Monta a lista de tags agrupada por tema. Cada tag vira um botão que
+// abre e fecha a sua própria explicação.
+function renderTagsGuide() {
+  let currentGroup = ''
+  const items = cssTagsGuide.map(original => {
+    const item = getTagText(original)
+    const title = item.group !== currentGroup
+      ? `<div class="tag-group">${item.group}</div>`
+      : ''
+    currentGroup = item.group
+
+    return `${title}
+      <div class="tag-item">
+        <button class="tag-header" aria-expanded="false">
+          <code class="tag-name">${item.tag}</code>
+          <span class="tag-summary">${item.summary}</span>
+          <span class="tag-arrow" aria-hidden="true">&#9656;</span>
+        </button>
+        <div class="tag-detail hidden">
+          <p class="tag-text">${item.details}</p>
+          <p class="tag-values"><span class="tag-values-label">${t('commonValues')}:</span> <code>${item.values}</code></p>
+          <pre class="tag-example"><code>${escapeHtml(item.example)}</code></pre>
+        </div>
+      </div>`
+  }).join('')
+
+  tagsBody.innerHTML = items
+
+  tagsBody.querySelectorAll('.tag-header').forEach(header => {
+    header.addEventListener('click', () => toggleTagDetail(header))
+  })
+}
+
+// Abre ou fecha a explicação de uma tag.
+function toggleTagDetail(header) {
+  const detail = header.parentElement.querySelector('.tag-detail')
+  const isOpen = !detail.classList.contains('hidden')
+  detail.classList.toggle('hidden', isOpen)
+  header.classList.toggle('open', !isOpen)
+  header.setAttribute('aria-expanded', String(!isOpen))
+}
+
+// Escapa os caracteres do HTML para o exemplo de código não ser
+// interpretado como marcação.
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+}
+
+function showResult(kind, messageKey, showNext, detail, openPanel, params = {}, context = {}) {
   resultBanner.classList.remove('hidden', 'success', 'error', 'info')
   resultBanner.classList.add(kind)
   resultIcon.textContent = kind === 'success' ? '\u2713' : kind === 'error' ? '\u2717' : '\u2139'
-  resultText.textContent = message
+  resultText.textContent = t(messageKey, params)
+
+  // O último resultado fica guardado para ser traduzido de novo quando o
+  // aluno troca de idioma. Guardamos o nível e o CSS (e não o texto já
+  // escrito) para conseguir refazer a explicação no novo idioma.
+  lastResult = {
+    kind,
+    messageKey,
+    showNext,
+    detail,
+    openPanel,
+    params,
+    level: context.level,
+    css: context.css
+  }
 
   // Sem explicação (erro) o painel continua como está, para o aluno não
   // perder o texto que já estava lendo.
@@ -395,7 +430,7 @@ function showResult(kind, message, showNext, detail, openPanel) {
   if (showNext) {
     const nextBtn = document.createElement('button')
     nextBtn.className = 'btn btn-next'
-    nextBtn.textContent = 'Next Level \u2192'
+    nextBtn.textContent = t('nextLevel')
     nextBtn.addEventListener('click', () => {
       loadLevel(currentLevelIndex + 1)
     })
@@ -417,7 +452,7 @@ function renderExplanation(detail) {
     .join('')
 
   const tip = detail.tip
-    ? `<p class="explanation-tip"><span class="explanation-tip-label">Key idea:</span> ${detail.tip}</p>`
+    ? `<p class="explanation-tip"><span class="explanation-tip-label">${t('keyIdea')}:</span> ${detail.tip}</p>`
     : ''
 
   return `<ul class="explanation-list">${items}</ul>${tip}`
@@ -490,6 +525,118 @@ function spawnParticles() {
     document.body.appendChild(particle)
     setTimeout(() => particle.remove(), 1200)
   }
+}
+
+// Abre e fecha o menu de escolha de idioma.
+function toggleLanguageMenu() {
+  const isHidden = languageMenu.classList.contains('hidden')
+  if (isHidden) buildLanguageMenu()
+  languageMenu.classList.toggle('hidden')
+  btnLanguage.setAttribute('aria-expanded', String(isHidden))
+}
+
+function closeLanguageMenu() {
+  languageMenu.classList.add('hidden')
+  btnLanguage.setAttribute('aria-expanded', 'false')
+}
+
+// Monta o menu com um botão para cada idioma. O idioma atual fica
+// marcado com um visto.
+function buildLanguageMenu() {
+  languageMenu.innerHTML = languages.map(language => `
+    <button class="language-option${language.code === getLanguage() ? ' active' : ''}" data-lang="${language.code}" role="menuitem">
+      <span class="language-option-name">${language.name}</span>
+      <span class="language-option-check">${language.code === getLanguage() ? '&#10003;' : ''}</span>
+    </button>
+  `).join('')
+
+  languageMenu.querySelectorAll('.language-option').forEach(option => {
+    option.addEventListener('click', () => changeLanguage(option.dataset.lang))
+  })
+}
+
+// Troca o idioma do jogo e guarda a escolha no navegador.
+function changeLanguage(code) {
+  if (code === getLanguage()) {
+    closeLanguageMenu()
+    return
+  }
+
+  // Se o aluno ainda não mexeu no código, o código inicial também é
+  // traduzido (os comentários dentro do CSS).
+  const previousStarter = getLevelText(levels[currentLevelIndex]).starterCSS
+  const editorHasStarter = editorInput.value.trim() === previousStarter.trim()
+
+  setLanguage(code)
+  localStorage.setItem(LANGUAGE_KEY, code)
+  closeLanguageMenu()
+  applyLanguage(editorHasStarter)
+}
+
+// Aplica o idioma atual em toda a interface: textos fixos, botões,
+// nível atual, explicação, banner e guia de tags CSS.
+function applyLanguage(editorHasStarter = true) {
+  document.querySelectorAll('[data-i18n]').forEach(element => {
+    element.textContent = t(element.dataset.i18n)
+  })
+
+  // O idioma da página também muda, para o leitor de tela usar a voz certa.
+  document.documentElement.lang = getLanguage()
+
+  btnLanguage.textContent = getLanguageName()
+  btnLanguage.title = t('languageButton')
+  btnCloseExplanation.title = t('removeExplanation')
+  btnCloseExplanation.setAttribute('aria-label', t('removeExplanation'))
+  refreshLevelNav()
+  refreshLevelText()
+  updateCollapseButton()
+  updateHintButton()
+  previewStatus.textContent = previewIsLive ? t('live') : t('updating')
+
+  if (editorHasStarter) {
+    const text = getLevelText(levels[currentLevelIndex])
+    editorInput.value = text.starterCSS
+    currentCSS = text.starterCSS
+    updateLineNumbers()
+    updatePreview(previewFrame, levels[currentLevelIndex].html, currentCSS)
+  }
+
+  // O banner e a explicação são redesenhados no novo idioma.
+  if (lastResult) {
+    const detail = lastResult.level
+      ? getExplanationFor(lastResult.level, lastResult.css || currentCSS)
+      : lastResult.detail
+    showResult(
+      lastResult.kind,
+      lastResult.messageKey,
+      lastResult.showNext,
+      detail,
+      lastResult.openPanel,
+      lastResult.params,
+      { level: lastResult.level, css: lastResult.css }
+    )
+  }
+
+  if (!tagsModal.classList.contains('hidden')) {
+    renderTagsGuide()
+  }
+}
+
+// Recria os botões dos níveis com o título no idioma atual.
+function refreshLevelNav() {
+  buildLevelNav()
+  updateLevelNav()
+}
+
+// Atualiza os textos do nível atual sem mexer no código do aluno.
+function refreshLevelText() {
+  const level = levels[currentLevelIndex]
+  const text = getLevelText(level)
+
+  levelBadge.textContent = t('levelBadge', { n: level.id })
+  challengeTitle.textContent = text.title
+  challengeDescription.textContent = text.description
+  hintText.textContent = text.hint
 }
 
 init()

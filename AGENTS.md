@@ -32,8 +32,8 @@ Não é um projeto React e não consome uma API Express.
 ## Arquivos principais
 
 - index.html: layout, modal e botões
-- src/levels.js: os 6 níveis (html, starterCSS, solutions, explanation, validate)
-- src/main.js: lógica do jogo (checar resposta, próximo nível, mostrar solução)
+- src/levels.js: os 12 níveis (html, starterCSS, solutions, explanation, validate)
+- src/main.js: lógica do jogo (checar resposta, próximo nível, painel de explicação)
 - src/preview.js: renderização dos iframes de preview e alvo
 - src/styles.css: tema Dracula, editor e banners
 - vite.config.js: base '/LearningGame/' para o GitHub Pages

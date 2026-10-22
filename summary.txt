@@ -30,33 +30,41 @@ PROJECT RULES (AGENTS.md)
 
 GAME FEATURES
 -------------
-- 6 levels in src/levels.js (all flexbox)
+- 12 levels in src/levels.js (all flexbox)
 - Editor with line numbers + live preview iframe (updates on every keystroke)
 - Target iframe showing the goal (uses level.solutions[0].css)
-- Hint box, Check Answer, Reset, Show Answer, CSS Reference buttons
+- Hint box, Check Answer, Reset, Show Hint and CSS Tags buttons (there is NO
+  "Show Answer" button: the student has to solve the level by themselves)
+- Language button (top right): opens a menu with English and Português
+  (BR). The choice is saved in localStorage ("cssquest-language") and the
+  whole game switches instantly: interface text, level titles, hints,
+  descriptions, the "How it works" explanations, the CSS Tags guide and
+  the result banners. CSS code, CSS values and the validation rules stay
+  the same in every language.
 - Dracula theme throughout (bg #282A36, cyan #8BE9FD, green #50FA7B ...)
 - "Next Level ->" green button (no auto-advance)
-- CSS Reference modal: property names only, cyan chips
-- Multiple solutions per level (when they apply); "Show Answer" cycles them
+- CSS Tags modal (replaces the old "CSS Reference" modal): a clickable
+  guide with 26 CSS properties grouped in Layout, Flexbox, Box model and
+  Color and text. Every tag is a button: clicking it expands a panel with
+  what the property does, the most common values and a code example.
+  Clicking it again collapses it. The modal closes with the X, by clicking
+  outside or with the Esc key, and it also closes when the level changes.
+- Some levels have more than one valid solution (when they apply). The
+  validation always uses geometry, so different CSS that produces the same
+  layout is accepted (level 10 accepts margin-top: auto or space-between).
 - After solving a level, a "How it works:" panel appears in the LEFT column
   (below the buttons) with one entry per element (HTML selector or CSS
   property) explaining what it does, plus a "Key idea:" tip at the end.
-- The explanation panel also appears when the student clicks "Show Answer"
-  (info style banner, cyan) and explains the solution that was loaded.
 - The explanation panel has two small buttons in its header:
   ▾ shrinks it to the title only (▸ expands it again) and ✕ removes it.
-  Asking for the answer again (Show Answer) brings the panel back.
-- The "Show Answer" button turns into "✕ Clear Answer" while a solution is
-  loaded: clicking it removes the solution from the editor and brings back
-  the starter code. Typing in the editor also turns it back to "Show Answer".
 - The celebration (particles, screen flash, "Correct!" stamp) happens only
   ONCE per level visit. Pressing "Check Answer" again on a level that was
   already solved keeps the banner and the explanation, with no new effects.
 - The explanation shown after solving matches the answer the student wrote
   (a Grid answer on level 6 gets the Grid explanation).
 
-LEVELS (6)
-----------
+LEVELS (12)
+-----------
 1.  Flexbox Centering (justify-content + align-items)
 2.  Flexbox Column Layout (flex-direction: column)
 3.  Flexbox Spacing with gap
@@ -64,7 +72,59 @@ LEVELS (6)
 5.  Flexbox Order Property
 6.  Responsive Flexbox Wrapping (flex-wrap + flex: 1 1 100px)
     - Primary answer uses flexbox; a CSS Grid solution still exists as an
-      alternate (Show Answer cycles: flex first, grid second)
+      alternate (the grid one is only shown in the explanation, not in the
+      target, which always uses the first solution)
+7.  Proportional Widths with flex-grow (flex: 1 / flex: 2)
+8.  Spreading Items with space-between (justify-content: space-between)
+9.  Aligning a Single Item with align-self (align-self: flex-end)
+10. Pushing the Footer to the Bottom (margin-top: auto)
+11. Keeping a Size with flex-shrink (flex-shrink: 0)
+12. Flexbox Inside Flexbox (nested flex container)
+
+VAGUE HINTS (changed later)
+---------------------------
+- The hints do NOT give the answer anymore. They explain the MECHANISM
+  ("flexbox aligns on two axes", "an automatic margin eats the free space",
+  "one item can break the rule of the container") without naming the
+  property and the value the student has to type.
+- Every hint exists in English (src/levels.js) and in Portuguese
+  (src/levels-pt-BR.js), and both were rewritten together.
+
+REMOVED FEATURE
+---------------
+- The "Show Answer" button (and the "Clear Answer" state of that button)
+  was removed. Now the level has to be solved by the student: the editor
+  only contains the starter code or what the student typed.
+  Removed from index.html, src/main.js (showAnswer, clearAnswer,
+  updateAnswerButton, answerLoaded, solutionIndex), src/i18n.js
+  (showAnswer, clearAnswer, loadAnswerTip, clearAnswerTip,
+  resultAnswerLoaded, resultAnswerLoadedMany) and src/styles.css
+  (.btn-answer and .result-banner.info).
+- The explanation panel still opens when the student solves the level, and
+  it still explains every property of the answer the student wrote.
+
+NEW LEVELS (7 -> 12) - WHAT WAS ADDED
+-------------------------------------
+- Level 7 (flex-grow): three bars share the row; the purple one must be
+  exactly twice as wide (85px / 170px / 85px). The validator checks the
+  computed flex-grow values AND the real width ratio.
+- Level 8 (space-between): four buttons must be spread across the row with
+  equal gaps (80px each) and touching both edges. The validator compares the
+  three gaps and the distance to the edges.
+- Level 9 (align-self): the container keeps align-items: center, but only the
+  purple box goes to the bottom. The validator checks that the other two
+  boxes are still centered.
+- Level 10 (margin-top: auto): the footer is pushed to the bottom of a
+  column flex container. justify-content: space-between is also accepted,
+  because the validation is done with geometry, not with the CSS text.
+- Level 11 (flex-shrink: 0): the button must keep its 80px while the long
+  bar shrinks (300px -> 170px).
+- Level 12 (nested flex): the header needs display: flex so gap and
+  align-items start to work (avatar 48x48 + title 160x16 side by side).
+- Every new level also has the Portuguese text (title, description, hint,
+  starter comments, explanations and tip) in src/levels-pt-BR.js.
+- The level navigation was made scrollable (overflow-x: auto) so 12 dots
+  fit: all of them are visible from 900px up, below that the nav scrolls.
 
 REMOVED LEVELS (previous 10 -> 6)
 ---------------------------------
@@ -89,9 +149,9 @@ IMPORTANT FIXES / DECISIONS
 - Check Answer marks level completed, shows explanation + green Next Level
   button.
 - The game intentionally teaches flexbox only: all remaining levels use
-  display: flex, and the CSS Reference only lists flexbox + box-model props.
+  display: flex, and the CSS Tags guide lists flexbox + box-model props.
 - Level 6 (Responsive Flexbox Wrapping) keeps a grid alternate solution, but
-  the flex answer comes FIRST so Show Answer and the target display flex.
+  the flex answer comes FIRST so the target preview shows the flex layout.
 
 LEVEL DATA FORMAT
 -----------------
@@ -101,14 +161,25 @@ LEVEL DATA FORMAT
   - explanation: array of { label, text } - label is the element/property
     name (e.g. "justify-content: center"), text explains what it does
   - tip: the main idea of the level, shown in a highlighted box
+- The CSS Tags guide (cssTagsGuide export) is an array of
+  { tag, group, summary, details, values, example } used by the CSS Tags
+  modal: group builds the section titles, summary is the closed line and
+  details + values + example are the expanded content.
 
 KEY FILES
 ---------
-- index.html: layout, modal, buttons, explanation panel
+- index.html: layout, modal, buttons, explanation panel, language picker
 - vite.config.js: base '/LearningGame/' for GitHub Pages
-- src/levels.js: 6 levels (html, starterCSS, solutions[{css, explanation, tip}],
-  validate, cssReference export)
-- src/main.js: game logic, solution cycling, check, next level, explanation
+- src/levels.js: 12 levels (html, starterCSS, solutions[{css, explanation, tip}],
+  validate, cssTagsGuide export)
+- src/levels-pt-BR.js: Portuguese texts of the levels (title, description,
+  hint, starterCSS comments and the explanations/tip of each solution)
+- src/tags-pt-BR.js: Portuguese texts of the CSS Tags guide (summary and
+  details of each property)
+- src/i18n.js: translation engine - languages list, UI dictionary (en and
+  pt-BR), t(key, params), getLevelText(level), getTagText(item)
+- src/main.js: game logic, solution cycling, check, next level, explanation,
+  language switching
 - src/styles.css: Dracula theme, editor, modal, result banner, explanation panel
 - src/preview.js: iframe rendering (updatePreview, updateTarget) with render id
 - src/editor.js: old syntax highlighter (unused)

@@ -13,10 +13,14 @@
   <header class="header">
     <div class="header-left">
       <h1 class="logo">&lt;CSS Quest/&gt;</h1>
-      <span class="subtitle">Learn CSS by Playing</span>
+      <span class="subtitle" data-i18n="subtitle">Learn CSS by Playing</span>
     </div>
     <nav class="level-nav" id="levelNav"></nav>
     <div class="header-right">
+      <div class="language-picker">
+        <button class="btn-language" id="btnLanguage" aria-haspopup="true" aria-expanded="false" title="Language">English</button>
+        <div class="language-menu hidden" id="languageMenu" role="menu"></div>
+      </div>
       <span class="progress-text" id="progressText">0 / 0</span>
     </div>
   </header>
@@ -29,13 +33,13 @@
       </div>
       <p class="challenge-description" id="challengeDescription"></p>
       <div class="hint-box" id="hintBox">
-        <span class="hint-label">Hint:</span>
+        <span class="hint-label" data-i18n="hintLabel">Hint:</span>
         <p class="hint-text" id="hintText"></p>
       </div>
       <div class="editor-section">
         <div class="editor-header">
           <span class="editor-tab active">style.css</span>
-          <span class="editor-label">Write your CSS here</span>
+          <span class="editor-label" data-i18n="editorLabel">Write your CSS here</span>
         </div>
         <div class="editor-container" id="editorContainer">
           <div class="line-numbers" id="lineNumbers"></div>
@@ -45,15 +49,14 @@
         </div>
       </div>
       <div class="challenge-actions">
-        <button class="btn btn-check" id="btnCheck">Check Answer</button>
-        <button class="btn btn-reset" id="btnReset">Reset</button>
-        <button class="btn btn-hint" id="btnHint">Show Hint</button>
-        <button class="btn btn-answer" id="btnAnswer">Show Answer</button>
-        <button class="btn btn-reference" id="btnReference">CSS Reference</button>
+        <button class="btn btn-check" id="btnCheck" data-i18n="checkAnswer">Check Answer</button>
+        <button class="btn btn-reset" id="btnReset" data-i18n="reset">Reset</button>
+        <button class="btn btn-hint" id="btnHint" data-i18n="showHint">Show Hint</button>
+        <button class="btn btn-tags" id="btnTags" data-i18n="cssTags">CSS Tags</button>
       </div>
       <div class="explanation-panel hidden" id="explanationPanel">
         <div class="explanation-header">
-          <span class="explanation-label">How it works:</span>
+          <span class="explanation-label" data-i18n="howItWorks">How it works:</span>
           <div class="explanation-actions">
             <button class="explanation-btn" id="btnCollapseExplanation" title="Shrink the explanation" aria-label="Shrink the explanation">&#9662;</button>
             <button class="explanation-btn" id="btnCloseExplanation" title="Remove the explanation" aria-label="Remove the explanation">&#10005;</button>
@@ -63,27 +66,28 @@
       </div>
     </section>
 
-    <div class="reference-modal hidden" id="referenceModal">
-      <div class="reference-content">
-        <div class="reference-header">
-          <h3>CSS Reference</h3>
-          <button class="reference-close" id="referenceClose">&times;</button>
+    <div class="tags-modal hidden" id="tagsModal">
+      <div class="tags-content">
+        <div class="tags-header">
+          <h3 data-i18n="tagsTitle">CSS Tags</h3>
+          <button class="tags-close" id="tagsClose">&times;</button>
         </div>
-        <div class="reference-body" id="referenceBody"></div>
+        <p class="tags-intro" data-i18n="tagsIntro">Click a tag to see what it does, the most common values and an example.</p>
+        <div class="tags-body" id="tagsBody"></div>
       </div>
     </div>
 
     <section class="preview-panel">
       <div class="preview-header">
-        <span class="preview-label">Live Preview</span>
-        <span class="preview-status" id="previewStatus">Updating...</span>
+        <span class="preview-label" data-i18n="livePreview">Live Preview</span>
+        <span class="preview-status" id="previewStatus" data-i18n="updating">Updating...</span>
       </div>
       <div class="preview-container">
         <div class="preview-frame-wrapper">
           <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
         </div>
         <div class="target-wrapper" id="targetWrapper">
-          <span class="target-label">Target</span>
+          <span class="target-label" data-i18n="target">Target</span>
           <div class="target-frame-wrapper">
             <iframe id="targetFrame" sandbox="allow-scripts allow-same-origin"></iframe>
           </div>

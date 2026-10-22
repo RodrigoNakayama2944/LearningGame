@@ -1,9 +1,216 @@
-const cssReference = [
-  'display', 'flex', 'width', 'height',
-  'padding', 'border', 'border-radius',
-  'background', 'color', 'font-size', 'font-weight',
-  'text-align', 'justify-content', 'align-items',
-  'flex-direction', 'flex-wrap', 'gap', 'order',
+// Guia de tags CSS usado pelo botão "CSS Tags".
+// Cada item tem: tag (o nome da propriedade), group (o tema),
+// summary (resumo curto), details (o que ela faz), values (valores comuns)
+// e example (um exemplo de código).
+const cssTagsGuide = [
+  {
+    tag: 'display',
+    group: 'Layout',
+    summary: 'Chooses how an element is displayed.',
+    details: 'Picks the layout model of the element. With <code>display: flex</code> the element becomes a <strong>flex container</strong> and its children become <em>flex items</em>.',
+    values: 'block, inline, flex, grid, none',
+    example: '.container {\n  display: flex;\n}'
+  },
+  {
+    tag: 'flex-direction',
+    group: 'Flexbox',
+    summary: 'Sets the direction of the main axis.',
+    details: 'Decides whether the items flow in a row (<code>row</code>) or in a column (<code>column</code>). The main axis always follows this direction.',
+    values: 'row, row-reverse, column, column-reverse',
+    example: '.container {\n  display: flex;\n  flex-direction: column;\n}'
+  },
+  {
+    tag: 'flex-wrap',
+    group: 'Flexbox',
+    summary: 'Decides if items break into new lines.',
+    details: 'By default every item stays on one line and gets squeezed. With <code>wrap</code> the items that do not fit move to a new line instead of shrinking.',
+    values: 'nowrap, wrap, wrap-reverse',
+    example: '.container {\n  display: flex;\n  flex-wrap: wrap;\n}'
+  },
+  {
+    tag: 'justify-content',
+    group: 'Flexbox',
+    summary: 'Distributes the items along the main axis.',
+    details: 'Moves the items horizontally in a row (or vertically in a column). <code>center</code> centers them, <code>space-between</code> pushes the first to the start and the last to the end.',
+    values: 'flex-start, center, flex-end, space-between, space-around, space-evenly',
+    example: '.container {\n  display: flex;\n  justify-content: center;\n}'
+  },
+  {
+    tag: 'align-items',
+    group: 'Flexbox',
+    summary: 'Aligns the items on the cross axis.',
+    details: 'Moves the items vertically in a row (or horizontally in a column). It is the pair of <code>justify-content</code>: one handles the main axis, the other handles the cross axis.',
+    values: 'flex-start, center, flex-end, stretch, baseline',
+    example: '.container {\n  display: flex;\n  align-items: center;\n}'
+  },
+  {
+    tag: 'align-content',
+    group: 'Flexbox',
+    summary: 'Distributes the lines when the container wraps.',
+    details: 'Works only when there are several lines (with <code>flex-wrap: wrap</code>). It distributes those lines along the cross axis.',
+    values: 'flex-start, center, flex-end, space-between, stretch',
+    example: '.container {\n  display: flex;\n  flex-wrap: wrap;\n  align-content: space-between;\n}'
+  },
+  {
+    tag: 'align-self',
+    group: 'Flexbox',
+    summary: 'Aligns one single item on the cross axis.',
+    details: 'Overrides the <code>align-items</code> of the container for just one item, which is handy to push one box to the top or to the bottom.',
+    values: 'auto, flex-start, center, flex-end, stretch',
+    example: '.box {\n  align-self: flex-end;\n}'
+  },
+  {
+    tag: 'gap',
+    group: 'Flexbox',
+    summary: 'Space between the items.',
+    details: 'Adds a fixed space between the items (and around them when you use two values). It is easier than adding margins to every item.',
+    values: 'any length (px, rem, %)',
+    example: '.container {\n  display: flex;\n  gap: 20px;\n}'
+  },
+  {
+    tag: 'order',
+    group: 'Flexbox',
+    summary: 'Changes the visual order of an item.',
+    details: 'Moves an item without touching the HTML. The default is <code>0</code>, negative values come first and bigger values come last.',
+    values: 'any whole number',
+    example: '.box {\n  order: 2;\n}'
+  },
+  {
+    tag: 'flex',
+    group: 'Flexbox',
+    summary: 'Shortcut for grow, shrink and basis.',
+    details: 'Shorthand that writes <code>flex-grow</code>, <code>flex-shrink</code> and <code>flex-basis</code> in one line. <code>flex: 1</code> means every item grows the same amount to fill the row.',
+    values: 'flex: 1, flex: 1 1 100px, flex: 0 0 auto',
+    example: '.box {\n  flex: 1;\n}'
+  },
+  {
+    tag: 'flex-grow',
+    group: 'Flexbox',
+    summary: 'How much an item grows to fill the space.',
+    details: 'A number that defines the share of the free space each item receives. <code>flex-grow: 0</code> means the item never grows.',
+    values: '0 (default), 1, 2, 3...',
+    example: '.box {\n  flex-grow: 2;\n}'
+  },
+  {
+    tag: 'flex-shrink',
+    group: 'Flexbox',
+    summary: 'How much an item shrinks when space is missing.',
+    details: 'Defines how fast the item gets smaller when the row is too small. <code>flex-shrink: 0</code> keeps the item from shrinking.',
+    values: '1 (default), 0, 2, 3...',
+    example: '.box {\n  flex-shrink: 0;\n}'
+  },
+  {
+    tag: 'flex-basis',
+    group: 'Flexbox',
+    summary: 'The starting size of an item on the main axis.',
+    details: 'Sets the size the item has before the free space is distributed. It works like <code>width</code> in a row and like <code>height</code> in a column.',
+    values: 'auto (default), 100px, 30%, content',
+    example: '.box {\n  flex-basis: 120px;\n}'
+  },
+  {
+    tag: 'width',
+    group: 'Box model',
+    summary: 'The width of an element.',
+    details: 'Sets how wide the element is. It only accepts a value, not a number without a unit (except <code>0</code>).',
+    values: 'auto, 100px, 50%, 100vw',
+    example: '.box {\n  width: 120px;\n}'
+  },
+  {
+    tag: 'height',
+    group: 'Box model',
+    summary: 'The height of an element.',
+    details: 'Sets how tall the element is. Without it the height follows the content inside the element.',
+    values: 'auto, 100px, 50vh',
+    example: '.box {\n  height: 60px;\n}'
+  },
+  {
+    tag: 'max-width',
+    group: 'Box model',
+    summary: 'The maximum width allowed.',
+    details: 'The element can be smaller, but never bigger than this limit. It is the classic trick to keep a layout readable on big screens.',
+    values: 'none (default), 600px, 90%',
+    example: '.container {\n  max-width: 600px;\n}'
+  },
+  {
+    tag: 'padding',
+    group: 'Box model',
+    summary: 'The space inside the element.',
+    details: 'Space between the content and the border. It is part of the element, so it makes the element bigger. One value applies to all sides, two values apply to top/bottom and left/right.',
+    values: '0, 10px, 1rem, 10px 20px',
+    example: '.box {\n  padding: 16px;\n}'
+  },
+  {
+    tag: 'margin',
+    group: 'Box model',
+    summary: 'The space outside the element.',
+    details: 'Space between the element and the other elements around it. Unlike padding, the margin is not painted with the background of the element.',
+    values: '0, auto, 10px, 0 auto',
+    example: '.box {\n  margin: 0 auto;\n}'
+  },
+  {
+    tag: 'border',
+    group: 'Box model',
+    summary: 'The border around the element.',
+    details: 'Draws a line around the edge of the element, outside the padding and inside the margin. The shorthand writes the width, the style and the color.',
+    values: '1px solid #44475A, 2px dashed red, none',
+    example: '.box {\n  border: 2px solid #6272A4;\n}'
+  },
+  {
+    tag: 'border-radius',
+    group: 'Box model',
+    summary: 'Rounds the corners of the element.',
+    details: 'Makes the corners round. With <code>50%</code> the element becomes a circle when its width and height are the same.',
+    values: '0, 8px, 50%',
+    example: '.box {\n  border-radius: 50%;\n}'
+  },
+  {
+    tag: 'box-sizing',
+    group: 'Box model',
+    summary: 'How width and height are calculated.',
+    details: 'With <code>border-box</code> the padding and the border are included inside the width you set, which makes the sizes much easier to predict.',
+    values: 'content-box (default), border-box',
+    example: '* {\n  box-sizing: border-box;\n}'
+  },
+  {
+    tag: 'background',
+    group: 'Color and text',
+    summary: 'The background of an element.',
+    details: 'Sets the background color, image, position and size all at once. A color alone is enough to fill the element.',
+    values: '#3b82f6, red, linear-gradient(...), url(image.png)',
+    example: '.box {\n  background: #3b82f6;\n}'
+  },
+  {
+    tag: 'color',
+    group: 'Color and text',
+    summary: 'The color of the text.',
+    details: 'Changes the color of the text and of the icons that use the current color.',
+    values: '#282A36, red, white, currentColor',
+    example: '.box {\n  color: white;\n}'
+  },
+  {
+    tag: 'font-size',
+    group: 'Color and text',
+    summary: 'The size of the text.',
+    details: 'Defines how big the text is. <code>rem</code> is better than <code>px</code> because it follows the size chosen by the user in the browser.',
+    values: '16px, 1rem, 120%, larger',
+    example: 'h1 {\n  font-size: 2rem;\n}'
+  },
+  {
+    tag: 'font-weight',
+    group: 'Color and text',
+    summary: 'How thick the text is.',
+    details: 'Controls the thickness of the letters. The normal keywords are enough for almost every case: <code>normal</code>, <code>bold</code> and <code>lighter</code>.',
+    values: 'normal, bold, 100 to 900',
+    example: 'h1 {\n  font-weight: bold;\n}'
+  },
+  {
+    tag: 'text-align',
+    group: 'Color and text',
+    summary: 'The horizontal alignment of the text.',
+    details: 'Aligns the text inside the element: to the left, to the right or centered. It does not move the element itself, only the text inside it.',
+    values: 'left, center, right, justify',
+    example: '.box {\n  text-align: center;\n}'
+  }
 ]
 
 // Cada solução tem: css (o código), explanation (o que cada elemento faz)
@@ -13,7 +220,7 @@ const levels = [
     id: 1,
     title: 'Flexbox Centering',
     description: 'The container is already a flex container. Perfectly center the blue box inside it using flexbox.',
-    hint: 'The container already has display: flex. Add justify-content: center and align-items: center.',
+    hint: 'The container is already a flex container. Flexbox aligns the items on two axes at the same time: one moves them sideways, the other moves them up and down. Your box needs both.',
     html: `<div class="container">
   <div class="box"></div>
 </div>`,
@@ -100,7 +307,7 @@ const levels = [
     id: 2,
     title: 'Flexbox Column Layout',
     description: 'Stack the three boxes vertically, evenly spaced, and centered horizontally.',
-    hint: 'Use flex-direction: column, justify-content: space-evenly, and align-items: center.',
+    hint: 'The three boxes have to go one below the other instead of side by side, spread along the height of the container. Flexbox has one property that changes the direction of the flow and another one that spreads the items inside it.',
     html: `<div class="container">
   <div class="box box-1">1</div>
   <div class="box box-2">2</div>
@@ -217,7 +424,7 @@ const levels = [
     id: 3,
     title: 'Flexbox Spacing with gap',
     description: 'Arrange the three boxes in a horizontal row with exactly 20px of space between them, centered in the container.',
-    hint: 'The container already has display: flex. Add justify-content: center, align-items: center, and gap: 20px.',
+    hint: 'The three boxes have to stay in a row, centered as a group, with exactly 20px between each pair of them. Flexbox has one property for the space between the items and another one to center the group.',
     html: `<div class="container">
   <div class="box box-1"></div>
   <div class="box box-2"></div>
@@ -306,7 +513,7 @@ const levels = [
     id: 4,
     title: 'Flexbox Wrapping',
     description: 'The boxes overflow the container. Make them wrap to the next line when there is not enough space, with 10px gaps.',
-    hint: 'The container already has display: flex. Add flex-wrap: wrap and gap: 10px.',
+    hint: 'The boxes should form three rows of two instead of one long line. When the items do not fit, flexbox can push them to a new line, and the distance between the lines can be controlled too.',
     html: `<div class="container">
   <div class="box">A</div>
   <div class="box">B</div>
@@ -408,7 +615,7 @@ const levels = [
     id: 5,
     title: 'Flexbox Order Property',
     description: 'The boxes are displayed in HTML order 1-2-3. Using the CSS order property, reverse them to display as 3-2-1 without changing the HTML.',
-    hint: 'Set order: 3 on box-1, order: 2 on box-2, and order: 1 on box-3.',
+    hint: 'The final position of an item does not have to be the position of its code. Flexbox can rearrange the items without touching the HTML.',
     html: `<div class="container">
   <div class="box box-1">1</div>
   <div class="box box-2">2</div>
@@ -509,7 +716,7 @@ const levels = [
     id: 6,
     title: 'Responsive Flexbox Wrapping',
     description: 'Make the six cards fill the container responsively, wrapping onto new lines so they always fit no matter the width.',
-    hint: 'The container already has display: flex. Add flex-wrap: wrap, gap: 10px, and flex: 1 1 100px on each card.',
+    hint: 'Each card should be as wide as it can be, but never narrower than 100px, and the cards should move to the next line when there is no room. Flexbox decides the size of the items and also if they break into new lines.',
     html: `<div class="grid">
   <div class="card">Card 1</div>
   <div class="card">Card 2</div>
@@ -662,8 +869,535 @@ const levels = [
       }
       return rows.size >= 2 && rows.size <= 4
     }
+  },
+  {
+    id: 7,
+    title: 'Proportional Widths with flex-grow',
+    description: 'Three bars share the same row. Make the purple bar twice as wide as the blue and the pink ones.',
+    hint: 'The free space can be shared in different proportions between the items. There is a flexbox property that decides how many parts of the free space each item receives.',
+    html: `<div class="container">
+  <div class="bar bar-1"></div>
+  <div class="bar bar-2"></div>
+  <div class="bar bar-3"></div>
+</div>`,
+    starterCSS: `.container {
+  width: 360px;
+  height: 100px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  gap: 10px;
+
+  /* ?? make the purple bar twice as wide ?? */
+}
+
+.bar {
+  height: 100%;
+  border-radius: 6px;
+}
+
+.bar-1 { background: #3b82f6; }
+.bar-2 { background: #8b5cf6; }
+.bar-3 { background: #ec4899; }`,
+    solutions: [
+      {
+        css: `.container {
+  width: 360px;
+  height: 100px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  gap: 10px;
+}
+
+.bar {
+  height: 100%;
+  border-radius: 6px;
+}
+
+.bar-1 { background: #3b82f6; flex: 1; }
+.bar-2 { background: #8b5cf6; flex: 2; }
+.bar-3 { background: #ec4899; flex: 1; }`,
+        explanation: [
+          { label: 'div.container', text: 'The flex container. It is 360px wide with a 10px gap, so the three bars share 340px of free space.' },
+          { label: 'div.bar', text: 'Three flex items. They have no width of their own, so their size comes only from the flex property.' },
+          { label: 'display: flex', text: 'Already in the starter code. It turns the container into a flex container and the bars into flex items.' },
+          { label: 'flex: 1', text: 'Shorthand for <code>flex: 1 1 0%</code>. Each bar with <code>flex: 1</code> takes one share of the free space, and the 0% basis means the size is decided by the shares only.' },
+          { label: 'flex: 2', text: 'The purple bar has twice the grow factor, so it takes two shares. Here there are 4 shares in total (1 + 2 + 1) and each one is 340 / 4 = 85px.' },
+          { label: 'flex-grow', text: 'The number that defines the share of free space each item receives. It only matters when there is free space to share.' },
+          { label: 'gap: 10px', text: 'The 10px between the bars is not part of the free space: the bars share 340px and the gap stays on top of that.' }
+        ],
+        tip: 'flex-grow works like a share of the leftover space: the bigger the number, the bigger the piece. If every bar had <code>flex: 1</code> they would all be the same width, and changing only one number to 2 makes that bar exactly twice as wide as the others.'
+      }
+    ],
+    validate(iframe) {
+      const doc = iframe.contentDocument
+      const container = doc.querySelector('.container')
+      const bars = doc.querySelectorAll('.bar')
+      if (!container || bars.length !== 3) return false
+      const style = iframe.contentWindow.getComputedStyle(container)
+      if (style.display !== 'flex') return false
+      const widths = [...bars].map(bar => bar.getBoundingClientRect().width)
+      if (widths.some(width => width < 20)) return false
+      const grow = [...bars].map(bar => iframe.contentWindow.getComputedStyle(bar).flexGrow)
+      if (grow[0] !== '1' || grow[1] !== '2' || grow[2] !== '1') return false
+      return Math.abs(widths[1] / widths[0] - 2) < 0.15 && Math.abs(widths[1] / widths[2] - 2) < 0.15
+    }
+  },
+  {
+    id: 8,
+    title: 'Spreading Items with space-between',
+    description: 'The four buttons are glued together on the left. Spread them across the whole row with the same space between them.',
+    hint: 'There is empty space inside the container and the four buttons must use all of it. Flexbox has three ways to distribute that space between the items, and only one of them glues the first and the last button to the edges.',
+    html: `<div class="container">
+  <div class="button"></div>
+  <div class="button"></div>
+  <div class="button"></div>
+  <div class="button"></div>
+</div>`,
+    starterCSS: `.container {
+  width: 400px;
+  height: 80px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+
+  /* ?? spread the buttons across the row ?? */
+}
+
+.button {
+  width: 40px;
+  height: 40px;
+  background: #3b82f6;
+  border-radius: 6px;
+}`,
+    solutions: [
+      {
+        css: `.container {
+  width: 400px;
+  height: 80px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.button {
+  width: 40px;
+  height: 40px;
+  background: #3b82f6;
+  border-radius: 6px;
+}`,
+        explanation: [
+          { label: 'div.container', text: 'The flex container. It is 400px wide and the four buttons take 160px, so 240px of free space are left to distribute.' },
+          { label: 'div.button', text: 'Four flex items of 40x40px. With the default <code>justify-content</code> they all stay glued to the left edge.' },
+          { label: 'display: flex', text: 'Already in the starter code. It puts the four buttons in a single row.' },
+          { label: 'justify-content: space-between', text: 'Puts the first button at the start of the row and the last one at the end, spreading the free space equally between the buttons. Here that is 240px / 3 = 80px between each pair.' },
+          { label: 'justify-content: space-around', text: 'Almost the same idea, but it also adds half of the gap space at the edges, so the first button does not touch the left border.' },
+          { label: 'justify-content: space-evenly', text: 'Spreads the free space equally everywhere, including the edges, so the gap at the borders is the same size as the gap between the buttons.' },
+          { label: 'align-items: center', text: 'Already in the starter code. It centers the buttons vertically inside the 80px tall row.' }
+        ],
+        tip: 'The three space options differ only in what happens with the leftover space: <code>space-between</code> glues the first and the last item to the edges, <code>space-around</code> leaves half a gap at the edges, and <code>space-evenly</code> leaves a full gap at the edges.'
+      }
+    ],
+    validate(iframe) {
+      const doc = iframe.contentDocument
+      const container = doc.querySelector('.container')
+      if (!container) return false
+      const style = iframe.contentWindow.getComputedStyle(container)
+      if (style.display !== 'flex') return false
+      const buttons = doc.querySelectorAll('.button')
+      if (buttons.length !== 4) return false
+      const rects = [...buttons].map(button => button.getBoundingClientRect())
+      const containerRect = container.getBoundingClientRect()
+      if (Math.abs(rects[0].left - containerRect.left) > 8) return false
+      if (Math.abs(rects[3].right - containerRect.right) > 8) return false
+      const gaps = []
+      for (let i = 1; i < rects.length; i++) {
+        gaps.push(rects[i].left - rects[i - 1].right)
+      }
+      const biggest = Math.max(...gaps)
+      const smallest = Math.min(...gaps)
+      if (biggest - smallest > 10) return false
+      return biggest > 50
+    }
+  },
+  {
+    id: 9,
+    title: 'Aligning a Single Item with align-self',
+    description: 'All the boxes are centered in the row. Move only the purple box to the bottom of the container.',
+    hint: 'The rule that centers every item is set on the container, but one single item can decide not to follow it. The property that does this lives on the item, not on the container.',
+    html: `<div class="container">
+  <div class="box box-1"></div>
+  <div class="box box-2"></div>
+  <div class="box box-3"></div>
+</div>`,
+    starterCSS: `.container {
+  width: 300px;
+  height: 200px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  /* ?? move only the purple box to the bottom ?? */
+}
+
+.box {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+}
+
+.box-1 { background: #3b82f6; }
+.box-2 { background: #8b5cf6; }
+.box-3 { background: #ec4899; }`,
+    solutions: [
+      {
+        css: `.container {
+  width: 300px;
+  height: 200px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.box {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+}
+
+.box-1 { background: #3b82f6; }
+.box-2 { background: #8b5cf6; align-self: flex-end; }
+.box-3 { background: #ec4899; }`,
+        explanation: [
+          { label: 'div.container', text: 'The flex container. It is 300x200px and the boxes are 60x60px, so there is room to move them up and down.' },
+          { label: 'div.box', text: 'Three flex items. All of them are 60x60px, so what changes is the vertical position, never the size.' },
+          { label: 'display: flex', text: 'Already in the starter code. It puts the three boxes in a single row.' },
+          { label: 'align-items: center', text: 'Already in the starter code. It centers every item on the cross axis, which is the vertical axis inside a row.' },
+          { label: 'align-self: flex-end', text: 'Overrides <code>align-items</code> for this item only. <code>flex-end</code> pushes the purple box to the end of the cross axis, which is the bottom of the container.' },
+          { label: 'align-self: flex-start', text: 'The opposite: it would push the box to the top of the container.' },
+          { label: 'align-self: center', text: 'Would keep the purple box centered, exactly like the other two.' }
+        ],
+        tip: 'align-items is the rule for the whole container and align-self is the exception for one item. It is the same relationship as a class and an inline style: the container decides the rule and the item can break it.'
+      }
+    ],
+    validate(iframe) {
+      const doc = iframe.contentDocument
+      const container = doc.querySelector('.container')
+      if (!container) return false
+      const style = iframe.contentWindow.getComputedStyle(container)
+      if (style.display !== 'flex') return false
+      if (style.alignItems !== 'center') return false
+      const boxes = doc.querySelectorAll('.box')
+      if (boxes.length !== 3) return false
+      const rects = [...boxes].map(box => box.getBoundingClientRect())
+      const containerRect = container.getBoundingClientRect()
+      if (containerRect.bottom - rects[1].bottom > 10) return false
+      const containerCenter = (containerRect.top + containerRect.bottom) / 2
+      const firstCenter = (rects[0].top + rects[0].bottom) / 2
+      const lastCenter = (rects[2].top + rects[2].bottom) / 2
+      if (Math.abs(firstCenter - containerCenter) > 8) return false
+      if (Math.abs(lastCenter - containerCenter) > 8) return false
+      return true
+    }
+  },
+  {
+    id: 10,
+    title: 'Pushing the Footer to the Bottom',
+    description: 'The footer should stay at the bottom of the card and all the empty space should be above it.',
+    hint: 'The footer should stay at the bottom of the card even if the content changes. Margins can be auto, and an automatic margin inside a flex container eats all the free space of the axis.',
+    html: `<div class="page">
+  <div class="content"></div>
+  <div class="footer"></div>
+</div>`,
+    starterCSS: `.page {
+  width: 320px;
+  height: 240px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  /* ?? push the footer to the bottom ?? */
+}
+
+.content {
+  height: 80px;
+  background: #3b82f6;
+  border-radius: 6px;
+}
+
+.footer {
+  height: 40px;
+  background: #8b5cf6;
+  border-radius: 6px;
+}`,
+    solutions: [
+      {
+        css: `.page {
+  width: 320px;
+  height: 240px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.content {
+  height: 80px;
+  background: #3b82f6;
+  border-radius: 6px;
+}
+
+.footer {
+  height: 40px;
+  background: #8b5cf6;
+  border-radius: 6px;
+  margin-top: auto;
+}`,
+        explanation: [
+          { label: 'div.page', text: 'The flex container, in column direction. It is 240px tall with 16px of padding, so the inner area is 208px.' },
+          { label: 'div.content', text: 'The first flex item. It is 80px tall and it stays at the top of the column.' },
+          { label: 'div.footer', text: 'The second flex item. It is 40px tall and it should stay at the bottom of the column.' },
+          { label: 'flex-direction: column', text: 'Already in the starter code. The column direction is what makes the free space appear between the content and the footer.' },
+          { label: 'margin-top: auto', text: 'An auto margin eats all the free space of the container. On the footer it pushes it to the bottom, and the content stays at the top.' },
+          { label: 'justify-content: space-between', text: 'Another way to reach the same result: it distributes the free space between the items, so the footer ends up at the bottom.' },
+          { label: 'gap: 16px', text: 'The minimum space between the items. The auto margin does not remove the gap, it adds all the extra space on top of it.' }
+        ],
+        tip: 'The auto margin is the flexbox trick for pushing an element to the end of a column. It is the same idea behind the "footer at the bottom of the page" recipe that every CSS framework uses.'
+      }
+    ],
+    validate(iframe) {
+      const doc = iframe.contentDocument
+      const page = doc.querySelector('.page')
+      const content = doc.querySelector('.content')
+      const footer = doc.querySelector('.footer')
+      if (!page || !content || !footer) return false
+      const style = iframe.contentWindow.getComputedStyle(page)
+      if (style.display !== 'flex' || style.flexDirection !== 'column') return false
+      const pageRect = page.getBoundingClientRect()
+      const footerRect = footer.getBoundingClientRect()
+      const contentRect = content.getBoundingClientRect()
+      const innerBottom = pageRect.bottom - parseFloat(style.paddingBottom)
+      if (Math.abs(footerRect.bottom - innerBottom) > 10) return false
+      return footerRect.top - contentRect.bottom > 30
+    }
+  },
+  {
+    id: 11,
+    title: 'Keeping a Size with flex-shrink',
+    description: 'The purple button is being squeezed. Keep it at 80px wide while the long blue bar shrinks to fit.',
+    hint: 'When there is not enough room, flexbox shrinks the items to make everything fit. One item has to keep its size anyway, and flexbox has a property that protects it from shrinking.',
+    html: `<div class="container">
+  <div class="bar"></div>
+  <div class="button"></div>
+</div>`,
+    starterCSS: `.container {
+  width: 260px;
+  height: 80px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  /* ?? keep the button at 80px ?? */
+}
+
+.bar {
+  width: 300px;
+  height: 40px;
+  background: #3b82f6;
+  border-radius: 6px;
+}
+
+.button {
+  width: 80px;
+  height: 40px;
+  background: #8b5cf6;
+  border-radius: 6px;
+}`,
+    solutions: [
+      {
+        css: `.container {
+  width: 260px;
+  height: 80px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bar {
+  width: 300px;
+  height: 40px;
+  background: #3b82f6;
+  border-radius: 6px;
+}
+
+.button {
+  width: 80px;
+  height: 40px;
+  background: #8b5cf6;
+  border-radius: 6px;
+  flex-shrink: 0;
+}`,
+        explanation: [
+          { label: 'div.container', text: 'The flex container. It is 260px wide, so with the 10px gap there are only 250px for the two items, but together they ask for 380px.' },
+          { label: 'div.bar', text: 'The first flex item. It wants to be 300px wide, more than the available space, so it has to shrink.' },
+          { label: 'div.button', text: 'The second flex item. It wants to be 80px wide, and it is the one that must keep that size.' },
+          { label: 'display: flex', text: 'Already in the starter code. It puts the bar and the button in a single row.' },
+          { label: 'flex-shrink: 0', text: 'Tells the browser that this item refuses to shrink. The default is 1, which means "shrink me if you need to".' },
+          { label: 'flex-shrink: 1', text: 'The default value. When there is not enough space, every item with <code>flex-shrink: 1</code> gives up part of its size, in proportion to its width.' },
+          { label: 'gap: 10px', text: 'The 10px between the items is never flexible: it does not shrink, it is always there.' }
+        ],
+        tip: 'Shrink and grow are two sides of the same coin: flex-grow takes the free space when there is extra space, and flex-shrink gives space back when there is not enough. Setting <code>flex-shrink: 0</code> is the way to protect a size that cannot be negotiated.'
+      }
+    ],
+    validate(iframe) {
+      const doc = iframe.contentDocument
+      const container = doc.querySelector('.container')
+      const bar = doc.querySelector('.bar')
+      const button = doc.querySelector('.button')
+      if (!container || !bar || !button) return false
+      const style = iframe.contentWindow.getComputedStyle(container)
+      if (style.display !== 'flex') return false
+      const buttonRect = button.getBoundingClientRect()
+      const barRect = bar.getBoundingClientRect()
+      if (Math.abs(buttonRect.width - 80) > 6) return false
+      return barRect.width < 190
+    }
+  },
+  {
+    id: 12,
+    title: 'Flexbox Inside Flexbox',
+    description: 'The avatar and the title should be side by side in the card header, but they are stacked on top of each other.',
+    hint: 'The header already has a distance between the items and it centers them vertically, but neither of those has any effect. Both of them are ignored when the element is not really a flex container.',
+    html: `<div class="card">
+  <div class="header">
+    <div class="avatar"></div>
+    <div class="title"></div>
+  </div>
+  <div class="body"></div>
+</div>`,
+    starterCSS: `.card {
+  width: 320px;
+  height: 200px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+
+  /* ?? put the avatar and the title side by side ?? */
+  gap: 12px;
+  align-items: center;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  background: #3b82f6;
+  border-radius: 50%;
+}
+
+.title {
+  width: 160px;
+  height: 16px;
+  background: #8b5cf6;
+  border-radius: 4px;
+}
+
+.body {
+  flex: 1;
+  background: #ec4899;
+  border-radius: 6px;
+}`,
+    solutions: [
+      {
+        css: `.card {
+  width: 320px;
+  height: 200px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  background: #3b82f6;
+  border-radius: 50%;
+}
+
+.title {
+  width: 160px;
+  height: 16px;
+  background: #8b5cf6;
+  border-radius: 4px;
+}
+
+.body {
+  flex: 1;
+  background: #ec4899;
+  border-radius: 6px;
+}`,
+        explanation: [
+          { label: 'div.card', text: 'The outer flex container, in column direction. It stacks the header and the body vertically.' },
+          { label: 'div.header', text: 'It should be a flex container as well, but it misses the <code>display: flex</code>. Without it the avatar and the title are normal blocks.' },
+          { label: 'div.avatar', text: 'The first flex item of the header. It is 48x48px, the round avatar.' },
+          { label: 'div.title', text: 'The second flex item. It is 160x16px, the purple bar that works as the title.' },
+          { label: 'display: flex', text: 'The missing piece. It turns the header into a flex container, so the avatar and the title become flex items in a row.' },
+          { label: 'gap: 12px', text: 'Already in the starter code. It only works on a flex container, that is why the gap did nothing until <code>display: flex</code> was added.' },
+          { label: 'align-items: center', text: 'Already in the starter code. It centers the title vertically against the taller avatar.' },
+          { label: 'flex: 1', text: 'Inside the .body it takes the height that is left in the card, because the card is a column flex container.' }
+        ],
+        tip: 'Flexbox works inside flexbox: any element can become a flex container. The rule of thumb is simple: whenever you write <code>gap</code> or <code>align-items</code>, check if that element really has <code>display: flex</code>, otherwise those properties do nothing.'
+      }
+    ],
+    validate(iframe) {
+      const doc = iframe.contentDocument
+      const header = doc.querySelector('.header')
+      const avatar = doc.querySelector('.avatar')
+      const title = doc.querySelector('.title')
+      if (!header || !avatar || !title) return false
+      const style = iframe.contentWindow.getComputedStyle(header)
+      if (style.display !== 'flex') return false
+      const avatarRect = avatar.getBoundingClientRect()
+      const titleRect = title.getBoundingClientRect()
+      const gap = titleRect.left - avatarRect.right
+      if (gap < 5 || gap > 20) return false
+      const avatarCenter = (avatarRect.top + avatarRect.bottom) / 2
+      const titleCenter = (titleRect.top + titleRect.bottom) / 2
+      return Math.abs(avatarCenter - titleCenter) <= 6
+    }
   }
 ]
 
-export { cssReference }
+export { cssTagsGuide }
 export default levels
