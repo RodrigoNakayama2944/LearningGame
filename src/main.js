@@ -1,5 +1,6 @@
 import levels, { cssTagsGuide } from './levels.js'
 import { updatePreview, updateTarget } from './preview.js'
+import { visuallyMatchesTarget } from './visual-check.js'
 import {
   languages,
   LANGUAGE_KEY,
@@ -10,6 +11,52 @@ import {
   getTagText,
   t
 } from './i18n.js'
+import {
+  worlds,
+  isBossLevel,
+  getWorldForLevel,
+  getWorldNameKey,
+  getRank,
+  MAX_XP,
+  MAX_STARS
+} from './quest-map.js'
+import {
+  getProgress,
+  resetProgress,
+  getLevelProgress,
+  isLevelSolved,
+  isLevelUnlocked,
+  getFirstUnsolvedLevelId,
+  getSolvedCount,
+  getTotalStars,
+  getTotalXp,
+  getLastLevelId,
+  setLastLevelId,
+  recordLevelResult,
+  recordBadCheck,
+  setSoundOn,
+  getSoundOn,
+  recordTagOpened,
+  recordLanguageTried,
+  unlockAchievements,
+  hasAchievement,
+  getUnlockedAchievements,
+  getDateKey,
+  ensureDailyChallenge,
+  getDailyChallenge,
+  completeDailyChallenge
+} from './progress.js'
+import { achievements, getAchievementText } from './achievements.js'
+import {
+  setSoundEnabled,
+  isSoundEnabled,
+  playSuccess,
+  playError,
+  playStar,
+  playAchievement,
+  playRankUp,
+  playClick
+} from './sound.js'
 
 const editorInput = document.getElementById('editorInput')
 const editorContainer = document.getElementById('editorContainer')
@@ -17,16 +64,19 @@ const lineNumbers = document.getElementById('lineNumbers')
 const previewFrame = document.getElementById('previewFrame')
 const targetFrame = document.getElementById('targetFrame')
 const targetWrapper = document.getElementById('targetWrapper')
-const levelNav = document.getElementById('levelNav')
 const levelBadge = document.getElementById('levelBadge')
+const worldLabel = document.getElementById('worldLabel')
+const bossBadge = document.getElementById('bossBadge')
 const challengeTitle = document.getElementById('challengeTitle')
 const challengeDescription = document.getElementById('challengeDescription')
 const hintText = document.getElementById('hintText')
 const hintBox = document.getElementById('hintBox')
-const progressText = document.getElementById('progressText')
 const resultBanner = document.getElementById('resultBanner')
 const resultIcon = document.getElementById('resultIcon')
 const resultText = document.getElementById('resultText')
+const resultStars = document.getElementById('resultStars')
+const resultMeta = document.getElementById('resultMeta')
+const resultActions = document.getElementById('resultActions')
 const explanationPanel = document.getElementById('explanationPanel')
 const explanationBody = document.getElementById('explanationBody')
 const btnCollapseExplanation = document.getElementById('btnCollapseExplanation')
@@ -41,83 +91,146 @@ const tagsBody = document.getElementById('tagsBody')
 const tagsClose = document.getElementById('tagsClose')
 const btnLanguage = document.getElementById('btnLanguage')
 const languageMenu = document.getElementById('languageMenu')
+const btnMap = document.getElementById('btnMap')
+const btnSound = document.getElementById('btnSound')
+const rankName = document.getElementById('rankName')
+const xpText = document.getElementById('xpText')
+const xpFill = document.getElementById('xpFill')
+const starsTotal = document.getElementById('starsTotal')
+const missionStrip = document.getElementById('missionStrip')
+const missionSolveLabel = document.getElementById('missionSolveLabel')
+const missionNoHintLabel = document.getElementById('missionNoHintLabel')
+const missionFirstTryLabel = document.getElementById('missionFirstTryLabel')
+const missionTimer = document.getElementById('missionTimer')
+const missionStars = [...document.querySelectorAll('.mission-star')]
+const questModal = document.getElementById('questModal')
+const questBody = document.getElementById('questBody')
+const questClose = document.getElementById('questClose')
+const questTabMap = document.getElementById('questTabMap')
+const questTabAchievements = document.getElementById('questTabAchievements')
+const btnResetProgress = document.getElementById('btnResetProgress')
+const bossOverlay = document.getElementById('bossOverlay')
+const bossTitle = document.getElementById('bossTitle')
+const bossText = document.getElementById('bossText')
+const bossStart = document.getElementById('bossStart')
+const finalOverlay = document.getElementById('finalOverlay')
+const finalStats = document.getElementById('finalStats')
+const btnPlayAgain = document.getElementById('btnPlayAgain')
+const btnReviewLevels = document.getElementById('btnReviewLevels')
+const toastStack = document.getElementById('toastStack')
+const devModal = document.getElementById('devModal')
+const devClose = document.getElementById('devClose')
+const devLogin = document.getElementById('devLogin')
+const devPassword = document.getElementById('devPassword')
+const devError = document.getElementById('devError')
+const devPanel = document.getElementById('devPanel')
+const devLevel = document.getElementById('devLevel')
+const devSolutions = document.getElementById('devSolutions')
+const devAnswer = document.getElementById('devAnswer')
+const devFill = document.getElementById('devFill')
+
+const DEV_PASSWORD_HASH = 0xd7460570
 
 let currentLevelIndex = 0
-let completedLevels = new Set()
 let currentCSS = ''
-// Evita repetir a celebração (partículas, flash e carimbo) quando o aluno
-// clica em "Check Answer" de novo no mesmo nível.
-let levelCelebrated = false
-// Estado do painel de explicação: recolhido (só o título) ou fechado (some).
 let explanationCollapsed = false
-// Último resultado mostrado no banner, guardado para poder ser traduzido
-// de novo quando o aluno troca de idioma.
 let lastResult = null
-// Verdadeiro quando o preview já terminou de atualizar.
 let previewIsLive = false
+let questTab = 'map'
+let isDailyMode = false
+let dailyLevelId = null
+let finalShown = false
+let timerId = null
+let devUnlocked = false
+let devSolutionIndex = 0
+let run = createRun()
+
+const seenBossIntros = new Set()
+const seenWorldClears = new Set()
+
+function createRun() {
+  return {
+    hintsUsed: 0,
+    wrongChecks: 0,
+    startedAt: null,
+    elapsedMs: 0,
+    hintRevealed: false
+  }
+}
 
 function init() {
-  // O idioma escolhido fica guardado no navegador do aluno.
   const savedLanguage = localStorage.getItem(LANGUAGE_KEY)
   if (savedLanguage) setLanguage(savedLanguage)
+  recordLanguageTried(getLanguage())
 
-  buildLevelNav()
-  loadLevel(0)
+  setSoundEnabled(getSoundOn())
   setupEventListeners()
-  applyLanguage()
+  loadLevelById(getResumeLevelId())
+  updateSoundButton()
+  updateHeader()
+  applyLanguage(false)
 }
 
-function buildLevelNav() {
-  levelNav.innerHTML = ''
-  levels.forEach((level, index) => {
-    const dot = document.createElement('button')
-    dot.className = 'level-dot'
-    dot.textContent = level.id
-    dot.title = getLevelText(level).title
-    dot.addEventListener('click', () => loadLevel(index))
-    levelNav.appendChild(dot)
-  })
+function getResumeLevelId() {
+  const firstUnsolved = getFirstUnsolvedLevelId(levels.length)
+  if (levels.some(level => level.id === firstUnsolved) && isLevelUnlocked(firstUnsolved)) {
+    return firstUnsolved
+  }
+
+  const lastId = getLastLevelId()
+  if (levels.some(level => level.id === lastId) && isLevelUnlocked(lastId)) {
+    return lastId
+  }
+
+  for (let i = levels.length - 1; i >= 0; i--) {
+    if (isLevelUnlocked(levels[i].id)) return levels[i].id
+  }
+  return levels[0].id
 }
 
-function updateLevelNav() {
-  const dots = levelNav.querySelectorAll('.level-dot')
-  dots.forEach((dot, index) => {
-    dot.classList.remove('active', 'completed')
-    if (index === currentLevelIndex) {
-      dot.classList.add('active')
-    } else if (completedLevels.has(index)) {
-      dot.classList.add('completed')
-    }
-  })
-  progressText.textContent = `${completedLevels.size} / ${levels.length}`
+function loadLevelById(levelId, options = {}) {
+  const index = levels.findIndex(level => level.id === levelId)
+  if (index < 0) return
+  loadLevel(index, options)
 }
 
-function loadLevel(index) {
-  currentLevelIndex = index
-  levelCelebrated = false
-  explanationCollapsed = false
+function loadLevel(index, options = {}) {
   const level = levels[index]
+  if (!level) return
+
+  if (!isLevelUnlocked(level.id)) {
+    showToast(t('lockedLevel'), t('lockedLevelToast', { n: level.id - 1 }), 'error')
+    return
+  }
+
+  currentLevelIndex = index
+  isDailyMode = Boolean(options.daily)
+  dailyLevelId = isDailyMode ? level.id : null
+  explanationCollapsed = false
+  lastResult = null
+  resetRun()
+
   const text = getLevelText(level)
-
-  levelBadge.textContent = t('levelBadge', { n: level.id })
-  challengeTitle.textContent = text.title
-  challengeDescription.textContent = text.description
-  hintText.textContent = text.hint
-  hintBox.classList.remove('visible')
-  closeTagsGuide()
-
   currentCSS = text.starterCSS
   editorInput.value = text.starterCSS
   updateLineNumbers()
+  setLastLevelId(level.id)
 
-  updatePreview(previewFrame, level.html, text.starterCSS)
-  updateTarget(targetFrame, level.html, text.solutions[0].css)
+  updatePreview(previewFrame, level.html, text.starterCSS, level.themeCSS)
+  updateTarget(targetFrame, level.html, text.solutions[0].css, level.themeCSS)
   targetWrapper.classList.add('visible')
 
+  hintText.textContent = text.hint
+  hintBox.classList.remove('visible')
+  closeTagsGuide()
   hideResult()
-  updateLevelNav()
-  updateCollapseButton()
+  refreshLevelText()
+  updateHintButton()
+  updateHeader()
+  renderMissionStrip()
   editorInput.focus()
+
+  maybeShowBossIntro(level, text)
 }
 
 function setupEventListeners() {
@@ -135,21 +248,64 @@ function setupEventListeners() {
     if (e.target === tagsModal) closeTagsGuide()
   })
   btnLanguage.addEventListener('click', toggleLanguageMenu)
+  btnMap.addEventListener('click', () => openQuestModal('map'))
+  btnSound.addEventListener('click', toggleSound)
+  questClose.addEventListener('click', closeQuestModal)
+  questModal.addEventListener('click', (e) => {
+    if (e.target === questModal) closeQuestModal()
+  })
+  questTabMap.addEventListener('click', () => switchQuestTab('map'))
+  questTabAchievements.addEventListener('click', () => switchQuestTab('achievements'))
+  questBody.addEventListener('click', onQuestBodyClick)
+  btnResetProgress.addEventListener('click', resetAllProgress)
+  bossStart.addEventListener('click', () => {
+    bossOverlay.classList.add('hidden')
+    editorInput.focus()
+  })
+  btnPlayAgain.addEventListener('click', playAgain)
+  btnReviewLevels.addEventListener('click', () => {
+    finalOverlay.classList.add('hidden')
+    openQuestModal('map')
+  })
+  devClose.addEventListener('click', closeDevModal)
+  devLogin.addEventListener('submit', unlockDevTool)
+  devSolutions.addEventListener('click', onDevSolutionClick)
+  devFill.addEventListener('click', fillDevAnswer)
+  devModal.addEventListener('click', (e) => {
+    if (e.target === devModal) closeDevModal()
+  })
+
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.language-picker')) closeLanguageMenu()
   })
   document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.altKey && e.shiftKey && e.code === 'KeyD') {
+      e.preventDefault()
+      if (devModal.classList.contains('hidden')) {
+        openDevModal()
+      } else {
+        closeDevModal()
+      }
+      return
+    }
+
     if (e.key === 'Escape') {
       closeTagsGuide()
       closeLanguageMenu()
+      closeQuestModal()
+      closeDevModal()
+      bossOverlay.classList.add('hidden')
+      finalOverlay.classList.add('hidden')
     }
   })
 }
 
 function onEditorInput() {
+  startTimerIfNeeded()
   currentCSS = editorInput.value
   updateLineNumbers()
-  updatePreview(previewFrame, levels[currentLevelIndex].html, currentCSS)
+  const level = levels[currentLevelIndex]
+  updatePreview(previewFrame, level.html, currentCSS, level.themeCSS)
   previewIsLive = false
   previewStatus.textContent = t('updating')
   clearTimeout(previewStatus._timeout)
@@ -206,13 +362,12 @@ function syncScroll() {
 }
 
 function checkAnswer() {
+  startTimerIfNeeded()
   const level = levels[currentLevelIndex]
   const startedAt = Date.now()
 
-  updatePreview(previewFrame, level.html, currentCSS)
+  updatePreview(previewFrame, level.html, currentCSS, level.themeCSS)
 
-  // A validação só pode acontecer quando o preview já mostra a versão mais
-  // recente do CSS, senão o preview "corrigido" e a resposta não batem.
   const tryCheck = () => {
     if (isPreviewReady() || Date.now() - startedAt > 2000) {
       applyCheckResult(level)
@@ -234,45 +389,123 @@ function applyCheckResult(level) {
   let isCorrect = false
   try {
     isCorrect = level.validate(previewFrame)
-  } catch (error) {
+  } catch {
     isCorrect = false
   }
 
-  if (isCorrect) {
-    completedLevels.add(currentLevelIndex)
-    updateLevelNav()
-    // A celebração acontece só na primeira resposta correta do nível.
-    // Se o aluno clicar em "Check Answer" de novo, o resultado é
-    // atualizado sem partículas, sem flash e sem carimbo.
-    showLevelSuccess(level, !levelCelebrated)
-    levelCelebrated = true
-  } else {
+  if (!isCorrect) {
+    try {
+      isCorrect = visuallyMatchesTarget(previewFrame, targetFrame)
+    } catch {
+      isCorrect = false
+    }
+  }
+
+  if (!isCorrect) {
+    run.wrongChecks += 1
+    recordBadCheck(level.id)
+    renderMissionStrip()
     flashScreen('fail')
     applyStamp(previewFrame.parentElement, 'fail', 'Try again')
     wrongFeedback()
+    playError()
+    showResult('error', 'resultError', false, null, false)
+    return
+  }
 
-    showResult('error', 'resultError', false)
+  stopTimer()
+  if (run.elapsedMs <= 0 && run.startedAt) {
+    run.elapsedMs = Date.now() - run.startedAt
+  }
+
+  const earnedStars = 1 +
+    (run.hintsUsed === 0 ? 1 : 0) +
+    (run.wrongChecks <= 1 ? 1 : 0)
+
+  const rankBefore = getRank(getTotalXp()).key
+  const result = recordLevelResult(level.id, {
+    stars: earnedStars,
+    timeMs: run.elapsedMs
+  })
+
+  const lastRun = {
+    correct: true,
+    wrongChecks: run.wrongChecks,
+    timeMs: run.elapsedMs
+  }
+  let newAchievements = checkNewAchievements(lastRun)
+
+  if (isDailyMode && level.id === dailyLevelId) {
+    if (completeDailyChallenge(level.id)) {
+      const daily = getDailyChallenge()
+      showToast(t('dailyTitle'), t('toastDailyDone', { n: daily.streak }), 'daily')
+      playAchievement()
+      newAchievements = [...new Set([...newAchievements, ...checkNewAchievements(lastRun)])]
+    }
+  }
+
+  const rankAfter = getRank(getTotalXp())
+  const rankUp = rankAfter.key !== rankBefore
+
+  const world = getWorldForLevel(level.id)
+  const worldCleared = world.levelIds.every(levelId => isLevelSolved(levelId))
+  if (isBossLevel(level.id) && result.firstSolve && worldCleared && !seenWorldClears.has(world.id)) {
+    seenWorldClears.add(world.id)
+    showToast(t('worldCleared'), t('toastWorldCleared'), 'achievement')
+  }
+
+  const extra = {
+    stars: earnedStars,
+    bestStars: result.bestStars,
+    xpGained: result.xpGained,
+    timeMs: run.elapsedMs,
+    rank: rankAfter,
+    rankUp,
+    newAchievements,
+    firstSolve: result.firstSolve
+  }
+
+  updateHeader()
+  renderMissionStrip(earnedStars)
+  showLevelSuccess(level, extra)
+  playSuccess()
+  setTimeout(() => playStar(earnedStars), 120)
+  if (rankUp) playRankUp()
+  if (newAchievements.length) {
+    playAchievement()
+    newAchievements.forEach(id => showAchievementToast(id))
+  }
+
+  if (currentLevelIndex >= levels.length - 1 && !finalShown) {
+    finalShown = true
+    setTimeout(showFinalOverlay, 900)
   }
 }
 
-function showLevelSuccess(level, celebrate) {
+function showLevelSuccess(level, extra) {
   const isLastLevel = currentLevelIndex >= levels.length - 1
   const messageKey = isLastLevel ? 'resultLastLevel' : 'resultSuccess'
 
-  if (celebrate) {
+  const showNext = !isLastLevel && !isDailyMode
+  showResult(
+    'success',
+    messageKey,
+    showNext,
+    getExplanationFor(level, currentCSS),
+    extra.firstSolve,
+    {},
+    { level, css: currentCSS },
+    extra
+  )
+
+  if (extra.firstSolve) {
     spawnParticles()
     previewFrame.parentElement.classList.add('success-glow')
     flashScreen('pass')
     applyStamp(previewFrame.parentElement, 'pass', 'Correct!')
   }
-
-  // O painel de explicação só abre sozinho na primeira resposta correta.
-  showResult('success', messageKey, !isLastLevel, getExplanationFor(level, currentCSS), celebrate, {}, { level, css: currentCSS })
 }
 
-// Escolhe a explicação que combina com o código escrito pelo aluno.
-// Se ele usar a outra solução (ex.: Grid no nível 6), a explicação
-// mostrada também é a da solução que ele escreveu.
 function getExplanationFor(level, css) {
   const clean = (text) => text.replace(/\s+/g, '').toLowerCase()
   const studentCss = clean(css)
@@ -291,20 +524,46 @@ function getExplanationFor(level, css) {
 }
 
 function resetLevel() {
-  loadLevel(currentLevelIndex)
+  const level = levels[currentLevelIndex]
+  const text = getLevelText(level)
+  currentCSS = text.starterCSS
+  editorInput.value = text.starterCSS
+  updateLineNumbers()
+  updatePreview(previewFrame, level.html, currentCSS, level.themeCSS)
+  previewIsLive = false
+  previewStatus.textContent = t('updating')
+  clearTimeout(previewStatus._timeout)
+  previewStatus._timeout = setTimeout(() => {
+    previewIsLive = true
+    previewStatus.textContent = t('live')
+  }, 300)
+  hideResult()
+  renderMissionStrip()
+  editorInput.focus()
 }
 
 function toggleHint() {
+  if (isDailyMode) {
+    showToast(t('dailyTitle'), t('toastHintOff'), 'daily')
+    return
+  }
+
+  if (!hintBox.classList.contains('visible') && !run.hintRevealed) {
+    run.hintRevealed = true
+    run.hintsUsed += 1
+    renderMissionStrip()
+  }
+
   hintBox.classList.toggle('visible')
   updateHintButton()
 }
 
-// O botão mostra "Mostrar Dica" ou "Esconder Dica" conforme o estado.
 function updateHintButton() {
   btnHint.textContent = hintBox.classList.contains('visible') ? t('hideHint') : t('showHint')
+  btnHint.disabled = isDailyMode
+  btnHint.title = isDailyMode ? t('toastHintOff') : ''
 }
 
-// Recolhe o painel de explicação, deixando só o título visível.
 function toggleExplanation() {
   explanationCollapsed = !explanationCollapsed
   explanationPanel.classList.toggle('explanation-collapsed', explanationCollapsed)
@@ -319,14 +578,10 @@ function updateCollapseButton() {
   btnCollapseExplanation.setAttribute('aria-label', btnCollapseExplanation.title)
 }
 
-// Remove o painel de explicação. Ele volta a aparecer quando o aluno
-// resolve o nível.
 function closeExplanation() {
   explanationPanel.classList.add('hidden')
 }
 
-// Abre e fecha o guia de tags CSS. O conteúdo é montado de novo a cada
-// abertura, então o aluno sempre começa com todas as tags fechadas.
 function toggleTagsGuide() {
   if (tagsModal.classList.contains('hidden')) {
     renderTagsGuide()
@@ -340,8 +595,6 @@ function closeTagsGuide() {
   tagsModal.classList.add('hidden')
 }
 
-// Monta a lista de tags agrupada por tema. Cada tag vira um botão que
-// abre e fecha a sua própria explicação.
 function renderTagsGuide() {
   let currentGroup = ''
   const items = cssTagsGuide.map(original => {
@@ -373,33 +626,37 @@ function renderTagsGuide() {
   })
 }
 
-// Abre ou fecha a explicação de uma tag.
 function toggleTagDetail(header) {
   const detail = header.parentElement.querySelector('.tag-detail')
   const isOpen = !detail.classList.contains('hidden')
   detail.classList.toggle('hidden', isOpen)
   header.classList.toggle('open', !isOpen)
   header.setAttribute('aria-expanded', String(!isOpen))
+
+  if (!isOpen) {
+    const tagName = header.querySelector('.tag-name').textContent.trim()
+    recordTagOpened(tagName)
+    const newAchievements = checkNewAchievements(null)
+    if (newAchievements.length) {
+      playAchievement()
+      newAchievements.forEach(id => showAchievementToast(id))
+    }
+  }
 }
 
-// Escapa os caracteres do HTML para o exemplo de código não ser
-// interpretado como marcação.
 function escapeHtml(text) {
-  return text
+  return String(text)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
 }
 
-function showResult(kind, messageKey, showNext, detail, openPanel, params = {}, context = {}) {
+function showResult(kind, messageKey, showNext, detail, openPanel, params = {}, context = {}, extra = null) {
   resultBanner.classList.remove('hidden', 'success', 'error', 'info')
   resultBanner.classList.add(kind)
   resultIcon.textContent = kind === 'success' ? '\u2713' : kind === 'error' ? '\u2717' : '\u2139'
   resultText.textContent = t(messageKey, params)
 
-  // O último resultado fica guardado para ser traduzido de novo quando o
-  // aluno troca de idioma. Guardamos o nível e o CSS (e não o texto já
-  // escrito) para conseguir refazer a explicação no novo idioma.
   lastResult = {
     kind,
     messageKey,
@@ -408,38 +665,86 @@ function showResult(kind, messageKey, showNext, detail, openPanel, params = {}, 
     openPanel,
     params,
     level: context.level,
-    css: context.css
+    css: context.css,
+    extra
   }
 
-  // Sem explicação (erro) o painel continua como está, para o aluno não
-  // perder o texto que já estava lendo.
+  renderResultExtras(extra)
+
   if (detail) {
     const scrollTop = explanationBody.scrollTop
     explanationBody.innerHTML = renderExplanation(detail)
     explanationBody.scrollTop = scrollTop
-    // openPanel = false respeita o escolha do aluno (recolhido ou fechado).
     if (openPanel) {
       explanationPanel.classList.remove('hidden')
       explanationPanel.classList.toggle('explanation-collapsed', explanationCollapsed)
     }
   }
 
-  const existingBtn = resultBanner.querySelector('.btn-next')
-  if (existingBtn) existingBtn.remove()
-
-  if (showNext) {
-    const nextBtn = document.createElement('button')
-    nextBtn.className = 'btn btn-next'
-    nextBtn.textContent = t('nextLevel')
-    nextBtn.addEventListener('click', () => {
-      loadLevel(currentLevelIndex + 1)
-    })
-    resultBanner.appendChild(nextBtn)
-  }
+  renderResultActions(kind, showNext)
 }
 
-// Monta a explicação detalhada: uma lista com o nome de cada elemento
-// (seletor HTML ou propriedade CSS) e o que ele faz.
+function renderResultExtras(extra) {
+  if (!extra) {
+    resultStars.classList.add('hidden')
+    resultMeta.classList.add('hidden')
+    resultStars.innerHTML = ''
+    resultMeta.innerHTML = ''
+    return
+  }
+
+  resultStars.classList.remove('hidden')
+  resultStars.innerHTML = [0, 1, 2].map(index =>
+    `<span class="result-star${index < extra.stars ? ' earned' : ''}" style="animation-delay:${index * 90}ms">\u2605</span>`
+  ).join('')
+
+  const parts = []
+  if (extra.xpGained > 0) {
+    parts.push(`<span><strong>${t('xpGained', { n: extra.xpGained })}</strong></span>`)
+  }
+  if (extra.timeMs > 0) {
+    parts.push(`<span>${t('timeLabel')}: ${formatTime(extra.timeMs)}</span>`)
+  }
+  if (extra.bestStars > extra.stars) {
+    parts.push(`<span>${t('personalBest', { n: extra.bestStars })}</span>`)
+  }
+  if (extra.rankUp) {
+    parts.push(`<span>\u2191 <strong>${t(extra.rank.key)}</strong></span>`)
+  }
+  if (extra.newAchievements && extra.newAchievements.length) {
+    const names = extra.newAchievements
+      .map(id => achievements.find(item => item.id === id))
+      .filter(Boolean)
+      .map(item => getAchievementText(item, getLanguage()).title)
+      .join(', ')
+    parts.push(`<span>${t('achievementUnlocked')}: <strong>${escapeHtml(names)}</strong></span>`)
+  }
+
+  resultMeta.innerHTML = parts.join('')
+  resultMeta.classList.toggle('hidden', parts.length === 0)
+}
+
+function renderResultActions(kind, showNext) {
+  resultActions.innerHTML = ''
+  if (kind !== 'success') return
+
+  addResultAction(t('replay'), 'btn-replay', resetLevel)
+
+  if (showNext && currentLevelIndex + 1 < levels.length) {
+    addResultAction(t('nextLevel'), 'btn-next', () => loadLevel(currentLevelIndex + 1))
+  }
+
+  addResultAction(t('viewMap'), 'btn-map-open', () => openQuestModal('map'))
+}
+
+function addResultAction(label, className, handler) {
+  const button = document.createElement('button')
+  button.className = `btn ${className}`
+  button.textContent = label
+  button.addEventListener('click', handler)
+  resultActions.appendChild(button)
+}
+
 function renderExplanation(detail) {
   if (!detail) return ''
 
@@ -459,16 +764,18 @@ function renderExplanation(detail) {
 }
 
 function hideResult() {
-  hideBanner()
+  resultBanner.classList.add('hidden')
   explanationPanel.classList.add('hidden')
   explanationPanel.classList.remove('explanation-collapsed')
   explanationBody.innerHTML = ''
+  resultStars.classList.add('hidden')
+  resultMeta.classList.add('hidden')
+  resultStars.innerHTML = ''
+  resultMeta.innerHTML = ''
+  resultActions.innerHTML = ''
   previewFrame.parentElement.classList.remove('success-glow', 'fail-flash')
   editorContainer.classList.remove('shake')
-}
-
-function hideBanner() {
-  resultBanner.classList.add('hidden')
+  lastResult = null
 }
 
 function flashScreen(kind) {
@@ -527,7 +834,6 @@ function spawnParticles() {
   }
 }
 
-// Abre e fecha o menu de escolha de idioma.
 function toggleLanguageMenu() {
   const isHidden = languageMenu.classList.contains('hidden')
   if (isHidden) buildLanguageMenu()
@@ -540,8 +846,6 @@ function closeLanguageMenu() {
   btnLanguage.setAttribute('aria-expanded', 'false')
 }
 
-// Monta o menu com um botão para cada idioma. O idioma atual fica
-// marcado com um visto.
 function buildLanguageMenu() {
   languageMenu.innerHTML = languages.map(language => `
     <button class="language-option${language.code === getLanguage() ? ' active' : ''}" data-lang="${language.code}" role="menuitem">
@@ -555,42 +859,46 @@ function buildLanguageMenu() {
   })
 }
 
-// Troca o idioma do jogo e guarda a escolha no navegador.
 function changeLanguage(code) {
   if (code === getLanguage()) {
     closeLanguageMenu()
     return
   }
 
-  // Se o aluno ainda não mexeu no código, o código inicial também é
-  // traduzido (os comentários dentro do CSS).
   const previousStarter = getLevelText(levels[currentLevelIndex]).starterCSS
   const editorHasStarter = editorInput.value.trim() === previousStarter.trim()
 
   setLanguage(code)
   localStorage.setItem(LANGUAGE_KEY, code)
+  recordLanguageTried(code)
   closeLanguageMenu()
+
+  const newAchievements = checkNewAchievements(null)
   applyLanguage(editorHasStarter)
+  updateHeader()
+  if (newAchievements.length) {
+    playAchievement()
+    newAchievements.forEach(id => showAchievementToast(id))
+  }
 }
 
-// Aplica o idioma atual em toda a interface: textos fixos, botões,
-// nível atual, explicação, banner e guia de tags CSS.
 function applyLanguage(editorHasStarter = true) {
   document.querySelectorAll('[data-i18n]').forEach(element => {
     element.textContent = t(element.dataset.i18n)
   })
 
-  // O idioma da página também muda, para o leitor de tela usar a voz certa.
   document.documentElement.lang = getLanguage()
-
   btnLanguage.textContent = getLanguageName()
   btnLanguage.title = t('languageButton')
   btnCloseExplanation.title = t('removeExplanation')
   btnCloseExplanation.setAttribute('aria-label', t('removeExplanation'))
-  refreshLevelNav()
-  refreshLevelText()
-  updateCollapseButton()
+  devClose.title = t('devClose')
+  devClose.setAttribute('aria-label', t('devClose'))
+  updateMissionLabels()
   updateHintButton()
+  updateSoundButton()
+  updateHeader()
+  refreshLevelText()
   previewStatus.textContent = previewIsLive ? t('live') : t('updating')
 
   if (editorHasStarter) {
@@ -598,10 +906,9 @@ function applyLanguage(editorHasStarter = true) {
     editorInput.value = text.starterCSS
     currentCSS = text.starterCSS
     updateLineNumbers()
-    updatePreview(previewFrame, levels[currentLevelIndex].html, currentCSS)
+    updatePreview(previewFrame, levels[currentLevelIndex].html, currentCSS, levels[currentLevelIndex].themeCSS)
   }
 
-  // O banner e a explicação são redesenhados no novo idioma.
   if (lastResult) {
     const detail = lastResult.level
       ? getExplanationFor(lastResult.level, lastResult.css || currentCSS)
@@ -613,30 +920,553 @@ function applyLanguage(editorHasStarter = true) {
       detail,
       lastResult.openPanel,
       lastResult.params,
-      { level: lastResult.level, css: lastResult.css }
+      { level: lastResult.level, css: lastResult.css },
+      lastResult.extra
     )
   }
 
-  if (!tagsModal.classList.contains('hidden')) {
-    renderTagsGuide()
+  if (!tagsModal.classList.contains('hidden')) renderTagsGuide()
+  if (!questModal.classList.contains('hidden')) renderQuestBody()
+  if (!bossOverlay.classList.contains('hidden')) refreshBossIntro()
+  if (!finalOverlay.classList.contains('hidden')) refreshFinalStats()
+  if (!devModal.classList.contains('hidden') && devUnlocked) renderDevAnswer()
+}
+
+function hashDevPassword(value) {
+  let hash = 0x811c9dc5
+  for (const character of value.trim().toLowerCase()) {
+    hash ^= character.charCodeAt(0)
+    hash = Math.imul(hash, 0x01000193) >>> 0
+  }
+  return hash
+}
+
+function openDevModal() {
+  devPassword.value = ''
+  devError.classList.add('hidden')
+  devSolutionIndex = 0
+
+  if (devUnlocked) {
+    showDevPanel()
+  } else {
+    devLogin.classList.remove('hidden')
+    devPanel.classList.add('hidden')
+  }
+
+  devModal.classList.remove('hidden')
+  if (!devUnlocked) {
+    setTimeout(() => devPassword.focus(), 40)
   }
 }
 
-// Recria os botões dos níveis com o título no idioma atual.
-function refreshLevelNav() {
-  buildLevelNav()
-  updateLevelNav()
+function closeDevModal() {
+  devModal.classList.add('hidden')
+  devPassword.value = ''
+  devError.classList.add('hidden')
 }
 
-// Atualiza os textos do nível atual sem mexer no código do aluno.
+function unlockDevTool(event) {
+  event.preventDefault()
+
+  if (hashDevPassword(devPassword.value) !== DEV_PASSWORD_HASH) {
+    devError.classList.remove('hidden')
+    devPassword.value = ''
+    devPassword.focus()
+    return
+  }
+
+  devUnlocked = true
+  devError.classList.add('hidden')
+  devPassword.value = ''
+  showDevPanel()
+}
+
+function showDevPanel() {
+  devLogin.classList.add('hidden')
+  devPanel.classList.remove('hidden')
+  renderDevAnswer()
+}
+
+function renderDevAnswer() {
+  const level = levels[currentLevelIndex]
+  if (!level) return
+
+  const text = getLevelText(level)
+  devSolutionIndex = Math.min(devSolutionIndex, text.solutions.length - 1)
+  const solution = text.solutions[devSolutionIndex] || text.solutions[0]
+  if (!solution) return
+
+  devLevel.textContent = t('devLevel', { n: level.id, title: text.title })
+  devAnswer.value = solution.css
+  devSolutions.classList.toggle('hidden', text.solutions.length < 2)
+  devSolutions.innerHTML = text.solutions.map((_, index) => `
+    <button
+      class="dev-solution${index === devSolutionIndex ? ' active' : ''}"
+      type="button"
+      data-index="${index}"
+    >${t('devSolution', { n: index + 1 })}</button>
+  `).join('')
+}
+
+function onDevSolutionClick(event) {
+  const button = event.target.closest('.dev-solution')
+  if (!button) return
+  devSolutionIndex = Number(button.dataset.index) || 0
+  renderDevAnswer()
+}
+
+function fillDevAnswer() {
+  if (!devUnlocked) return
+
+  const level = levels[currentLevelIndex]
+  const text = getLevelText(level)
+  const solution = text.solutions[devSolutionIndex] || text.solutions[0]
+  if (!solution) return
+
+  editorInput.value = solution.css
+  onEditorInput()
+  hideResult()
+  closeDevModal()
+  showToast(t('devTitle'), t('devLoaded'), 'achievement')
+  editorInput.focus()
+}
+
 function refreshLevelText() {
   const level = levels[currentLevelIndex]
   const text = getLevelText(level)
 
   levelBadge.textContent = t('levelBadge', { n: level.id })
+  worldLabel.textContent = t(getWorldNameKey(level.id))
+  bossBadge.classList.toggle('hidden', !isBossLevel(level.id))
   challengeTitle.textContent = text.title
   challengeDescription.textContent = text.description
   hintText.textContent = text.hint
+  renderMissionStrip()
+}
+
+function updateMissionLabels() {
+  missionSolveLabel.textContent = t('missionSolve')
+  missionNoHintLabel.textContent = t('missionNoHint')
+  missionFirstTryLabel.textContent = t('missionFirstTry')
+}
+
+function renderMissionStrip(resultStars = null) {
+  const level = levels[currentLevelIndex]
+  if (!level) return
+  const best = getLevelProgress(level.id)
+  const earned = resultStars !== null ? resultStars : (best.solved ? best.bestStars : 0)
+
+  const criteria = [
+    { element: missionStars[0], lost: false },
+    { element: missionStars[1], lost: run.hintsUsed > 0 },
+    { element: missionStars[2], lost: run.wrongChecks > 1 }
+  ]
+
+  criteria.forEach((criterion, index) => {
+    if (!criterion.element) return
+    criterion.element.classList.remove('earned', 'lost', 'ready')
+    if (index < earned) {
+      criterion.element.classList.add('earned')
+    } else if (criterion.lost) {
+      criterion.element.classList.add('lost')
+    } else {
+      criterion.element.classList.add('ready')
+    }
+  })
+
+  missionStrip.classList.toggle('daily', isDailyMode)
+  missionStrip.title = isDailyMode ? t('missionDaily') : ''
+}
+
+function resetRun() {
+  stopTimer()
+  run = createRun()
+  updateTimerDisplay(0)
+  renderMissionStrip()
+}
+
+function startTimerIfNeeded() {
+  if (run.startedAt) return
+  run.startedAt = Date.now()
+  run.elapsedMs = 0
+  updateTimerDisplay(0)
+  clearInterval(timerId)
+  timerId = setInterval(() => {
+    if (!run.startedAt) return
+    run.elapsedMs = Date.now() - run.startedAt
+    updateTimerDisplay(run.elapsedMs)
+  }, 250)
+}
+
+function stopTimer() {
+  clearInterval(timerId)
+  timerId = null
+  if (run.startedAt) {
+    run.elapsedMs = Date.now() - run.startedAt
+    run.startedAt = null
+    updateTimerDisplay(run.elapsedMs)
+  }
+}
+
+function updateTimerDisplay(ms) {
+  if (!missionTimer) return
+  missionTimer.textContent = formatTime(ms)
+}
+
+function formatTime(ms) {
+  const totalSeconds = Math.max(0, Math.floor((ms || 0) / 1000))
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes}:${String(seconds).padStart(2, '0')}`
+}
+
+function updateHeader() {
+  const xp = getTotalXp()
+  const stars = getTotalStars()
+  const rank = getRank(xp)
+
+  rankName.textContent = t(rank.key)
+  xpText.textContent = t('xpLabel', { xp, max: MAX_XP })
+  xpFill.style.width = `${Math.min(100, (xp / MAX_XP) * 100)}%`
+  starsTotal.textContent = `\u2605 ${stars} / ${MAX_STARS}`
+  starsTotal.title = t('starsShort', { n: stars, max: MAX_STARS })
+}
+
+function toggleSound() {
+  const next = !isSoundEnabled()
+  setSoundEnabled(next)
+  setSoundOn(next)
+  updateSoundButton()
+  if (next) playClick()
+}
+
+function updateSoundButton() {
+  btnSound.classList.toggle('active', isSoundEnabled())
+  btnSound.setAttribute('aria-pressed', String(isSoundEnabled()))
+  btnSound.textContent = isSoundEnabled() ? 'SFX ON' : 'SFX OFF'
+  btnSound.title = `${t('toggleSound')} (${t(isSoundEnabled() ? 'soundOn' : 'soundOff')})`
+}
+
+function buildAchievementContext(lastRun = null) {
+  return {
+    progress: getProgress(),
+    solvedCount: getSolvedCount(),
+    totalLevels: levels.length,
+    totalStars: getTotalStars(),
+    lastRun
+  }
+}
+
+function checkNewAchievements(lastRun = null) {
+  const context = buildAchievementContext(lastRun)
+  const newIds = achievements
+    .filter(achievement => !hasAchievement(achievement.id) && achievement.check(context))
+    .map(achievement => achievement.id)
+
+  unlockAchievements(newIds)
+  return newIds
+}
+
+function showAchievementToast(id) {
+  const achievement = achievements.find(item => item.id === id)
+  if (!achievement) return
+  const text = getAchievementText(achievement, getLanguage())
+  showToast(text.title, text.description, 'achievement')
+}
+
+function showToast(title, text, kind = '') {
+  const toast = document.createElement('div')
+  toast.className = `toast ${kind}`.trim()
+
+  const icon = document.createElement('span')
+  icon.className = 'toast-icon'
+  icon.textContent = kind === 'error' ? '\u2717' : kind === 'daily' ? '\u2605' : '\u2713'
+
+  const content = document.createElement('div')
+  const titleElement = document.createElement('div')
+  titleElement.className = 'toast-title'
+  titleElement.textContent = title
+  content.appendChild(titleElement)
+
+  if (text) {
+    const textElement = document.createElement('div')
+    textElement.className = 'toast-text'
+    textElement.textContent = text
+    content.appendChild(textElement)
+  }
+
+  toast.appendChild(icon)
+  toast.appendChild(content)
+  toastStack.appendChild(toast)
+
+  while (toastStack.children.length > 4) {
+    toastStack.firstElementChild.remove()
+  }
+
+  setTimeout(() => {
+    toast.classList.add('leaving')
+    setTimeout(() => toast.remove(), 260)
+  }, 4200)
+}
+
+function maybeShowBossIntro(level, text) {
+  if (isDailyMode) return
+  if (!isBossLevel(level.id)) return
+  if (isLevelSolved(level.id)) return
+  if (seenBossIntros.has(level.id)) return
+
+  seenBossIntros.add(level.id)
+  bossTitle.textContent = text.title
+  bossText.textContent = t('bossIntro')
+  bossOverlay.classList.remove('hidden')
+}
+
+function refreshBossIntro() {
+  const level = levels[currentLevelIndex]
+  if (!level) return
+  bossTitle.textContent = getLevelText(level).title
+  bossText.textContent = t('bossIntro')
+}
+
+function showFinalOverlay() {
+  finalOverlay.classList.remove('hidden')
+  refreshFinalStats()
+  playRankUp()
+}
+
+function refreshFinalStats() {
+  const xp = getTotalXp()
+  const rank = getRank(xp)
+  finalStats.textContent = t('finalStats', {
+    stars: getTotalStars(),
+    xp,
+    rank: t(rank.key)
+  })
+}
+
+function openQuestModal(tab = 'map') {
+  questTab = tab
+  updateQuestTabs()
+  renderQuestBody()
+  questModal.classList.remove('hidden')
+}
+
+function closeQuestModal() {
+  questModal.classList.add('hidden')
+}
+
+function switchQuestTab(tab) {
+  questTab = tab
+  updateQuestTabs()
+  renderQuestBody()
+}
+
+function updateQuestTabs() {
+  questTabMap.classList.toggle('active', questTab === 'map')
+  questTabAchievements.classList.toggle('active', questTab === 'achievements')
+}
+
+function onQuestBodyClick(event) {
+  const dailyButton = event.target.closest('.daily-play')
+  if (dailyButton) {
+    const levelId = Number(dailyButton.dataset.levelId)
+    if (levelId) startDailyChallenge(levelId)
+    return
+  }
+
+  const card = event.target.closest('.map-level')
+  if (!card) return
+
+  const levelId = Number(card.dataset.levelId)
+  if (!isLevelUnlocked(levelId)) {
+    showToast(t('lockedLevel'), t('lockedLevelToast', { n: levelId - 1 }), 'error')
+    return
+  }
+
+  closeQuestModal()
+  loadLevelById(levelId)
+}
+
+function renderQuestBody() {
+  if (questTab === 'achievements') {
+    renderAchievements()
+  } else {
+    renderMap()
+  }
+}
+
+function renderQuestSummary() {
+  const xp = getTotalXp()
+  const stars = getTotalStars()
+  const rank = getRank(xp)
+  const unlocked = getUnlockedAchievements().length
+
+  return `
+    <div class="quest-summary">
+      <span>${t('starsLabel')}: <span class="summary-stars">\u2605 ${stars} / ${MAX_STARS}</span></span>
+      <span><strong>${t(rank.key)}</strong></span>
+      <span>${t('xpLabel', { xp, max: MAX_XP })}</span>
+      <span>${t('achievementsLabel')}: ${unlocked} / ${achievements.length}</span>
+    </div>`
+}
+
+function renderDailyCard() {
+  const solvedLevels = levels.filter(level => isLevelSolved(level.id))
+
+  if (!solvedLevels.length) {
+    return `
+      <div class="daily-card">
+        <div class="daily-info">
+          <div class="daily-title">${t('dailyTitle')}</div>
+          <div class="daily-text">${t('dailyLocked')}</div>
+        </div>
+      </div>`
+  }
+
+  const key = getDateKey()
+  let hash = 0
+  for (const character of key) {
+    hash = (hash * 31 + character.charCodeAt(0)) >>> 0
+  }
+  const picked = solvedLevels[hash % solvedLevels.length]
+  const state = ensureDailyChallenge(picked.id)
+  const level = levels.find(item => item.id === state.levelId) || picked
+  const done = state.done && state.date === key
+  const levelText = getLevelText(level)
+  const streak = state.streak || 0
+
+  return `
+    <div class="daily-card">
+      <div class="daily-info">
+        <div class="daily-title">${t('dailyTitle')}</div>
+        <div class="daily-text">
+          ${t('dailyBody', { n: level.id })}<br>
+          <strong>${escapeHtml(levelText.title)}</strong>
+        </div>
+        ${streak > 0 ? `<div class="daily-streak">${t('dailyStreak', { n: streak })}</div>` : ''}
+      </div>
+      <button class="btn btn-check daily-play" data-level-id="${level.id}" ${done ? 'disabled' : ''}>
+        ${done ? t('dailyDone') : t('dailyPlay')}
+      </button>
+    </div>`
+}
+
+function renderMap() {
+  const worldBlocks = worlds.map(world => {
+    const worldLevels = world.levelIds
+      .map(levelId => levels.find(level => level.id === levelId))
+      .filter(Boolean)
+
+    const solved = worldLevels.filter(level => isLevelSolved(level.id)).length
+    const stars = worldLevels.reduce(
+      (total, level) => total + getLevelProgress(level.id).bestStars,
+      0
+    )
+
+    const cards = worldLevels.map(level => {
+      const text = getLevelText(level)
+      const progress = getLevelProgress(level.id)
+      const unlocked = isLevelUnlocked(level.id)
+      const current = currentLevelIndex === levels.findIndex(item => item.id === level.id)
+      const boss = isBossLevel(level.id)
+
+      const starMarkup = [0, 1, 2].map(index =>
+        `<span class="${index < progress.bestStars ? 'earned' : ''}">\u2605</span>`
+      ).join('')
+
+      return `
+        <button
+          class="map-level${unlocked ? '' : ' locked'}${current ? ' current' : ''}${progress.solved ? ' solved' : ''}${boss ? ' boss' : ''}"
+          data-level-id="${level.id}"
+          aria-label="${escapeHtml(text.title)}"
+        >
+          <div class="map-level-top">
+            <span class="map-level-number">${level.id}</span>
+            ${boss ? `<span class="map-level-boss">${t('bossLevel')}</span>` : ''}
+            ${unlocked ? '' : `<span class="map-level-lock">${t('lockedLevel')}</span>`}
+          </div>
+          <span class="map-level-title">${escapeHtml(text.title)}</span>
+          <span class="map-stars">${starMarkup}</span>
+          ${progress.bestTimeMs > 0
+            ? `<span class="map-time">${t('bestTime', { time: formatTime(progress.bestTimeMs) })}</span>`
+            : ''}
+        </button>`
+    }).join('')
+
+    return `
+      <div class="world-block">
+        <div class="world-heading">
+          <div>
+            <h4>${t(world.nameKey)}</h4>
+            <p>${t(world.subtitleKey)}</p>
+          </div>
+          <span class="world-progress">${solved} / ${world.levelIds.length} \u00b7 \u2605 ${stars}</span>
+        </div>
+        <div class="map-grid">${cards}</div>
+      </div>`
+  }).join('')
+
+  questBody.innerHTML = renderQuestSummary() + renderDailyCard() + worldBlocks
+}
+
+function renderAchievements() {
+  const unlocked = getUnlockedAchievements()
+  const items = achievements.map(achievement => {
+    const earned = unlocked.includes(achievement.id)
+    const text = getAchievementText(achievement, getLanguage())
+    return `
+      <div class="achievement-item${earned ? ' unlocked' : ''}">
+        <div class="achievement-icon">${earned ? '\u2713' : '\u2022'}</div>
+        <div class="achievement-text">
+          <h5>${escapeHtml(text.title)}</h5>
+          <p>${escapeHtml(text.description)}</p>
+        </div>
+      </div>`
+  }).join('')
+
+  questBody.innerHTML = `
+    <p class="achievements-intro">${t('achievementsIntro')}</p>
+    <p class="achievements-count">${t('achievementsCount', {
+      done: unlocked.length,
+      total: achievements.length
+    })}</p>
+    ${items}`
+}
+
+function startDailyChallenge(levelId) {
+  closeQuestModal()
+  loadLevelById(levelId, { daily: true })
+  showToast(t('dailyTitle'), t('missionDaily'), 'daily')
+}
+
+function resetAllProgress() {
+  if (!window.confirm(t('resetConfirm'))) return
+
+  resetProgress()
+  setSoundEnabled(false)
+  updateSoundButton()
+  seenBossIntros.clear()
+  seenWorldClears.clear()
+  finalShown = false
+  closeQuestModal()
+  finalOverlay.classList.add('hidden')
+  bossOverlay.classList.add('hidden')
+  loadLevelById(levels[0].id)
+  updateHeader()
+}
+
+function playAgain() {
+  if (!window.confirm(t('resetConfirm'))) return
+  resetProgress()
+  setSoundEnabled(false)
+  updateSoundButton()
+  finalShown = false
+  seenBossIntros.clear()
+  seenWorldClears.clear()
+  finalOverlay.classList.add('hidden')
+  closeQuestModal()
+  loadLevelById(levels[0].id)
+  updateHeader()
 }
 
 init()

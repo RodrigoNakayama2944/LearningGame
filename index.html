@@ -15,13 +15,23 @@
       <h1 class="logo">&lt;CSS Quest/&gt;</h1>
       <span class="subtitle" data-i18n="subtitle">Learn CSS by Playing</span>
     </div>
-    <nav class="level-nav" id="levelNav"></nav>
+    <div class="header-center">
+      <button class="btn-map" id="btnMap" data-i18n="mapButton">Quest Map</button>
+      <div class="xp-widget" id="xpWidget">
+        <div class="xp-topline">
+          <span class="rank-name" id="rankName">Novice</span>
+          <span class="xp-text" id="xpText">0 / 0 XP</span>
+        </div>
+        <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
+      </div>
+      <span class="stars-total" id="starsTotal">0 / 0</span>
+    </div>
     <div class="header-right">
+      <button class="btn-sound" id="btnSound" aria-pressed="false" title="Toggle sound effects">SFX</button>
       <div class="language-picker">
         <button class="btn-language" id="btnLanguage" aria-haspopup="true" aria-expanded="false" title="Language">English</button>
         <div class="language-menu hidden" id="languageMenu" role="menu"></div>
       </div>
-      <span class="progress-text" id="progressText">0 / 0</span>
     </div>
   </header>
 
@@ -29,9 +39,27 @@
     <section class="challenge-panel">
       <div class="challenge-header">
         <span class="level-badge" id="levelBadge">Level 1</span>
+        <span class="world-label" id="worldLabel"></span>
+        <span class="boss-badge hidden" id="bossBadge" data-i18n="bossLevel">Boss Level</span>
         <h2 class="challenge-title" id="challengeTitle"></h2>
       </div>
       <p class="challenge-description" id="challengeDescription"></p>
+      <div class="mission-strip" id="missionStrip">
+        <div class="mission-star" data-mission="solved">
+          <span class="mission-star-icon">&#9733;</span>
+          <span class="mission-star-label" id="missionSolveLabel">Solve</span>
+        </div>
+        <div class="mission-star" data-mission="nohint">
+          <span class="mission-star-icon">&#9733;</span>
+          <span class="mission-star-label" id="missionNoHintLabel">No hint</span>
+        </div>
+        <div class="mission-star" data-mission="firsttry">
+          <span class="mission-star-icon">&#9733;</span>
+          <span class="mission-star-label" id="missionFirstTryLabel">First try</span>
+        </div>
+        <div class="mission-spacer"></div>
+        <div class="mission-timer" id="missionTimer">0:00</div>
+      </div>
       <div class="hint-box" id="hintBox">
         <span class="hint-label" data-i18n="hintLabel">Hint:</span>
         <p class="hint-text" id="hintText"></p>
@@ -98,9 +126,79 @@
           <span class="result-icon" id="resultIcon"></span>
           <span class="result-text" id="resultText"></span>
         </div>
+        <div class="result-stars hidden" id="resultStars"></div>
+        <div class="result-meta hidden" id="resultMeta"></div>
+        <div class="result-actions" id="resultActions"></div>
       </div>
     </section>
   </main>
+
+  <div class="quest-modal hidden" id="questModal">
+    <div class="quest-content">
+      <div class="quest-header">
+        <h3 id="questTitle" data-i18n="questTitle">Quest Map</h3>
+        <button class="tags-close" id="questClose" aria-label="Close">&times;</button>
+      </div>
+      <div class="quest-tabs" role="tablist">
+        <button class="quest-tab active" id="questTabMap" data-tab="map" role="tab" data-i18n="mapTab">Levels</button>
+        <button class="quest-tab" id="questTabAchievements" data-tab="achievements" role="tab" data-i18n="achievementsTab">Achievements</button>
+      </div>
+      <div class="quest-body" id="questBody"></div>
+      <div class="quest-footer">
+        <button class="btn btn-reset" id="btnResetProgress" data-i18n="resetProgress">Reset progress</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="dev-modal hidden" id="devModal">
+    <div class="dev-card">
+      <div class="dev-header">
+        <h3 id="devTitle" data-i18n="devTitle">Dev Tool</h3>
+        <button class="tags-close" id="devClose" aria-label="Close">&times;</button>
+      </div>
+      <form class="dev-login" id="devLogin" autocomplete="off">
+        <label class="dev-label" for="devPassword" data-i18n="devPasswordLabel">Password</label>
+        <div class="dev-login-row">
+          <input class="dev-input" id="devPassword" type="password" autocomplete="off" spellcheck="false">
+          <button class="btn btn-check" type="submit" data-i18n="devUnlock">Unlock</button>
+        </div>
+        <p class="dev-error hidden" id="devError" data-i18n="devWrongPassword">Wrong password.</p>
+      </form>
+      <div class="dev-panel hidden" id="devPanel">
+        <p class="dev-level" id="devLevel"></p>
+        <div class="dev-solutions" id="devSolutions"></div>
+        <label class="dev-label" for="devAnswer" data-i18n="devAnswer">Answer</label>
+        <textarea class="dev-answer" id="devAnswer" readonly spellcheck="false"></textarea>
+        <div class="dev-actions">
+          <button class="btn btn-check" id="devFill" data-i18n="devFillEditor">Fill editor</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="boss-overlay hidden" id="bossOverlay">
+    <div class="boss-card">
+      <span class="boss-kicker" data-i18n="bossLevel">Boss Level</span>
+      <h2 class="boss-title" id="bossTitle"></h2>
+      <p class="boss-text" id="bossText" data-i18n="bossIntro"></p>
+      <button class="btn btn-check" id="bossStart" data-i18n="bossStart">Start the battle</button>
+    </div>
+  </div>
+
+  <div class="final-overlay hidden" id="finalOverlay">
+    <div class="final-card">
+      <span class="final-kicker" data-i18n="questTitle">Quest Map</span>
+      <h2 class="final-title" id="finalTitle" data-i18n="finalTitle">Quest Complete!</h2>
+      <p class="final-text" id="finalText" data-i18n="finalText"></p>
+      <p class="final-stats" id="finalStats"></p>
+      <div class="final-actions">
+        <button class="btn btn-check" id="btnPlayAgain" data-i18n="playAgain">Play again</button>
+        <button class="btn btn-tags" id="btnReviewLevels" data-i18n="reviewLevels">Review levels</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toastStack"></div>
 
   <script type="module" src="/src/main.js"></script>
 </body>

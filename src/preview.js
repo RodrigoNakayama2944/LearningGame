@@ -3,7 +3,7 @@
 // versão do preview já está pronta para ser validada.
 let renderCount = 0
 
-function renderDoc(html, css, renderId) {
+function renderDoc(html, css, themeCSS, renderId) {
   return `<!DOCTYPE html>
 <html data-render-id="${renderId}">
 <head>
@@ -17,6 +17,7 @@ function renderDoc(html, css, renderId) {
     font-family: sans-serif;
   }
   ${css}
+  ${themeCSS}
 </style>
 </head>
 <body>
@@ -25,16 +26,16 @@ ${html}
 </html>`
 }
 
-function render(iframe, html, css) {
+function render(iframe, html, css, themeCSS) {
   renderCount++
   iframe.dataset.renderId = renderCount
-  iframe.srcdoc = renderDoc(html, css, renderCount)
+  iframe.srcdoc = renderDoc(html, css, themeCSS, renderCount)
 }
 
-export function updatePreview(iframe, html, css) {
-  render(iframe, html, css)
+export function updatePreview(iframe, html, css, themeCSS) {
+  render(iframe, html, css, themeCSS)
 }
 
-export function updateTarget(iframe, html, css) {
-  render(iframe, html, css)
+export function updateTarget(iframe, html, css, themeCSS) {
+  render(iframe, html, css, themeCSS)
 }

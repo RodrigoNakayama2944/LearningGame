@@ -10,20 +10,21 @@ export const levelTranslationsPtBR = {
     description: 'O container já é um flex container. Centralize perfeitamente a caixa azul dentro dele usando flexbox.',
     hint: 'O container já é um flex container. O flexbox alinha os itens em dois eixos ao mesmo tempo: um move para o lado, o outro move para cima e para baixo. Sua caixa precisa dos dois.',
     starterCSS: `.container {
-  width: 300px;
-  height: 200px;
+  min-height: 12rem;
+  padding: 1rem;
   background: #e2e8f0;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   display: flex;
 
   /* ?? centralizar a caixa ?? */
 }
 
 .box {
-  width: 80px;
-  height: 80px;
+  padding: 1rem 1.5rem;
   background: #3b82f6;
-  border-radius: 8px;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
 }`,
     solutions: [
       {
@@ -49,11 +50,11 @@ export const levelTranslationsPtBR = {
             text: 'Alinha os itens no <strong>eixo cruzado</strong>. Em uma linha o eixo cruzado é vertical, então isso centraliza a caixa azul de cima para baixo.'
           },
           {
-            label: 'width / height',
-            text: 'O container tem 300x200px e a caixa tem 80x80px. O flexbox centraliza o <em>espaço livre</em> em volta do item, então o tamanho da caixa diz só o quanto ela é grande, nunca onde ela fica.'
+            label: 'padding',
+            text: 'O espaço dentro da caixa, ao redor do texto. A caixa cresce com o próprio conteúdo, então nunca precisa de uma largura ou altura fixa para ficar bonita.'
           },
           {
-            label: 'border-radius: 8px',
+            label: 'border-radius',
             text: 'Arredonda os cantos. Muda só a aparência e nunca o layout, um bom exemplo de uma propriedade que pode ser adicionada sem quebrar o quebra-cabeça.'
           }
         ],
@@ -63,28 +64,26 @@ export const levelTranslationsPtBR = {
   },
   2: {
     title: 'Coluna com Flexbox',
-    description: 'Empilhe as três caixas na vertical, com espaço por igual entre elas e centralizadas na horizontal.',
+    description: 'Empilhe as três caixas na vertical, com o mesmo espaço antes, entre e depois delas, e centralizadas na horizontal.',
     hint: 'As três caixas precisam ficar uma embaixo da outra em vez de lado a lado, espalhadas pela altura do container. O flexbox tem uma propriedade que muda a direção do fluxo e outra que espalha os itens dentro dele.',
     starterCSS: `.container {
-  width: 200px;
-  height: 280px;
+  width: 100%;
+  max-width: 14rem;
+  min-height: 18rem;
+  padding: 1rem;
   background: #e2e8f0;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   display: flex;
 
   /* ?? empilhar na vertical, espaço por igual, centralizar ?? */
 }
 
 .box {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
   color: white;
+  font-weight: bold;
+  text-align: center;
 }
 
 .box-1 { background: #3b82f6; }
@@ -95,11 +94,11 @@ export const levelTranslationsPtBR = {
         explanation: [
           {
             label: 'div.container',
-            text: 'O flex container. Ele tem 200x280px e as três caixas ocupam 180px dessa altura, então sobram 100px de espaço livre para distribuir na vertical.'
+            text: 'O flex container. A altura dele vem do <code>min-height</code>, então existe espaço livre para distribuir na vertical entre as caixas.'
           },
           {
             label: 'div.box.box-1 / 2 / 3',
-            text: 'Três flex items. As classes extras só dão uma cor diferente para cada um, e os números 1, 2 e 3 são apenas texto dentro das caixas.'
+            text: 'Três flex items. As classes extras só dão uma cor diferente para cada um, e as palavras One, Two e Three são apenas texto dentro das caixas.'
           },
           {
             label: 'display: flex',
@@ -118,12 +117,8 @@ export const levelTranslationsPtBR = {
             text: 'Alinha os itens no eixo cruzado, que em modo coluna é horizontal, então as três caixas ficam centralizadas da esquerda para a direita.'
           },
           {
-            label: '.box { display: flex }',
-            text: 'Cada caixa também é um flex container. É assim que o número 1, 2 ou 3 fica centralizado dentro do seu quadrado.'
-          },
-          {
-            label: '.box { justify-content: center; align-items: center }',
-            text: 'As mesmas duas propriedades aplicadas ao número: uma centraliza na horizontal (eixo principal) e a outra na vertical (eixo cruzado). O flexbox se comporta igual em todos os níveis da página.'
+            label: 'padding',
+            text: 'Cada caixa tem espaço ao redor do texto, então ela cresce com o conteúdo em vez de depender de um tamanho fixo.'
           }
         ],
         tip: 'Os nomes dos valores dizem exatamente o que eles fazem: <code>space</code> significa espaço entre os itens e <code>evenly</code> significa quantidades iguais em todo lugar, inclusive nas bordas. Como a direção mudou mas as propriedades não, dá para usar o mesmo raciocínio em linhas e em colunas.'
@@ -132,111 +127,108 @@ export const levelTranslationsPtBR = {
   },
   3: {
     title: 'Espaçamento com gap',
-    description: 'Coloque as três caixas em uma linha horizontal com exatamente 20px de espaço entre elas, centralizadas no container.',
-    hint: 'As três caixas precisam ficar em linha, centralizadas como um grupo, com exatamente 20px entre cada par. O flexbox tem uma propriedade para o espaço entre os itens e outra para centralizar o grupo.',
+    description: 'Coloque as três tags em uma linha horizontal, centralizadas, com o mesmo espaço entre cada par delas.',
+    hint: 'As três tags precisam ficar em linha, centralizadas como um grupo, com o mesmo espaço entre cada par. O flexbox tem uma propriedade para o espaço entre os itens e outra para centralizar o grupo.',
     starterCSS: `.container {
-  width: 320px;
-  height: 120px;
+  width: 100%;
+  max-width: 20rem;
+  min-height: 8rem;
+  padding: 1rem;
   background: #e2e8f0;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   display: flex;
 
-  /* ?? centralizar, gap de 20px ?? */
+  /* ?? centralizar a linha e espaçar os itens ?? */
 }
 
 .box {
-  width: 70px;
-  height: 70px;
-  border-radius: 8px;
-}
-
-.box-1 { background: #3b82f6; }
-.box-2 { background: #8b5cf6; }
-.box-3 { background: #ec4899; }`,
-    solutions: [
-      {
-        explanation: [
-          {
-            label: 'div.container',
-            text: 'O flex container. Ele tem 320px de largura, então depois das caixas e dos gaps ainda sobra espaço livre para dividir.'
-          },
-          {
-            label: 'div.box',
-            text: 'Três flex items de 70x70px cada. Todos têm o mesmo tamanho, então a linha fica regular.'
-          },
-          {
-            label: 'display: flex',
-            text: 'Já está no código inicial. Ele coloca as três caixas em uma linha horizontal, porque <code>row</code> é a direção padrão do flexbox.'
-          },
-          {
-            label: 'justify-content: center',
-            text: 'Centraliza a linha ao longo do eixo principal (horizontal). A linha mede 3 x 70px + 2 x 20px = 250px, então os 70px de espaço livre que sobram se dividem em 35px na esquerda e 35px na direita.'
-          },
-          {
-            label: 'align-items: center',
-            text: 'Centraliza as caixas no eixo cruzado (vertical), então elas ficam no meio da altura de 120px do container.'
-          },
-          {
-            label: 'gap: 20px',
-            text: 'Coloca exatamente 20px entre cada par de itens no eixo principal. Nada é adicionado antes da primeira caixa nem depois da última, e nenhuma margin é necessária.'
-          }
-        ],
-        tip: 'A propriedade <code>gap</code> é o jeito moderno de espaçar flex items. O truque antigo era <code>margin-right: 20px</code> em cada caixa mais <code>margin-right: -20px</code> no container para tirar o espaço extra do final. Com <code>gap</code> você nunca precisa desfazer nada, e <code>row-gap</code> / <code>column-gap</code> deixam controlar cada eixo separadamente.'
-      }
-    ]
-  },
-  4: {
-    title: 'Quebra de Linha com Flexbox',
-    description: 'As caixas transbordam o container. Faça elas quebrarem para a próxima linha quando não houver espaço, com gaps de 10px.',
-    hint: 'As caixas devem formar três linhas de duas em vez de uma linha comprida. Quando os itens não cabem, o flexbox pode empurrá-los para uma nova linha, e a distância entre as linhas também pode ser controlada.',
-    starterCSS: `.container {
-  width: 200px;
-  padding: 10px;
-  background: #e2e8f0;
-  border-radius: 8px;
-  display: flex;
-
-  /* ?? quebrar linha e gap de 10px ?? */
-}
-
-.box {
-  width: 55px;
-  height: 55px;
+  padding: 0.75rem 1.25rem;
   background: #3b82f6;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
   color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
 }`,
     solutions: [
       {
         explanation: [
           {
             label: 'div.container',
-            text: 'O flex container. Ele tem 200px de largura com 10px de padding de cada lado, então sobram só 180px de verdade para as caixas.'
+            text: 'O flex container. As três tags já têm o próprio tamanho, tirado do texto e do padding, então o resto da largura é espaço livre.'
           },
           {
             label: 'div.box',
-            text: 'Seis flex items de 55px cada (6 x 55px = 330px), que é mais do que os 180px disponíveis. Alguma coisa tem que ceder: é exatamente isso que o <code>flex-wrap</code> resolve.'
+            text: 'Três flex items com as palavras HTML, CSS e JS. O tamanho delas segue o conteúdo, então continuam legíveis em qualquer largura.'
           },
           {
             label: 'display: flex',
-            text: 'Já está no código inicial. Ele transforma as seis caixas em flex items em vez de blocos normais.'
+            text: 'Já está no código inicial. Ele coloca as três tags em uma linha horizontal, porque <code>row</code> é a direção padrão do flexbox.'
+          },
+          {
+            label: 'justify-content: center',
+            text: 'Centraliza a linha ao longo do eixo principal (horizontal). O espaço livre que sobra é dividido em duas partes iguais, uma na esquerda e outra na direita.'
+          },
+          {
+            label: 'align-items: center',
+            text: 'Centraliza as tags no eixo cruzado (vertical), então elas ficam no meio da altura do container.'
+          },
+          {
+            label: 'gap',
+            text: 'Coloca o mesmo espaço entre cada par de itens no eixo principal. Nada é adicionado antes da primeira tag nem depois da última, e nenhuma margin é necessária.'
+          }
+        ],
+        tip: 'A propriedade <code>gap</code> é o jeito moderno de espaçar flex items. O truque antigo era uma margin em cada caixa mais uma margin negativa no container para tirar o espaço extra do final. Com <code>gap</code> você nunca precisa desfazer nada, e <code>row-gap</code> / <code>column-gap</code> deixam controlar cada eixo separadamente.'
+      }
+    ]
+  },
+  4: {
+    title: 'Quebra de Linha com Flexbox',
+    description: 'As tags transbordam o container. Faça elas quebrarem para a próxima linha quando não houver espaço. O espaço entre as tags já está definido.',
+    hint: 'As tags devem formar várias linhas em vez de uma linha comprida. Quando os itens não cabem, o flexbox pode empurrá-los para uma nova linha. O gap já está no código inicial.',
+    starterCSS: `.container {
+  width: 100%;
+  max-width: 16rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  gap: 0.75rem;
+
+  /* ?? fazer as tags quebrarem linha ?? */
+}
+
+.box {
+  padding: 0.75rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'div.container',
+            text: 'O flex container. A largura dele é limitada, e as seis tags juntas pedem mais espaço do que ele pode oferecer.'
+          },
+          {
+            label: 'div.box',
+            text: 'Seis flex items com palavras curtas. Cada tag tira o tamanho do texto e do padding, então o layout se adapta ao conteúdo.'
+          },
+          {
+            label: 'display: flex',
+            text: 'Já está no código inicial. Ele transforma as seis tags em flex items em vez de blocos normais.'
           },
           {
             label: 'flex-wrap: wrap',
             text: 'Por padrão os flex items <em>encolhem</em> (<code>flex-shrink: 1</code>) para caber em uma única linha. Com <code>wrap</code>, o item que não cabe vai para uma nova linha em vez de ser espremido.'
           },
           {
-            label: 'gap: 10px',
-            text: 'Adiciona 10px entre os itens de uma linha e entre as próprias linhas, então o desenho das letras fica regular.'
+            label: 'gap',
+            text: 'Já está no código inicial. Ele mantém o mesmo espaço entre os itens de uma linha e entre as próprias linhas, então o desenho das tags fica regular.'
           },
           {
-            label: 'padding: 10px',
-            text: 'Espaço <em>dentro</em> do container, entre a borda e o conteúdo. O padding pertence ao elemento, enquanto a margin fica fora dele.'
+            label: 'padding',
+            text: 'Espaço <em>dentro</em> de cada tag, entre a borda e o texto. O padding pertence ao elemento, enquanto a margin fica fora dele.'
           }
         ],
         tip: 'A quebra de linha acontece sempre no eixo principal: em um layout de linha os itens viram novas linhas, e em um layout de coluna eles viram novas colunas. Mude a largura do container no editor e veja as linhas se reorganizando sozinhas.'
@@ -245,30 +237,24 @@ export const levelTranslationsPtBR = {
   },
   5: {
     title: 'Propriedade order',
-    description: 'As caixas aparecem na ordem do HTML, 1-2-3. Usando a propriedade order do CSS, inverta para aparecer como 3-2-1 sem mudar o HTML.',
-    hint: 'A posição final de um item não precisa ser a posição dele no código. O flexbox pode reorganizar os itens sem mexer no HTML.',
+    description: 'As caixas aparecem na ordem do HTML, First-Second-Third. Usando a propriedade order do CSS, inverta para aparecer como Third-Second-First sem mudar o HTML.',
+    hint: 'A posição final de um item não precisa ser a posição dele no código. A propriedade order pode reorganizar os itens sem mexer no HTML.',
     starterCSS: `.container {
-  width: 280px;
-  height: 100px;
+  width: 100%;
+  max-width: 20rem;
+  padding: 1rem;
   background: #e2e8f0;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 15px;
+  gap: 0.75rem;
 }
 
 .box {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: sans-serif;
-  font-weight: bold;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
   color: white;
-  font-size: 1.2rem;
+  font-weight: bold;
 }
 
 .box-1 { background: #3b82f6; /* ?? inverter a ordem ?? */ }
@@ -279,11 +265,11 @@ export const levelTranslationsPtBR = {
         explanation: [
           {
             label: 'div.container',
-            text: 'O flex container. Ele já usa <code>align-items: center</code>, <code>gap: 10px</code> e <code>padding: 0 15px</code> (só esquerda e direita), então você só precisa se preocupar com a ordem.'
+            text: 'O flex container. Ele já usa <code>align-items: center</code>, <code>gap</code> e <code>padding</code>, então você só precisa se preocupar com a ordem.'
           },
           {
             label: 'div.box.box-1 / 2 / 3',
-            text: 'Três flex items. No HTML eles aparecem como 1, 2, 3; na tela vão aparecer como 3, 2, 1.'
+            text: 'Três flex items com as palavras First, Second e Third. No HTML eles aparecem nessa ordem; na tela vão aparecer como Third, Second, First.'
           },
           {
             label: 'display: flex',
@@ -298,23 +284,24 @@ export const levelTranslationsPtBR = {
             text: 'Cada item precisa do seu valor. O padrão é <code>0</code>, então um item sem <code>order</code> apareceria antes dessas três caixas.'
           },
           {
-            label: 'gap: 10px',
-            text: 'O espaço entre as caixas continua sendo 10px, não importa em que ordem elas são mostradas, porque o gap é medido entre os itens, não entre as tags.'
+            label: 'gap',
+            text: 'O espaço entre as caixas continua o mesmo, não importa em que ordem elas são mostradas, porque o gap é medido entre os itens, não entre as tags.'
           }
         ],
-        tip: 'A propriedade <code>order</code> muda só o que você <em>vê</em>, nunca o HTML. A ordem do DOM continua sendo 1, 2, 3, e é essa a ordem usada por leitores de tela e pela tecla Tab, então, quando possível, mantenha a ordem do HTML igual à ordem visual.'
+        tip: 'A propriedade <code>order</code> muda só o que você <em>vê</em>, nunca o HTML. A ordem do DOM continua sendo First, Second, Third, e é essa a ordem usada por leitores de tela e pela tecla Tab, então, quando possível, mantenha a ordem do HTML igual à ordem visual.'
       }
     ]
   },
   6: {
     title: 'Flexbox Responsivo',
     description: 'Faça os seis cards preencherem o container de forma responsiva, quebrando para novas linhas para sempre caberem, qualquer que seja a largura.',
-    hint: 'Cada card deve ser o mais largo possível, mas nunca mais estreito que 100px, e os cards devem passar para a próxima linha quando não couber. O flexbox decide o tamanho dos itens e também se eles quebram em novas linhas.',
+    hint: 'Cada card deve ser o mais largo possível, com uma largura mínima legível, e os cards devem passar para a próxima linha quando não couber. O flexbox decide o tamanho dos itens e também se eles quebram em novas linhas.',
     starterCSS: `.grid {
-  width: 340px;
+  width: 100%;
+  max-width: 22rem;
   background: #e2e8f0;
-  border-radius: 8px;
-  padding: 10px;
+  border-radius: 0.5rem;
+  padding: 1rem;
   display: flex;
 
   /* ?? layout responsivo com flexbox ?? */
@@ -323,23 +310,21 @@ export const levelTranslationsPtBR = {
 .card {
   background: #3b82f6;
   color: white;
-  border-radius: 6px;
-  padding: 20px;
+  border-radius: 0.5rem;
+  padding: 1rem;
   text-align: center;
-  font-family: sans-serif;
   font-weight: bold;
-  font-size: 0.85rem;
 }`,
     solutions: [
       {
         explanation: [
           {
             label: 'div.grid',
-            text: 'O flex container. Ele tem 340px de largura com 10px de padding, então 320px ficam disponíveis para os cards. A classe se chama <code>grid</code>, mas o layout é feito com flexbox.'
+            text: 'O flex container. Os cards dividem a largura disponível. A classe se chama <code>grid</code>, mas o layout é feito com flexbox.'
           },
           {
             label: 'div.card',
-            text: 'Seis flex items. Cada card tem 20px de padding e uma largura mínima, então o layout sempre tem um tamanho confortável para trabalhar.'
+            text: 'Seis flex items com texto. Cada card tem padding, então a altura segue o conteúdo e o layout fica confortável.'
           },
           {
             label: 'display: flex',
@@ -350,19 +335,19 @@ export const levelTranslationsPtBR = {
             text: 'Quando os cards não cabem mais na largura disponível, eles vão para a próxima linha em vez de serem espremidos.'
           },
           {
-            label: 'gap: 10px',
-            text: 'Exatamente 10px entre os cards, tanto na horizontal quanto na vertical.'
+            label: 'gap',
+            text: 'O mesmo espaço entre os cards, tanto na horizontal quanto na vertical.'
           },
           {
-            label: 'min-width: 100px',
-            text: 'A menor largura que um card pode ter. Os cards nunca ficam com menos de 100px, o que mantém o texto legível.'
+            label: 'min-width',
+            text: 'A menor largura que um card pode ter. Os cards nunca ficam abaixo desse mínimo, o que mantém o texto legível sem uma largura fixa.'
           },
           {
             label: 'flex: 1',
-            text: 'Atalho para <code>flex: 1 1 0%</code>: <code>grow: 1</code> (o card cresce para dividir o espaço livre), <code>shrink: 1</code> (ele pode encolher) e <code>basis: 0%</code> (ele começa do zero e o crescimento define o tamanho final). Aqui é o mesmo que escrever <code>flex: 1 1 100px</code>, porque o <code>min-width</code> já garante os 100px.'
+            text: 'Atalho para <code>flex: 1 1 0%</code>: <code>grow: 1</code> (o card cresce para dividir o espaço livre), <code>shrink: 1</code> (ele pode encolher) e <code>basis: 0%</code> (ele começa do zero e o crescimento define o tamanho final).'
           },
           {
-            label: 'padding: 20px / text-align: center',
+            label: 'padding / text-align',
             text: 'O padding é o espaço dentro do card ao redor do texto, e <code>text-align: center</code> centraliza o texto na horizontal.'
           }
         ],
@@ -379,19 +364,19 @@ export const levelTranslationsPtBR = {
             text: 'Descreve as colunas do grid. A função <code>repeat()</code> repete um padrão e o <code>auto-fill</code> decide quantas vezes o padrão é repetido para preencher o espaço disponível.'
           },
           {
-            label: 'minmax(100px, 1fr)',
-            text: 'Cada coluna tem no mínimo 100px de largura (<code>min</code>) e recebe uma parte igual do espaço livre (<code>1fr</code>, uma <em>fração</em>).'
+            label: 'minmax(7rem, 1fr)',
+            text: 'Cada coluna tem uma largura mínima legível (<code>min</code>) e recebe uma parte igual do espaço livre (<code>1fr</code>, uma <em>fração</em>).'
           },
           {
             label: 'auto-fill',
             text: 'Mantém as colunas vazias quando sobra espaço, então os cards conservam o tamanho mínimo em vez de esticarem demais.'
           },
           {
-            label: 'gap: 10px',
+            label: 'gap',
             text: 'O mesmo espaçamento entre as trilhas (as linhas e colunas) e os cards.'
           },
           {
-            label: '.card { padding: 20px }',
+            label: '.card { padding }',
             text: 'Os cards mantêm o espaçamento interno, e o grid cuida do layout externo deles.'
           }
         ],
@@ -404,34 +389,39 @@ export const levelTranslationsPtBR = {
     description: 'Três barras dividem a mesma linha. Deixe a barra roxa com o dobro da largura das barras azul e rosa.',
     hint: 'O espaço livre pode ser dividido em proporções diferentes entre os itens. Existe uma propriedade do flexbox que decide quantas partes do espaço livre cada item recebe.',
     starterCSS: `.container {
-  width: 360px;
-  height: 100px;
+  width: 100%;
+  max-width: 22rem;
+  padding: 1rem;
   background: #e2e8f0;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   display: flex;
-  gap: 10px;
-
-  /* ?? deixar a barra roxa com o dobro da largura ?? */
+  gap: 0.5rem;
 }
 
 .bar {
-  height: 100%;
-  border-radius: 6px;
+  flex: 1;
+  min-width: 0;
+  padding: 0.75rem 0;
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  overflow: hidden;
 }
 
 .bar-1 { background: #3b82f6; }
-.bar-2 { background: #8b5cf6; }
+.bar-2 { background: #8b5cf6; /* ?? deixar esta barra com o dobro da largura ?? */ }
 .bar-3 { background: #ec4899; }`,
     solutions: [
       {
         explanation: [
           {
             label: 'div.container',
-            text: 'O flex container. Tem 360px de largura e um gap de 10px, então as três barras dividem 340px de espaço livre.'
+            text: 'O flex container. O gap ocupa o espaço dele primeiro, e tudo o que sobra vira espaço livre para as barras.'
           },
           {
             label: 'div.bar',
-            text: 'Três flex items. Eles não têm largura própria, então o tamanho vem só da propriedade flex.'
+            text: 'Três flex items com texto. Eles não têm largura fixa, então o tamanho vem só da propriedade flex.'
           },
           {
             label: 'display: flex',
@@ -439,22 +429,22 @@ export const levelTranslationsPtBR = {
           },
           {
             label: 'flex: 1',
-            text: 'Atalho de <code>flex: 1 1 0%</code>. Cada barra com <code>flex: 1</code> recebe uma parte do espaço livre, e a base de 0% faz o tamanho depender só das partes.'
+            text: 'Já está no código inicial. Cada barra com <code>flex: 1</code> recebe uma parte do espaço livre, então as três começam com a mesma largura. A base de 0% faz o tamanho depender só das partes.'
           },
           {
             label: 'flex: 2',
-            text: 'A barra roxa tem o dobro do fator de crescimento, então recebe duas partes. Aqui são 4 partes no total (1 + 2 + 1) e cada uma vale 340 / 4 = 85px.'
+            text: 'Só a barra roxa passa a receber duas partes. Com as outras duas recebendo uma parte cada, a barra roxa termina com o dobro da largura delas.'
           },
           {
             label: 'flex-grow',
             text: 'O número que define a parte do espaço livre que cada item recebe. Só importa quando existe espaço livre para dividir.'
           },
           {
-            label: 'gap: 10px',
-            text: 'Os 10px entre as barras não fazem parte do espaço livre: as barras dividem 340px e o gap fica por fora dessa conta.'
+            label: 'gap',
+            text: 'O espaço entre as barras não faz parte do espaço livre: o gap fica fixo e as barras dividem o que sobra.'
           }
         ],
-        tip: 'O flex-grow funciona como uma cota do espaço que sobrou: quanto maior o número, maior a fatia. Se todas as barras tivessem <code>flex: 1</code> elas teriam a mesma largura, e trocar apenas um número para 2 deixa aquela barra exatamente com o dobro da largura das outras.'
+        tip: 'O flex-grow funciona como uma cota do espaço que sobrou: quanto maior o número, maior a fatia. Como todas as barras começam com <code>flex: 1</code>, elas têm a mesma largura; trocar apenas a barra roxa para 2 deixa ela exatamente com o dobro da largura das outras.'
       }
     ]
   },
@@ -463,10 +453,11 @@ export const levelTranslationsPtBR = {
     description: 'Os quatro botões estão grudados na esquerda. Espalhe eles pela linha inteira com o mesmo espaço entre eles.',
     hint: 'Existe espaço vazio dentro do container e os quatro botões precisam usar tudo. O flexbox tem três jeitos de distribuir esse espaço entre os itens, e só um deles cola o primeiro e o último botão nas bordas.',
     starterCSS: `.container {
-  width: 400px;
-  height: 80px;
+  width: 100%;
+  max-width: 24rem;
+  padding: 1rem;
   background: #e2e8f0;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
 
@@ -474,21 +465,22 @@ export const levelTranslationsPtBR = {
 }
 
 .button {
-  width: 40px;
-  height: 40px;
+  padding: 0.75rem 1rem;
   background: #3b82f6;
-  border-radius: 6px;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
 }`,
     solutions: [
       {
         explanation: [
           {
             label: 'div.container',
-            text: 'O flex container. Tem 400px de largura e os quatro botões ocupam 160px, então sobram 240px de espaço livre para distribuir.'
+            text: 'O flex container. Os quatro botões tiram o próprio tamanho do texto e do padding, então o resto da largura é espaço livre para distribuir.'
           },
           {
             label: 'div.button',
-            text: 'Quatro flex items de 40x40px. Com o <code>justify-content</code> padrão eles ficam todos grudados na borda esquerda.'
+            text: 'Quatro flex items. Com o <code>justify-content</code> padrão eles ficam todos grudados na borda esquerda.'
           },
           {
             label: 'display: flex',
@@ -496,7 +488,7 @@ export const levelTranslationsPtBR = {
           },
           {
             label: 'justify-content: space-between',
-            text: 'Coloca o primeiro botão no começo da linha e o último no fim, distribuindo o espaço livre igualmente entre os botões. Aqui isso dá 240px / 3 = 80px entre cada par.'
+            text: 'Coloca o primeiro botão no começo da linha e o último no fim, distribuindo o espaço livre igualmente entre os botões.'
           },
           {
             label: 'justify-content: space-around',
@@ -508,7 +500,7 @@ export const levelTranslationsPtBR = {
           },
           {
             label: 'align-items: center',
-            text: 'Já está no código inicial. Centraliza os botões na vertical dentro da linha de 80px de altura.'
+            text: 'Já está no código inicial. Centraliza os botões na vertical dentro da linha.'
           }
         ],
         tip: 'As três opções com "space" só mudam o que acontece com o espaço que sobrou: <code>space-between</code> gruda o primeiro e o último item nas bordas, <code>space-around</code> deixa metade de um espaço nas bordas, e <code>space-evenly</code> deixa um espaço inteiro nas bordas.'
@@ -520,21 +512,24 @@ export const levelTranslationsPtBR = {
     description: 'Todas as caixas estão centralizadas na linha. Mova apenas a caixa roxa para a parte de baixo do container.',
     hint: 'A regra que centraliza todos os itens está no container, mas um item só pode decidir não seguir essa regra. A propriedade que faz isso fica no item, e não no container.',
     starterCSS: `.container {
-  width: 300px;
-  height: 200px;
+  width: 100%;
+  max-width: 20rem;
+  min-height: 14rem;
+  padding: 1rem;
   background: #e2e8f0;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 1rem;
 
   /* ?? mover só a caixa roxa para baixo ?? */
 }
 
 .box {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: bold;
 }
 
 .box-1 { background: #3b82f6; }
@@ -545,11 +540,11 @@ export const levelTranslationsPtBR = {
         explanation: [
           {
             label: 'div.container',
-            text: 'O flex container. Tem 300x200px e as caixas têm 60x60px, então sobra espaço para movê-las para cima e para baixo.'
+            text: 'O flex container. A altura dele vem do <code>min-height</code>, então sobra espaço para mover as caixas para cima e para baixo.'
           },
           {
             label: 'div.box',
-            text: 'Três flex items. Todos têm 60x60px, então o que muda é a posição na vertical, nunca o tamanho.'
+            text: 'Três flex items com texto. Todos crescem a partir do conteúdo, então o que muda é a posição na vertical, nunca o tamanho.'
           },
           {
             label: 'display: flex',
@@ -581,43 +576,47 @@ export const levelTranslationsPtBR = {
     description: 'O footer deve ficar na parte de baixo do card e todo o espaço vazio deve ficar acima dele.',
     hint: 'O footer deve ficar na parte de baixo do card mesmo se o conteúdo mudar. Margens podem ser auto, e uma margem automática dentro de um flex container come todo o espaço livre do eixo.',
     starterCSS: `.page {
-  width: 320px;
-  height: 240px;
+  width: 100%;
+  max-width: 22rem;
+  min-height: 16rem;
   background: #e2e8f0;
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 0.5rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1rem;
 
   /* ?? empurrar o footer para baixo ?? */
 }
 
 .content {
-  height: 80px;
+  padding: 1rem;
   background: #3b82f6;
-  border-radius: 6px;
+  color: white;
+  border-radius: 0.5rem;
 }
 
 .footer {
-  height: 40px;
+  padding: 0.75rem 1rem;
   background: #8b5cf6;
-  border-radius: 6px;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
 }`,
     solutions: [
       {
         explanation: [
           {
             label: 'div.page',
-            text: 'O flex container, na direção coluna. Tem 240px de altura com 16px de padding, então a área interna tem 208px.'
+            text: 'O flex container, na direção coluna. A altura dele vem do <code>min-height</code>, então existe espaço livre para empurrar o footer para baixo.'
           },
           {
             label: 'div.content',
-            text: 'O primeiro flex item. Tem 80px de altura e fica no topo da coluna.'
+            text: 'O primeiro flex item. Ele fica no topo da coluna, e a altura segue o texto e o padding.'
           },
           {
             label: 'div.footer',
-            text: 'O segundo flex item. Tem 40px de altura e deve ficar na parte de baixo da coluna.'
+            text: 'O segundo flex item. Ele deve ficar na parte de baixo da coluna, não importa quanto conteúdo exista acima.'
           },
           {
             label: 'flex-direction: column',
@@ -632,7 +631,7 @@ export const levelTranslationsPtBR = {
             text: 'Outra forma de chegar ao mesmo resultado: distribui o espaço livre entre os itens, então o footer termina embaixo.'
           },
           {
-            label: 'gap: 16px',
+            label: 'gap',
             text: 'O espaço mínimo entre os itens. A margem automática não tira o gap, ela soma todo o espaço extra em cima dele.'
           }
         ],
@@ -642,47 +641,56 @@ export const levelTranslationsPtBR = {
   },
   11: {
     title: 'Mantendo um Tamanho com flex-shrink',
-    description: 'O botão roxo está sendo espremido. Mantenha ele com 80px de largura enquanto a barra azul longa encolhe para caber.',
-    hint: 'Quando falta espaço, o flexbox encolhe os itens para tudo caber. Um item precisa manter o tamanho de qualquer jeito, e existe uma propriedade do flexbox que protege ele de encolher.',
+    description: 'O botão roxo está sendo espremido. Proteja ele para manter o tamanho do texto enquanto a barra azul longa encolhe para caber.',
+    hint: 'Quando falta espaço, o flexbox encolhe os itens para tudo caber. Um item precisa manter o tamanho natural de qualquer jeito, e existe uma propriedade do flexbox que protege ele de encolher.',
     starterCSS: `.container {
-  width: 260px;
-  height: 80px;
+  width: 100%;
+  max-width: 18rem;
+  padding: 1rem;
   background: #e2e8f0;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.75rem;
 
-  /* ?? manter o botão com 80px ?? */
+  /* ?? manter o botão sem encolher ?? */
 }
 
 .bar {
-  width: 300px;
-  height: 40px;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.75rem 1rem;
   background: #3b82f6;
-  border-radius: 6px;
+  color: white;
+  border-radius: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .button {
-  width: 80px;
-  height: 40px;
+  min-width: 0;
+  padding: 0.75rem 1rem;
   background: #8b5cf6;
-  border-radius: 6px;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  white-space: nowrap;
 }`,
     solutions: [
       {
         explanation: [
           {
             label: 'div.container',
-            text: 'O flex container. Tem 260px de largura, então com o gap de 10px sobram só 250px para os dois itens, mas eles pedem 380px.'
+            text: 'O flex container. Os dois itens juntos pedem mais espaço do que o container tem, então alguma coisa precisa ceder.'
           },
           {
             label: 'div.bar',
-            text: 'O primeiro flex item. Quer ter 300px de largura, mais do que o espaço disponível, então precisa encolher.'
+            text: 'O primeiro flex item. Ele tem um texto longo, então quer a largura natural, mas precisa encolher para tudo caber.'
           },
           {
             label: 'div.button',
-            text: 'O segundo flex item. Quer ter 80px de largura, e é ele que precisa manter esse tamanho.'
+            text: 'O segundo flex item. Ele tem um texto curto e precisa manter a largura desse texto, mesmo quando falta espaço.'
           },
           {
             label: 'display: flex',
@@ -694,11 +702,11 @@ export const levelTranslationsPtBR = {
           },
           {
             label: 'flex-shrink: 1',
-            text: 'O valor padrão. Quando falta espaço, todo item com <code>flex-shrink: 1</code> cede uma parte do seu tamanho, de forma proporcional à sua largura.'
+            text: 'O valor padrão. Quando falta espaço, todo item com <code>flex-shrink: 1</code> cede uma parte do seu tamanho.'
           },
           {
-            label: 'gap: 10px',
-            text: 'Os 10px entre os itens nunca são flexíveis: eles não encolhem, estão sempre lá.'
+            label: 'gap',
+            text: 'O espaço entre os itens nunca é flexível: ele não encolhe, está sempre lá.'
           }
         ],
         tip: 'Shrink e grow são dois lados da mesma moeda: o flex-grow pega o espaço extra quando sobra, e o flex-shrink devolve espaço quando falta. Usar <code>flex-shrink: 0</code> é a forma de proteger um tamanho que não pode ser negociado.'
@@ -710,41 +718,43 @@ export const levelTranslationsPtBR = {
     description: 'O avatar e o título deveriam ficar lado a lado no header do card, mas estão empilhados.',
     hint: 'O header já tem uma distância entre os itens e centraliza eles na vertical, mas nada disso tem efeito. As duas coisas são ignoradas quando o elemento não é mesmo um flex container.',
     starterCSS: `.card {
-  width: 320px;
-  height: 200px;
+  width: 100%;
+  max-width: 22rem;
   background: #e2e8f0;
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 0.5rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .header {
 
   /* ?? colocar o avatar e o título lado a lado ?? */
-  gap: 12px;
+  gap: 0.75rem;
   align-items: center;
 }
 
 .avatar {
-  width: 48px;
-  height: 48px;
+  padding: 1rem;
   background: #3b82f6;
-  border-radius: 50%;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
 }
 
 .title {
-  width: 160px;
-  height: 16px;
-  background: #8b5cf6;
-  border-radius: 4px;
+  margin: 0;
+  font-size: 1.25rem;
 }
 
 .body {
   flex: 1;
+  margin: 0;
+  padding: 1rem;
   background: #ec4899;
-  border-radius: 6px;
+  color: white;
+  border-radius: 0.5rem;
 }`,
     solutions: [
       {
@@ -759,23 +769,23 @@ export const levelTranslationsPtBR = {
           },
           {
             label: 'div.avatar',
-            text: 'O primeiro flex item do header. Tem 48x48px, o avatar redondo.'
+            text: 'O primeiro flex item do header. É um selo arredondado com uma letra, e o tamanho vem do texto e do padding.'
           },
           {
-            label: 'div.title',
-            text: 'O segundo flex item. Tem 160x16px, a barra roxa que faz o papel de título.'
+            label: 'h2.title',
+            text: 'O segundo flex item. É um título de verdade com texto, então o layout é construído a partir do conteúdo em vez de uma barra vazia.'
           },
           {
             label: 'display: flex',
             text: 'A peça que faltava. Transforma o header em flex container, então o avatar e o título viram flex items em uma linha.'
           },
           {
-            label: 'gap: 12px',
+            label: 'gap',
             text: 'Já está no código inicial. Só funciona em um flex container, por isso o gap não fazia nada até o <code>display: flex</code> ser adicionado.'
           },
           {
             label: 'align-items: center',
-            text: 'Já está no código inicial. Centraliza o título na vertical em relação ao avatar, que é mais alto.'
+            text: 'Já está no código inicial. Centraliza o título na vertical em relação ao avatar.'
           },
           {
             label: 'flex: 1',
@@ -783,6 +793,541 @@ export const levelTranslationsPtBR = {
           }
         ],
         tip: 'Flexbox funciona dentro de flexbox: qualquer elemento pode virar flex container. A regra prática é simples: sempre que você escrever <code>gap</code> ou <code>align-items</code>, confirme se aquele elemento tem mesmo <code>display: flex</code>, senão essas propriedades não fazem nada.'
+      }
+    ]
+  },
+  13: {
+    title: 'Alinhando Linhas com Wrap',
+    description: 'Os blocos já estão quebrando em várias linhas, mas as linhas ficam coladas no topo. Distribua as linhas pela altura do tabuleiro, mantendo a primeira linha no topo e a última embaixo.',
+    hint: 'Quando os itens quebram, eles criam várias linhas. Existe uma propriedade que distribui essas linhas no eixo cruzado. Sem ela, as linhas ficam sempre juntas no início.',
+    starterCSS: `.board {
+  width: 100%;
+  max-width: 22rem;
+  min-height: 15rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  /* ?? distribuir as linhas quebradas pela altura ?? */
+}
+
+.tile {
+  padding: 0.75rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'div.board',
+            text: 'O flex container. Ele mantém a direção padrão (<code>row</code>), então os blocos fluem para o lado e quebram em novas <strong>linhas</strong> quando falta espaço.'
+          },
+          {
+            label: 'div.tile',
+            text: 'Seis flex items. Eles são todos parecidos, então a quebra depende da largura do tabuleiro, não do conteúdo de um item especial.'
+          },
+          {
+            label: 'flex-wrap: wrap',
+            text: 'Já está no código inicial. Permite que os itens passem para uma nova linha em vez de encolherem para sempre. Sem ele haveria só uma linha e nada para distribuir.'
+          },
+          {
+            label: 'align-content: space-between',
+            text: 'Distribui as <strong>linhas</strong> no eixo cruzado. A primeira linha vai para o topo, a última vai para o fundo e o espaço livre é dividido entre as linhas do meio.'
+          },
+          {
+            label: 'align-items vs align-content',
+            text: 'Parecem iguais, mas agem em coisas diferentes: <code>align-items</code> alinha os itens dentro de uma linha, enquanto <code>align-content</code> distribui as próprias linhas. Por isso este nível precisou da segunda.'
+          },
+          {
+            label: 'gap',
+            text: 'O gap é o espaço entre os blocos dentro de uma linha. O espaço entre as linhas é controlado pelo <code>align-content</code>, não pelo <code>gap</code>.'
+          }
+        ],
+        tip: 'Use <code>flex-wrap: wrap</code> para criar várias linhas e <code>align-content</code> para distribuir essas linhas. O <code>justify-content</code> continua distribuindo cada linha na horizontal, e o <code>align-items</code> continua alinhando os itens dentro de cada linha.'
+      }
+    ]
+  },
+  14: {
+    title: 'Tamanho Inicial com flex-basis',
+    description: 'Dê aos dois painéis laterais o mesmo tamanho inicial e faça o painel principal ter exatamente o dobro da largura de cada lateral. Não deixe os painéis crescerem nem encolherem; o tamanho deve vir do flex-basis.',
+    hint: 'O flex-grow divide o espaço que sobra. Antes disso, você pode dar a cada item um tamanho inicial no eixo principal. Esse tamanho inicial é o flex-basis, e o atalho flex pode escrevê-lo junto com grow e shrink.',
+    starterCSS: `.layout {
+  width: 100%;
+  max-width: 24rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+}
+
+.panel {
+  padding: 1rem;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 0.5rem;
+}
+
+.side {
+  background: #3b82f6;
+  /* ?? tamanho inicial: 1 parte ?? */
+}
+
+.main {
+  background: #8b5cf6;
+  /* ?? tamanho inicial: 2 partes ?? */
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'div.layout',
+            text: 'O flex container. Ele não tem gaps aqui, então os itens podem dividir a largura inteira com suas porcentagens.'
+          },
+          {
+            label: 'flex: 0 0 25% (.side)',
+            text: 'O atalho significa <code>flex-grow: 0</code>, <code>flex-shrink: 0</code> e <code>flex-basis: 25%</code>. O painel lateral começa com um quarto da linha e se recusa a mudar esse tamanho.'
+          },
+          {
+            label: 'flex: 0 0 50% (.main)',
+            text: 'O painel principal começa com metade da linha. Como não cresce nem encolhe, fica exatamente duas vezes mais largo que cada painel lateral.'
+          },
+          {
+            label: 'flex-basis',
+            text: 'É o tamanho inicial no eixo principal, antes de qualquer espaço livre ser dividido. Numa linha funciona como width; numa coluna funcionaria como height.'
+          },
+          {
+            label: 'flex-grow: 0 e flex-shrink: 0',
+            text: 'Congelam o tamanho inicial. Com os valores padrão os painéis poderiam crescer para o espaço livre ou encolher quando a linha ficasse pequena, e as proporções mudariam.'
+          },
+          {
+            label: 'box-sizing: border-box',
+            text: 'O preview já usa isso, então o padding e a borda ficam dentro da porcentagem. Sem isso os painéis ficariam mais largos que 25% e 50% juntos.'
+          }
+        ],
+        tip: 'Pense nesta ordem: <code>flex-basis</code> define o tamanho inicial, <code>flex-grow</code> divide o espaço extra e <code>flex-shrink</code> remove espaço quando o container é pequeno demais. O atalho <code>flex: 0 0 25%</code> é uma forma compacta de congelar um tamanho inicial.'
+      }
+    ]
+  },
+  15: {
+    title: 'Space Around vs Evenly',
+    description: 'As tags estão distribuídas com espaços iguais, incluindo as bordas. Mude a distribuição para que os espaços externos fiquem com metade do tamanho dos espaços entre as tags.',
+    hint: 'Três valores de espaçamento parecem quase iguais. Um não deixa espaço nas bordas, um deixa o mesmo espaço em todo lugar e um deixa metade do espaço interno nas bordas. Você precisa do último.',
+    starterCSS: `.row {
+  width: 100%;
+  max-width: 22rem;
+  padding: 0.75rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  justify-content: space-evenly;
+
+  /* ?? deixar os espaços externos com metade dos internos ?? */
+}
+
+.tag {
+  padding: 0.5rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  font-size: 0.85rem;
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'div.row',
+            text: 'O flex container. As quatro tags ficam numa linha, então <code>justify-content</code> distribui elas no eixo principal.'
+          },
+          {
+            label: 'justify-content: space-around',
+            text: 'Cada item recebe a mesma quantidade de espaço dos dois lados. O primeiro e o último acabam com metade desse espaço nas bordas, porque só um item fica ao lado de cada borda.'
+          },
+          {
+            label: 'space-evenly',
+            text: 'O valor do código inicial. Dá o mesmo tamanho a todos os gaps, incluindo as duas bordas. Por isso os espaços externos pareciam tão grandes quanto os internos.'
+          },
+          {
+            label: 'space-between',
+            text: 'O outro valor comum. Coloca o primeiro item no início e o último no fim, então os espaços externos ficam zero.'
+          },
+          {
+            label: 'gap',
+            text: 'Os valores de <code>justify-content</code> distribuem o espaço livre. Se você também adicionar um <code>gap</code>, esse espaço fixo é somado entre os itens antes de o espaço livre ser dividido.'
+          }
+        ],
+        tip: '<code>space-between</code> não tem espaço nas bordas, <code>space-evenly</code> tem espaço igual nas bordas e entre os itens, e <code>space-around</code> tem metade do espaço interno nas bordas. Ler o alvo com atenção mostra qual usar.'
+      }
+    ]
+  },
+  16: {
+    title: 'Chefe: Galeria Responsiva',
+    description: 'Seis cards precisam quebrar em pelo menos duas linhas, todos com a mesma largura inicial, e as linhas devem usar a altura toda da galeria. Este é um chefe: combine wrap, flex-basis e align-content.',
+    hint: 'Junte as duas ideias deste mundo: dê a todos os cards a mesma largura inicial com flex-basis e distribua as linhas quebradas com align-content. O gap também precisa ser descontado da largura do card para caberem três cards por linha.',
+    starterCSS: `.gallery {
+  width: 100%;
+  max-width: 26rem;
+  min-height: 16rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  /* ?? distribuir as linhas quebradas pela altura ?? */
+}
+
+.card {
+  padding: 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+
+  /* ?? largura inicial igual para três cards por linha ?? */
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'div.gallery',
+            text: 'O flex container. Ele quebra os cards em linhas e distribui essas linhas no eixo cruzado.'
+          },
+          {
+            label: 'flex: 0 0 calc(33.333% - 0.5rem) (.card)',
+            text: 'Cada card começa com um terço da linha, menos uma parte do gap. Sem descontar o gap, três cards mais dois gaps ficariam mais largos que a galeria e só dois caberiam.'
+          },
+          {
+            label: 'flex-basis e calc()',
+            text: '<code>calc()</code> deixa o navegador fazer a conta com unidades diferentes. Aqui ele mistura porcentagem com comprimento, que é exatamente o que uma grade responsiva precisa.'
+          },
+          {
+            label: 'align-content: space-between',
+            text: 'Os cards criam duas linhas. Esta propriedade manda a primeira linha para o topo, a última para o fundo e divide o espaço livre entre elas.'
+          },
+          {
+            label: 'flex-wrap: wrap',
+            text: 'Já está no código inicial. É o que transforma seis cards em várias linhas em vez de espremer todos numa só.'
+          },
+          {
+            label: 'gap',
+            text: 'O espaço fixo entre os cards. Ele também explica o <code>- 0.5rem</code> dentro do <code>calc()</code>: o gap precisa ser descontado da porcentagem.'
+          }
+        ],
+        tip: 'Para uma grade de cards responsiva com flexbox: <code>flex-wrap: wrap</code>, um <code>flex-basis</code> que já desconta o gap e <code>align-content</code> para distribuir as linhas. A mesma largura de card funciona quando o container fica mais estreito, porque a porcentagem encolhe junto.'
+      }
+    ]
+  },
+  17: {
+    title: 'Empurrando com Margens Automáticas',
+    description: 'O logo e os botões de ação estão colados à esquerda. Mantenha o logo à esquerda e mova o grupo de ações para a borda direita.',
+    hint: 'Uma margem automática absorve todo o espaço livre do lado em que é aplicada. Você não precisa mudar a ordem nem o HTML, apenas a quantidade de espaço livre de um lado das ações.',
+    starterCSS: `.navbar {
+  width: 100%;
+  max-width: 24rem;
+  padding: 0.75rem 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  /* ?? manter o logo à esquerda e empurrar as ações para a direita ?? */
+}
+
+.logo {
+  color: #1e293b;
+  font-weight: bold;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+
+  /* ?? comer o espaço livre do lado esquerdo ?? */
+}
+
+.nav-btn {
+  padding: 0.5rem 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'div.navbar',
+            text: 'O flex container. O logo e o grupo de ações são seus dois filhos, e o grupo de ações é ele mesmo um flex container para os dois botões.'
+          },
+          {
+            label: 'margin-left: auto (.actions)',
+            text: 'Uma margem automática é gulosa: ela pega todo o espaço livre disponível do seu lado. Aqui ela come o espaço vazio entre o logo e as ações, empurrando as ações para a borda direita.'
+          },
+          {
+            label: 'justify-content: space-between',
+            text: 'Uma solução alternativa. Também empurraria os dois filhos para as bordas opostas, sem mudar a margem. O jogo aceita qualquer CSS que produza o mesmo layout.'
+          },
+          {
+            label: 'div.actions',
+            text: 'Um flex container aninhado. O <code>gap</code> dele mantém os dois botões juntos, então mover o grupo não separa eles.'
+          },
+          {
+            label: 'gap no navbar',
+            text: 'O gap do container ainda adiciona uma distância mínima entre os dois grupos. A margem automática trabalha com o espaço que sobra depois desse gap.'
+          }
+        ],
+        tip: 'Uma margem automática é a forma mais simples de empurrar um único item para longe dos outros. <code>margin-left: auto</code> empurra para a direita, <code>margin-right: auto</code> empurra para a esquerda e <code>margin-top: auto</code> empurra para baixo. É a mesma ideia que você usou no footer.'
+      }
+    ]
+  },
+  18: {
+    title: 'Invertendo a Direção',
+    description: 'Os passos estão escritos como Start, Build e Ship no HTML, mas devem aparecer como Ship, Build e Start na tela. Inverta a direção da linha inteira sem alterar o HTML nem usar order.',
+    hint: 'Existe uma propriedade do container que vira o eixo principal. Ela não é o mesmo que a propriedade order: em vez de mudar um item, ela muda onde a linha começa e onde termina.',
+    starterCSS: `.steps {
+  width: 100%;
+  max-width: 20rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+
+  /* ?? inverter a ordem visual da linha ?? */
+}
+
+.step {
+  padding: 0.75rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'div.steps',
+            text: 'O flex container. Os três passos são flex items, e a ordem no DOM continua Start, Build e Ship.'
+          },
+          {
+            label: 'flex-direction: row-reverse',
+            text: 'Vira o eixo principal. A linha continua colocando os itens na horizontal, mas o início agora fica à direita e o fim à esquerda, então o primeiro item do HTML aparece à direita.'
+          },
+          {
+            label: 'Por que não order?',
+            text: '<code>order</code> muda a posição de itens individuais. <code>row-reverse</code> muda o fluxo inteiro de uma vez, o que é útil para linhas do tempo, mensagens de chat e qualquer layout que seja lido do fim para o início.'
+          },
+          {
+            label: 'gap',
+            text: 'O gap é medido entre os itens na ordem visual, então o espaçamento continua igual mesmo depois de inverter a direção.'
+          },
+          {
+            label: 'Acessibilidade',
+            text: 'O HTML continua Start, Build e Ship. Leitores de tela e a tecla Tab seguem o DOM, não a direção visual, então use esta propriedade quando a inversão visual combinar com o significado.'
+          }
+        ],
+        tip: '<code>flex-direction: row-reverse</code> inverte o eixo principal inteiro. <code>order</code> reorganiza itens individuais. Os dois mudam apenas a apresentação visual; o HTML e a ordem do teclado continuam intactos.'
+      }
+    ]
+  },
+  19: {
+    title: 'Texto que Cabe',
+    description: 'O rótulo longo está empurrando o contador para fora do card. Mantenha o avatar e o contador visíveis, e deixe o rótulo encolher e mostrar reticências em vez de transbordar.',
+    hint: 'Um flex item tem, por padrão, um tamanho mínimo igual ao seu conteúdo, então ele se recusa a encolher abaixo do texto. Existe uma propriedade cujo valor padrão é auto que controla esse mínimo; defina como zero no rótulo.',
+    starterCSS: `.list-item {
+  width: 100%;
+  max-width: 20rem;
+  padding: 0.75rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.avatar {
+  flex: 0 0 auto;
+  padding: 0.5rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}
+
+.label {
+  flex: 1;
+
+  /* ?? permitir que o texto encolha abaixo da largura natural ?? */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.count {
+  flex: 0 0 auto;
+  padding: 0.35rem 0.6rem;
+  background: #8b5cf6;
+  color: white;
+  border-radius: 999px;
+  font-weight: bold;
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'div.list-item',
+            text: 'Um flex container em linha. O avatar, o rótulo e o contador são os três itens, e a linha precisa caber dentro do card.'
+          },
+          {
+            label: 'min-width: 0 (.label)',
+            text: 'Um flex item tem por padrão <code>min-width: auto</code>, o que significa que ele se recusa a ficar menor que o próprio conteúdo. Definir como <code>0</code> dá permissão ao navegador para encolher o rótulo abaixo da largura natural do texto.'
+          },
+          {
+            label: 'flex: 1 (.label)',
+            text: 'Já está no código inicial. Faz o rótulo ocupar o espaço livre que o avatar e o contador não usam.'
+          },
+          {
+            label: 'overflow: hidden e text-overflow: ellipsis',
+            text: 'Decidem o que acontece com o texto depois que o rótulo pode encolher: o texto extra fica escondido e é substituído por <code>…</code> no final.'
+          },
+          {
+            label: 'flex: 0 0 auto (.avatar e .count)',
+            text: 'Esses dois itens protegem o próprio tamanho. Sem isso, o navegador poderia encolher eles também e o avatar ou o contador sumiriam.'
+          },
+          {
+            label: 'min-width e flex-shrink',
+            text: 'Trabalham juntos: <code>flex-shrink</code> diz que o item pode encolher, e <code>min-width</code> diz até onde ele pode ir. Com o padrão <code>auto</code>, o texto é o limite.'
+          }
+        ],
+        tip: 'Quando um flex item tem texto longo e se recusa a encolher, lembre do par: <code>min-width: 0</code> no item, mais <code>overflow: hidden</code> e <code>text-overflow: ellipsis</code> para mostrar o corte. É uma das correções de flexbox mais comuns no mundo real.'
+      }
+    ]
+  },
+  20: {
+    title: 'Chefe: A Interface Inteira',
+    description: 'Construa a casca final do app: uma topbar com a marca à esquerda e o usuário à direita, uma sidebar ao lado de uma área principal que cresce, e um footer no fundo. Cada seção é um flex container, e o app é uma coluna.',
+    hint: 'Pense em camadas. O app é uma coluna. A topbar e o layout são linhas. Uma dessas camadas precisa comer a altura livre para o footer chegar ao fundo, e a área principal precisa comer a largura livre ao lado da sidebar.',
+    starterCSS: `.app {
+  width: 100%;
+  max-width: 24rem;
+  min-height: 20rem;
+  padding: 0.75rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.topbar {
+  /* ?? marca à esquerda, usuário à direita, menu no meio ?? */
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 0.5rem;
+}
+
+.brand {
+  font-weight: bold;
+}
+
+.menu {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.menu-item {
+  color: #475569;
+  font-weight: bold;
+}
+
+.user {
+  padding: 0.4rem 0.55rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}
+
+.layout {
+  display: flex;
+  gap: 0.5rem;
+
+  /* ?? preencher a altura livre do app ?? */
+}
+
+.sidebar {
+  flex: 0 0 30%;
+  padding: 0.75rem;
+  background: #8b5cf6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}
+
+.content {
+  /* ?? ocupar a largura que sobra ?? */
+  padding: 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}
+
+.footer {
+  padding: 0.6rem 0.75rem;
+  background: #1e293b;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'div.app',
+            text: 'O flex container externo, na direção <strong>column</strong>. Ele empilha a topbar, o layout e o footer na vertical, e o <code>gap</code> mantém eles separados.'
+          },
+          {
+            label: 'div.topbar',
+            text: 'Um flex container aninhado. Ele coloca a marca, o menu e o usuário numa linha. <code>justify-content: space-between</code> manda o primeiro item para a esquerda e o último para a direita.'
+          },
+          {
+            label: 'div.layout',
+            text: 'Outro flex container aninhado. Coloca a sidebar e a área principal lado a lado. <code>flex: 1</code> faz essa linha inteira comer a altura livre do app.'
+          },
+          {
+            label: 'flex: 0 0 30% (.sidebar)',
+            text: 'A sidebar mantém uma largura inicial de 30% e não cresce nem encolhe. É um navegador fixo ao lado de uma área de conteúdo flexível.'
+          },
+          {
+            label: 'flex: 1 (.content)',
+            text: 'A área principal cresce para toda a largura que sobra depois da sidebar e do gap. É isso que torna o layout responsivo sem um único valor em pixels.'
+          },
+          {
+            label: 'footer no fundo',
+            text: 'O app é uma coluna e o layout cresce, então o footer é empurrado para o fim. Se o layout não crescesse, <code>margin-top: auto</code> no footer faria o mesmo trabalho.'
+          },
+          {
+            label: 'A interface inteira',
+            text: 'Cada nível deste app é um flex container: a página é uma coluna, a topbar é uma linha, o layout é uma linha, e o menu é uma linha dentro da topbar. É assim que interfaces reais são montadas.'
+          }
+        ],
+        tip: 'Layouts reais são feitos de flex containers aninhados. Comece pela direção maior (a coluna do app), depois faça cada seção uma linha ou uma coluna própria. Use <code>flex: 1</code> na parte que deve crescer e <code>flex: 0 0 &lt;tamanho&gt;</code> nas partes que devem manter o tamanho.'
       }
     ]
   }
