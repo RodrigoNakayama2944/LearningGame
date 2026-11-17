@@ -3,6 +3,26 @@ CSS QUEST - PROJECT SUMMARY
 
 PROMPT LOG (newest first)
 -------------------------
+2026-11-17 — "have the chosen logo be besides the title in the game"
+  Status: COMPLETED
+  Outcome: Moved the chosen logo from the HUD controls to immediately beside the challenge title. It still returns to the main menu and follows the selected main/alt logo. npm run build and headless Chrome checks passed.
+
+2026-11-17 — "make the choice between the alt logo and the orignial only available after reaching 1k stars and have it on the coin flip tab"
+  Status: COMPLETED
+  Outcome: Moved the logo selector into the Coin Flip tab and kept it hidden until the 1000-star achievement. The choice still persists and updates the in-game logo button. npm run build and headless Chrome checks passed.
+
+2026-11-17 — "add the logo to the main menu, and after gaining the alt logo add a way to swap back and forth. having the deadlocklockkcol as the main logo and logo2 as the alt"
+  Status: COMPLETED
+  Outcome: Added a hidden-until-unlocked main-menu logo selector with deadlocklockkcol.jpeg as main and logo2.png as the alternative. The choice persists in localStorage, updates the in-game logo button, and both hashed images load correctly. npm run build and headless Chrome checks passed.
+
+2026-11-17 — "add a dev code that gives me all the stars available"
+  Status: COMPLETED
+  Outcome: Added an "allstars" dev code plus a "Give all stars" button in the unlocked dev panel. Both fill all 30 levels with 3 stars (90 total), top up the coin balance to 1000, unlock the earned achievements and logo reward, and refresh the HUD. npm run build and headless Chrome checks passed.
+
+2026-11-17 — "add a coinflip system that you bet stars to gain more, with more stars gained on a separate balance, you get achievements, and as a last achievement for reaching 1000 stars you get an alternative logo, using the logo2 image as the new logo, display the logo inside the game aswell with a way to go back to the menu, the more you win on the coinflip on a row increases a multiplier of the stars gained"
+  Status: COMPLETED
+  Outcome: Added a Coin Flip menu with a separate star balance, 1x-5x streak multiplier, four coinflip achievements and a 1000-star achievement that swaps the menu logo to logo2.png and shows an in-game logo button that returns to the menu. Level star improvements also fund the coin balance. npm run build and headless Chrome checks passed.
+
 2026-11-17 — "sooooo open code, add the credits back, with the creator name as Rodrigo Nakayama and teacher as Bruno Tadeu"
   Status: COMPLETED
   Outcome: Restored the Credits button and panel in the main menu with Rodrigo Nakayama as creator and Bruno Tadeu as teacher, in English and Portuguese. npm run build and headless Chrome checks passed.
@@ -154,10 +174,10 @@ GAME LAYER (STARS, XP, MAP, ACHIEVEMENTS)
   previous one solved. Locked levels show a lock on the Quest Map.
 - Quest Map modal: two tabs. "Levels" shows the 8 worlds, per-level stars,
   best time, current level and a Daily Challenge card. "Achievements" shows
-  all 25 badges (world clears, speed, daily streak, linguist, perfectionist,
+  all 29 badges (world clears, speed, daily streak, linguist, perfectionist,
   boss slayer, quest complete, three full-completion time tiers, hard/hardcore
-  mode badges and one hidden skeleton achievement). A reset-progress button
-  also lives in this modal.
+  mode badges, coinflip streak badges, the 1000-star logo badge and one hidden
+  skeleton achievement). A reset-progress button also lives in this modal.
 - Daily Challenge: picks a solved level based on the local date, disables
   hints and tracks a day streak. It does not add a separate XP reward.
 - Main menu Configurations: sound, language, difficulty (Normal / Hard / Hardcore),
@@ -165,6 +185,17 @@ GAME LAYER (STARS, XP, MAP, ACHIEVEMENTS)
   Hard disables hints. Hardcore disables hints and has one life: one wrong
   check opens a Run Over screen whose restart button goes back to level 1.
   Choosing Hard or Hardcore unlocks its own achievement.
+- Coin Flip: stars earned by improving a level's best result also go to a
+  separate coin balance. The player bets stars on heads/tails; a win pays
+  bet x multiplier, and each consecutive win increases the multiplier up to 5x.
+   Losses reset the streak. Achievements unlock for the first win, 3 and 5 wins
+   in a row, and reaching 1000 coin stars. Reaching 1000 coin stars reveals the
+   logo choice in the Coin Flip tab and shows the chosen logo beside the game
+   title as a Back to menu button.
+- Logo selector: deadlocklockkcol.jpeg is the main menu logo by default. After
+  the 1000-star achievement, two small logo buttons appear in the Coin Flip
+  tab so the player can switch between the main logo and logo2.png; the choice
+  is saved in localStorage and also updates the logo beside the game title.
 - Credits screen: available from the main menu, names Rodrigo Nakayama as
   creator and Bruno Tadeu as teacher, in English and Portuguese.
 - Boss levels show a short intro overlay before play. The final level opens a
@@ -407,12 +438,13 @@ KEY FILES
 - src/i18n.js: translation engine - languages list, UI dictionary (en and
   pt-BR), t(key, params), getLevelText(level), getTagText(item)
 - src/main.js: game logic, stars/XP, run timer, sequential loading, map,
-  achievements, daily challenge, boss/final overlays, skeleton path/orientation
-  randomization, hidden dev tool and language switching
+  achievements, daily challenge, coinflip, boss/final overlays, skeleton
+  path/orientation randomization, hidden dev tool (password "deadlock" or code
+  "allstars") and language switching
 - src/progress.js: versioned localStorage save, level records, totals,
   unlocks, achievements, daily state and streak
 - src/quest-map.js: 8 worlds, boss IDs, star/XP constants and rank helpers
-- src/achievements.js: the 25 achievement definitions, en/pt-BR text and hidden flag
+- src/achievements.js: the 29 achievement definitions, en/pt-BR text and hidden flag
 - src/sound.js: Web Audio generated sound effects with mute support
 - src/styles.css: Dracula theme, editor, HUD, mission strip, map,
   achievements, overlays, toasts, skeleton runner animation, focus states and

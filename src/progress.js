@@ -4,7 +4,7 @@
 // keeps a single object in memory and writes it after every change, so the
 // rest of the game never has to deal with storage directly.
 
-import { STAR_XP } from './quest-map.js'
+import { STAR_XP, MAX_STARS } from './quest-map.js'
 
 const STORAGE_KEY = 'cssquest-progress-v1'
 
@@ -17,6 +17,10 @@ function createDefaultProgress() {
     mode: 'normal',
     effectsOn: true,
     showTimer: true,
+    coinStars: 0,
+    coinStreak: 0,
+    coinBestStreak: 0,
+    logoChoice: 'main',
     achievements: [],
     tagsOpened: [],
     languagesTried: [],
@@ -41,6 +45,11 @@ function safeParse(text) {
   }
 }
 
+function safeCount(value) {
+  const number = Number(value)
+  return Number.isFinite(number) ? Math.max(0, Math.floor(number)) : 0
+}
+
 // Merges an older or partial save with the current defaults, so a missing
 // field never crashes the game.
 function normalize(saved) {
@@ -58,6 +67,12 @@ function normalize(saved) {
     mode: ['normal', 'hard', 'hardcore'].includes(saved.mode) ? saved.mode : 'normal',
     effectsOn: saved.effectsOn !== false,
     showTimer: saved.showTimer !== false,
+    coinStars: safeCount(saved.coinStars),
+    coinStreak: safeCount(saved.coinStreak),
+    coinBestStreak: Math.max(safeCount(saved.coinBestStreak), safeCount(saved.coinStreak)),
+    logoChoice: saved.logoChoice === 'alt' && Array.isArray(saved.achievements) && saved.achievements.includes('coinThousandStars')
+      ? 'alt'
+      : 'main',
     daily: {
       ...base.daily,
       ...(saved.daily && typeof saved.daily === 'object' ? saved.daily : {})
@@ -148,6 +163,28 @@ export function getTotalXp() {
   return getTotalStars() * STAR_XP
 }
 
+// Hidden dev shortcut: fills every level with the maximum star score and
+// tops up the separate coin balance used by the coin flip.
+export function grantAllStars(coinAmount = 1000) {
+  const state = getProgress()
+  const levelCount = Math.floor(MAX_STARS / 3)
+
+  for (let id = 1; id <= levelCount; id++) {
+    const previous = getLevelProgress(id)
+    state.levels[id] = {
+      solved: true,
+      bestStars: 3,
+      bestTimeMs: previous.bestTimeMs > 0 ? previous.bestTimeMs : 60000,
+      solvedAt: previous.solvedAt || new Date().toISOString(),
+      checks: previous.checks || 1
+    }
+  }
+
+  state.coinStars = Math.max(safeCount(state.coinStars), safeCount(coinAmount))
+  saveProgress()
+  return levelCount
+}
+
 export function setLastLevelId(levelId) {
   const state = getProgress()
   state.lastLevelId = levelId
@@ -172,6 +209,9 @@ export function recordLevelResult(levelId, result) {
     ? (previous.bestTimeMs > 0 ? Math.min(previous.bestTimeMs, result.timeMs) : result.timeMs)
     : previous.bestTimeMs
 
+  const coinGained = improved ? bestStars - previous.bestStars : 0
+  if (coinGained > 0) state.coinStars = safeCount(state.coinStars) + coinGained
+
   state.levels[levelId] = {
     solved: true,
     bestStars,
@@ -186,6 +226,7 @@ export function recordLevelResult(levelId, result) {
     improved,
     bestStars,
     earnedStars: stars,
+    coinGained,
     xpGained: (bestStars - previous.bestStars) * STAR_XP
   }
 }
@@ -238,6 +279,56 @@ export function setShowTimer(value) {
 
 export function getShowTimer() {
   return getProgress().showTimer !== false
+}
+
+export function getCoinStars() {
+  return safeCount(getProgress().coinStars)
+}
+
+export function spendCoinStars(amount) {
+  const state = getProgress()
+  const cost = safeCount(amount)
+  if (cost < 1 || cost > safeCount(state.coinStars)) return false
+  state.coinStars = safeCount(state.coinStars) - cost
+  saveProgress()
+  return true
+}
+
+export function getCoinStreak() {
+  return safeCount(getProgress().coinStreak)
+}
+
+export function getCoinBestStreak() {
+  return safeCount(getProgress().coinBestStreak)
+}
+
+export function getCoinMultiplier() {
+  return Math.min(1 + getCoinStreak(), 5)
+}
+
+// Called after the bet has been removed. A win pays bet x multiplier and
+// grows the streak; a loss only resets the streak.
+export function recordCoinFlipResult(won, payout) {
+  const state = getProgress()
+  if (won) {
+    state.coinStreak = safeCount(state.coinStreak) + 1
+    state.coinBestStreak = Math.max(safeCount(state.coinBestStreak), state.coinStreak)
+    state.coinStars = safeCount(state.coinStars) + safeCount(payout)
+  } else {
+    state.coinStreak = 0
+  }
+  saveProgress()
+}
+
+export function getLogoChoice() {
+  const state = getProgress()
+  return state.logoChoice === 'alt' && state.achievements.includes('coinThousandStars') ? 'alt' : 'main'
+}
+
+export function setLogoChoice(value) {
+  const state = getProgress()
+  state.logoChoice = value === 'alt' && state.achievements.includes('coinThousandStars') ? 'alt' : 'main'
+  saveProgress()
 }
 
 export function recordTagOpened(tag) {

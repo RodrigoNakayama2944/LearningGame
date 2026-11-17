@@ -14,7 +14,7 @@
     <div class="start-menu-inner">
       <div class="start-menu-main" id="menuHome">
         <div class="start-brand">
-          <img class="start-emblem" src="/src/assets/deadlocklockkcol.jpeg" alt="" aria-hidden="true" />
+          <img class="start-emblem" id="startEmblem" src="/src/assets/deadlocklockkcol.jpeg" alt="" aria-hidden="true" />
           <span class="start-kicker" data-i18n="menuKicker">A Flexbox Puzzle Game</span>
           <h1 class="start-title" id="startTitle">CSS QUEST</h1>
           <p class="start-tagline" data-i18n="menuTagline">Solve puzzles. Master Flexbox.</p>
@@ -25,6 +25,7 @@
             <span class="start-nav-arrow" aria-hidden="true">&#8594;</span>
           </button>
           <button class="start-nav-btn" id="btnMenuConfig" data-i18n="menuConfigurations">Configurations</button>
+          <button class="start-nav-btn" id="btnMenuCoin" data-i18n="menuCoinFlip">Coin Flip</button>
           <button class="start-nav-btn" id="btnMenuCredits" data-i18n="menuCredits">Credits</button>
         </nav>
         <p class="start-footer" data-i18n="menuFooter">Learn layouts one level at a time.</p>
@@ -90,6 +91,47 @@
         </div>
       </div>
 
+      <div class="start-panel hidden" id="menuCoin">
+        <div class="start-panel-head">
+          <h2 data-i18n="menuCoinFlip">Coin Flip</h2>
+          <button class="start-back" id="btnCoinBack">
+            <span aria-hidden="true">&#8592;</span> <span data-i18n="menuBack">Back</span>
+          </button>
+        </div>
+        <p class="coin-intro" data-i18n="coinIntro">Bet stars on a coin flip. A win pays your bet times the current multiplier.</p>
+        <div class="coin-balance-row">
+          <span data-i18n="coinBalance">Coin balance</span>
+          <strong id="coinBalance">0</strong>
+        </div>
+        <div class="coin-bet-row">
+          <label for="coinBet" data-i18n="coinBetLabel">Bet</label>
+          <input type="number" id="coinBet" min="1" step="1" value="1" />
+          <button class="coin-quick" type="button" data-bet="1">1</button>
+          <button class="coin-quick" type="button" data-bet="5">5</button>
+          <button class="coin-quick" type="button" data-bet="10">10</button>
+          <button class="coin-quick" type="button" data-bet="max" data-i18n="coinMax">Max</button>
+        </div>
+        <div class="coin-stats">
+          <div><span data-i18n="coinStreak">Win streak</span><strong id="coinStreak">0</strong></div>
+          <div><span data-i18n="coinMultiplier">Next multiplier</span><strong id="coinMultiplier">1x</strong></div>
+          <div><span data-i18n="coinBestStreak">Best streak</span><strong id="coinBestStreak">0</strong></div>
+        </div>
+        <button class="btn btn-check coin-flip-btn" id="btnCoinFlip" data-i18n="coinFlipButton">Flip coin</button>
+        <p class="coin-earn-hint" data-i18n="coinEarnHint">Solve levels to add stars to your coin balance.</p>
+        <div class="coin-result hidden" id="coinResult" role="status" aria-live="polite"></div>
+        <div class="coin-logo-section hidden" id="logoSection">
+          <p data-i18n="logoSwitchLabel">Choose logo</p>
+          <div class="logo-switch" id="logoSwitch" role="group" aria-label="Choose logo">
+            <button class="logo-option" type="button" data-logo="main">
+              <img src="/src/assets/deadlocklockkcol.jpeg" alt="" />
+            </button>
+            <button class="logo-option" type="button" data-logo="alt">
+              <img src="/src/assets/logo2.png" alt="" />
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div class="start-panel hidden" id="menuCredits">
         <div class="start-panel-head">
           <h2 data-i18n="menuCredits">Credits</h2>
@@ -121,6 +163,7 @@
         <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
       </div>
       <span class="stars-total" id="starsTotal">0 / 0</span>
+      <span class="coin-total" id="coinTotal">0</span>
     </div>
     <div class="header-right">
       <button class="btn-sound" id="btnSound" aria-pressed="false" title="Toggle sound effects">SFX</button>
@@ -137,6 +180,9 @@
         <span class="level-badge" id="levelBadge">Level 1</span>
         <span class="world-label" id="worldLabel"></span>
         <span class="boss-badge hidden" id="bossBadge" data-i18n="bossLevel">Boss Level</span>
+        <button class="btn-game-logo hidden" id="btnGameLogo" type="button">
+          <img id="btnGameLogoImg" src="/src/assets/logo2.png" alt="" />
+        </button>
         <h2 class="challenge-title" id="challengeTitle"></h2>
       </div>
       <p class="challenge-description" id="challengeDescription"></p>
@@ -266,6 +312,7 @@
         <label class="dev-label" for="devAnswer" data-i18n="devAnswer">Answer</label>
         <textarea class="dev-answer" id="devAnswer" readonly spellcheck="false"></textarea>
         <div class="dev-actions">
+          <button class="btn btn-tags" id="devGiveStars" data-i18n="devGiveStars">Give all stars</button>
           <button class="btn btn-check" id="devFill" data-i18n="devFillEditor">Fill editor</button>
         </div>
       </div>

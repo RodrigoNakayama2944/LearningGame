@@ -16,8 +16,8 @@ Não é um projeto React e não consome uma API Express.
 
 O jogo tem 30 níveis em 8 mundos (chefes nos níveis 4, 8, 12, 16, 20, 24, 28 e 30),
 estrelas, XP, ranks, desbloqueio sequencial, mapa de missões, conquistas,
-desafio diário, modos normal/difícil/hardcore e efeitos sonoros opcionais.
-O progresso fica no localStorage
+desafio diário, modos normal/difícil/hardcore, coinflip de estrelas, logo
+alternativo desbloqueável e efeitos sonoros opcionais. O progresso fica no localStorage
 (chave "cssquest-progress-v1"). Não há login, banco de dados nem backend.
 
 ## Regras importantes
@@ -45,13 +45,14 @@ O progresso fica no localStorage
 - index.html: layout, HUD, faixa de missão, modais, overlays e toasts
 - src/levels.js: os 30 níveis (html, starterCSS, themeCSS, solutions, validate)
 - src/levels-pt-BR.js: textos em português dos 30 níveis
-- src/main.js: lógica do jogo (estrelas, XP, checagem, mapa, conquistas, diário)
-  e ferramenta de desenvolvimento escondida (Ctrl+Alt+Shift+D, senha "deadlock")
+- src/main.js: lógica do jogo (estrelas, XP, checagem, mapa, conquistas, diário,
+  coinflip) e ferramenta de desenvolvimento escondida (Ctrl+Alt+Shift+D,
+  senha "deadlock" ou código "allstars" para dar todas as estrelas)
 - src/progress.js: progresso no localStorage, desbloqueio, estrelas, diário e
   registro do esqueleto visto
 - src/quest-map.js: mundos, chefes, totais e ranks
-- src/achievements.js: as 25 conquistas em inglês e português, incluindo as de
-  tempo, as dos modos difícil/hardcore e a conquista secreta do esqueleto
+- src/achievements.js: as 29 conquistas em inglês e português, incluindo as de
+  tempo, as dos modos difícil/hardcore, as do coinflip e a conquista secreta do esqueleto
 - src/sound.js: efeitos sonoros com Web Audio (desligados por padrão)
 - src/preview.js: renderização dos iframes de preview e alvo
 - src/styles.css: tema Dracula, editor, HUD, mapa, overlays e responsividade

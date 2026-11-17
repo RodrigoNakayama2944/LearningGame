@@ -222,6 +222,33 @@ export const achievements = [
     check: context => context.mode === 'hardcore'
   },
   {
+    id: 'coinFirstWin',
+    title: { en: 'Heads Up!', 'pt-BR': 'Cara ou Coroa!' },
+    description: {
+      en: 'Win your first coin flip.',
+      'pt-BR': 'Ganhe sua primeira moeda.'
+    },
+    check: context => context.progress.coinBestStreak >= 1
+  },
+  {
+    id: 'coinStreak3',
+    title: { en: 'Lucky Three', 'pt-BR': 'Três da Sorte' },
+    description: {
+      en: 'Win three coin flips in a row.',
+      'pt-BR': 'Ganhe três moedas seguidas.'
+    },
+    check: context => context.progress.coinBestStreak >= 3
+  },
+  {
+    id: 'coinStreak5',
+    title: { en: 'Coin Streak', 'pt-BR': 'Sequência de Moedas' },
+    description: {
+      en: 'Win five coin flips in a row.',
+      'pt-BR': 'Ganhe cinco moedas seguidas.'
+    },
+    check: context => context.progress.coinBestStreak >= 5
+  },
+  {
     id: 'skeletonSeen',
     secret: true,
     title: { en: 'The Skeleton Is Loose', 'pt-BR': 'O Esqueleto Solto' },
@@ -238,7 +265,16 @@ export const achievements = [
   worldAchievement(5),
   worldAchievement(6),
   worldAchievement(7),
-  worldAchievement(8)
+  worldAchievement(8),
+  {
+    id: 'coinThousandStars',
+    title: { en: 'Golden Logo', 'pt-BR': 'Logo Dourado' },
+    description: {
+      en: 'Reach 1000 stars on your coin balance to unlock the alternative logo.',
+      'pt-BR': 'Alcance 1000 estrelas no seu saldo para liberar o logo alternativo.'
+    },
+    check: context => context.progress.coinStars >= 1000
+  }
 ]
 
 export function getAchievementText(achievement, language) {

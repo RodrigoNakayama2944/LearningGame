@@ -1,4 +1,6 @@
 import levels, { cssTagsGuide } from './levels.js'
+import logoMainUrl from './assets/deadlocklockkcol.jpeg'
+import logoAltUrl from './assets/logo2.png'
 import { updatePreview, updateTarget, isIframeReady } from './preview.js'
 import { visuallyMatchesTarget } from './visual-check.js'
 import {
@@ -30,6 +32,7 @@ import {
   getSolvedCount,
   getTotalStars,
   getTotalXp,
+  grantAllStars,
   getLastLevelId,
   setLastLevelId,
   recordLevelResult,
@@ -42,6 +45,14 @@ import {
   getEffectsOn,
   setShowTimer,
   getShowTimer,
+  getCoinStars,
+  spendCoinStars,
+  getCoinStreak,
+  getCoinBestStreak,
+  getCoinMultiplier,
+  recordCoinFlipResult,
+  getLogoChoice,
+  setLogoChoice,
   recordTagOpened,
   recordLanguageTried,
   recordSkeletonSeen,
@@ -104,6 +115,9 @@ const rankName = document.getElementById('rankName')
 const xpText = document.getElementById('xpText')
 const xpFill = document.getElementById('xpFill')
 const starsTotal = document.getElementById('starsTotal')
+const coinTotal = document.getElementById('coinTotal')
+const btnGameLogo = document.getElementById('btnGameLogo')
+const btnGameLogoImg = document.getElementById('btnGameLogoImg')
 const missionStrip = document.getElementById('missionStrip')
 const missionSolveLabel = document.getElementById('missionSolveLabel')
 const missionNoHintLabel = document.getElementById('missionNoHintLabel')
@@ -126,14 +140,27 @@ const btnPlayAgain = document.getElementById('btnPlayAgain')
 const btnReviewLevels = document.getElementById('btnReviewLevels')
 const skeletonRunner = document.getElementById('skeletonRunner')
 const startMenu = document.getElementById('startMenu')
+const startEmblem = document.getElementById('startEmblem')
+const logoSection = document.getElementById('logoSection')
+const logoSwitch = document.getElementById('logoSwitch')
 const menuHome = document.getElementById('menuHome')
 const menuConfig = document.getElementById('menuConfig')
+const menuCoin = document.getElementById('menuCoin')
 const menuCredits = document.getElementById('menuCredits')
 const btnStartGame = document.getElementById('btnStartGame')
 const btnMenuConfig = document.getElementById('btnMenuConfig')
 const btnConfigBack = document.getElementById('btnConfigBack')
+const btnMenuCoin = document.getElementById('btnMenuCoin')
+const btnCoinBack = document.getElementById('btnCoinBack')
 const btnMenuCredits = document.getElementById('btnMenuCredits')
 const btnCreditsBack = document.getElementById('btnCreditsBack')
+const coinBalance = document.getElementById('coinBalance')
+const coinBet = document.getElementById('coinBet')
+const coinStreak = document.getElementById('coinStreak')
+const coinMultiplier = document.getElementById('coinMultiplier')
+const coinBestStreak = document.getElementById('coinBestStreak')
+const btnCoinFlip = document.getElementById('btnCoinFlip')
+const coinResult = document.getElementById('coinResult')
 const menuSoundToggle = document.getElementById('menuSoundToggle')
 const menuEffectsToggle = document.getElementById('menuEffectsToggle')
 const menuTimerToggle = document.getElementById('menuTimerToggle')
@@ -151,9 +178,13 @@ const devPanel = document.getElementById('devPanel')
 const devLevel = document.getElementById('devLevel')
 const devSolutions = document.getElementById('devSolutions')
 const devAnswer = document.getElementById('devAnswer')
+const devGiveStars = document.getElementById('devGiveStars')
 const devFill = document.getElementById('devFill')
 
 const DEV_PASSWORD_HASH = 0xd7460570
+const ALL_STARS_CODE_HASH = 0xe9caf4d
+const LOGO_MAIN = logoMainUrl
+const LOGO_ALT = logoAltUrl
 const SKELETON_CHANCE = 0.000001
 const SKELETON_DURATION_MS = 750
 
@@ -200,6 +231,8 @@ function init() {
   updateSoundButton()
   updateHeader()
   applyLanguage(false)
+  applyLogoReward()
+  renderCoinFlip()
   btnStartGame.focus()
 }
 
@@ -224,9 +257,104 @@ function updateStartMenu() {
 function showMenuPage(page) {
   menuHome.classList.toggle('hidden', page !== 'home')
   menuConfig.classList.toggle('hidden', page !== 'config')
+  menuCoin.classList.toggle('hidden', page !== 'coin')
   menuCredits.classList.toggle('hidden', page !== 'credits')
-  const firstButton = page === 'config' ? btnConfigBack : page === 'credits' ? btnCreditsBack : btnStartGame
+  const firstButton = page === 'config'
+    ? btnConfigBack
+    : page === 'coin' ? btnCoinBack : page === 'credits' ? btnCreditsBack : btnStartGame
   firstButton.focus()
+}
+
+function applyLogoReward() {
+  const unlocked = hasAchievement('coinThousandStars')
+  const choice = unlocked ? getLogoChoice() : 'main'
+  const logo = choice === 'alt' ? LOGO_ALT : LOGO_MAIN
+
+  if (startEmblem.getAttribute('src') !== logo) startEmblem.setAttribute('src', logo)
+  startEmblem.classList.toggle('alt-logo', choice === 'alt')
+  btnGameLogoImg.setAttribute('src', logo)
+  btnGameLogoImg.classList.toggle('alt-logo', choice === 'alt')
+
+  logoSection.classList.toggle('hidden', !unlocked)
+  logoSwitch.setAttribute('aria-label', t('logoSwitchLabel'))
+  logoSwitch.querySelectorAll('[data-logo]').forEach(button => {
+    const isActive = button.dataset.logo === choice
+    const label = t(button.dataset.logo === 'alt' ? 'logoAlt' : 'logoMain')
+    button.classList.toggle('active', isActive)
+    button.title = label
+    button.setAttribute('aria-label', label)
+    button.setAttribute('aria-pressed', String(isActive))
+  })
+
+  btnGameLogo.classList.toggle('hidden', !unlocked)
+  btnGameLogo.title = t('backToMenu')
+  btnGameLogo.setAttribute('aria-label', t('backToMenu'))
+}
+
+function renderCoinFlip() {
+  const balance = getCoinStars()
+  const streak = getCoinStreak()
+  coinBalance.textContent = String(balance)
+  coinStreak.textContent = String(streak)
+  coinMultiplier.textContent = `x${getCoinMultiplier()}`
+  coinBestStreak.textContent = String(getCoinBestStreak())
+  coinBet.max = String(Math.max(1, balance))
+  if (Number(coinBet.value) > balance) coinBet.value = String(Math.max(1, balance))
+  btnCoinFlip.disabled = balance < 1
+}
+
+function setCoinBet(value) {
+  if (value === 'max') {
+    coinBet.value = String(getCoinStars())
+  } else {
+    coinBet.value = String(value)
+  }
+  playClick()
+}
+
+function showCoinResult(kind, face, detail) {
+  coinResult.className = `coin-result ${kind}`
+  coinResult.textContent = `${face} ${detail}`
+}
+
+function flipCoin() {
+  const bet = Math.floor(Number(coinBet.value))
+  const balance = getCoinStars()
+
+  if (bet < 1) {
+    showCoinResult('error', '', t('coinNeedStars', { n: 1 }))
+    return
+  }
+  if (bet > balance) {
+    showCoinResult('error', '', t('coinTooMany'))
+    return
+  }
+
+  const multiplier = getCoinMultiplier()
+  const isHeads = Math.random() < 0.5
+  const face = t(isHeads ? 'coinHeads' : 'coinTails')
+  if (!spendCoinStars(bet)) return
+
+  if (isHeads) {
+    const payout = bet * multiplier
+    recordCoinFlipResult(true, payout)
+    showCoinResult('win', face, t('coinWin', { n: payout, m: multiplier }))
+    playSuccess()
+  } else {
+    recordCoinFlipResult(false, 0)
+    showCoinResult('loss', face, t('coinLose'))
+    playError()
+  }
+
+  const newAchievements = checkNewAchievements()
+  if (newAchievements.length) {
+    if (newAchievements.includes('coinThousandStars')) setLogoChoice('alt')
+    playAchievement()
+    newAchievements.forEach(id => showAchievementToast(id))
+    applyLogoReward()
+  }
+  renderCoinFlip()
+  updateHeader()
 }
 
 function isHardcoreMode() {
@@ -381,6 +509,13 @@ function setupEventListeners() {
   btnStartGame.addEventListener('click', startGame)
   btnMenuConfig.addEventListener('click', () => showMenuPage('config'))
   btnConfigBack.addEventListener('click', () => showMenuPage('home'))
+  btnMenuCoin.addEventListener('click', () => {
+    renderCoinFlip()
+    showMenuPage('coin')
+  })
+  btnCoinBack.addEventListener('click', () => showMenuPage('home'))
+  btnCoinFlip.addEventListener('click', flipCoin)
+  btnGameLogo.addEventListener('click', showMainMenu)
   btnMenuCredits.addEventListener('click', () => showMenuPage('credits'))
   btnCreditsBack.addEventListener('click', () => showMenuPage('home'))
   menuSoundToggle.addEventListener('click', toggleSound)
@@ -391,6 +526,15 @@ function setupEventListeners() {
     if (languageButton) changeLanguage(languageButton.dataset.menuLang)
     const modeButton = event.target.closest('[data-mode]')
     if (modeButton) setDifficulty(modeButton.dataset.mode)
+    const betButton = event.target.closest('[data-bet]')
+    if (betButton) setCoinBet(betButton.dataset.bet)
+    const logoButton = event.target.closest('[data-logo]')
+    if (logoButton) {
+      setLogoChoice(logoButton.dataset.logo)
+      applyLogoReward()
+      playClick()
+      showToast(t('logoSwitchLabel'), t('toastLogoChanged'), 'achievement')
+    }
   })
   btnRestartRun.addEventListener('click', restartHardcoreRun)
   btnRunOverMenu.addEventListener('click', showMainMenu)
@@ -427,6 +571,7 @@ function setupEventListeners() {
   devClose.addEventListener('click', closeDevModal)
   devLogin.addEventListener('submit', unlockDevTool)
   devSolutions.addEventListener('click', onDevSolutionClick)
+  devGiveStars.addEventListener('click', devGiveAllStars)
   devFill.addEventListener('click', fillDevAnswer)
   devModal.addEventListener('click', (e) => {
     if (e.target === devModal) closeDevModal()
@@ -635,6 +780,7 @@ function applyCheckResult(level) {
     stars: earnedStars,
     bestStars: result.bestStars,
     xpGained: result.xpGained,
+    coinGained: result.coinGained,
     timeMs: run.elapsedMs,
     rank: rankAfter,
     rankUp,
@@ -879,6 +1025,9 @@ function renderResultExtras(extra) {
   if (extra.xpGained > 0) {
     parts.push(`<span><strong>${t('xpGained', { n: extra.xpGained })}</strong></span>`)
   }
+  if (extra.coinGained > 0) {
+    parts.push(`<span><strong>${t('coinGained', { n: extra.coinGained })}</strong></span>`)
+  }
   if (extra.timeMs > 0) {
     parts.push(`<span>${t('timeLabel')}: ${formatTime(extra.timeMs)}</span>`)
   }
@@ -1079,6 +1228,8 @@ function applyLanguage(editorHasStarter = true) {
   updateSoundButton()
   updateHeader()
   updateStartMenu()
+  renderCoinFlip()
+  applyLogoReward()
   refreshLevelText()
   previewStatus.textContent = previewIsLive ? t('live') : t('updating')
 
@@ -1149,8 +1300,16 @@ function closeDevModal() {
 
 function unlockDevTool(event) {
   event.preventDefault()
+  const enteredHash = hashDevPassword(devPassword.value)
 
-  if (hashDevPassword(devPassword.value) !== DEV_PASSWORD_HASH) {
+  if (enteredHash === ALL_STARS_CODE_HASH) {
+    devUnlocked = true
+    devPassword.value = ''
+    devGiveAllStars()
+    return
+  }
+
+  if (enteredHash !== DEV_PASSWORD_HASH) {
     devError.classList.remove('hidden')
     devPassword.value = ''
     devPassword.focus()
@@ -1211,6 +1370,26 @@ function fillDevAnswer() {
   closeDevModal()
   showToast(t('devTitle'), t('devLoaded'), 'achievement')
   editorInput.focus()
+}
+
+function devGiveAllStars() {
+  if (!devUnlocked) return
+
+  grantAllStars()
+  const newAchievements = checkNewAchievements()
+  if (newAchievements.includes('coinThousandStars')) setLogoChoice('alt')
+  updateHeader()
+  renderMissionStrip()
+  renderCoinFlip()
+  applyLogoReward()
+  if (!questModal.classList.contains('hidden')) renderQuestBody()
+  closeDevModal()
+  showToast(t('devTitle'), t('devStarsLoaded', { levelStars: MAX_STARS, coinStars: 1000 }), 'achievement')
+
+  if (newAchievements.length) {
+    playAchievement()
+    newAchievements.forEach(id => showAchievementToast(id))
+  }
 }
 
 function refreshLevelText() {
@@ -1315,6 +1494,9 @@ function updateHeader() {
   xpFill.style.width = `${Math.min(100, (xp / MAX_XP) * 100)}%`
   starsTotal.textContent = `\u2605 ${stars} / ${MAX_STARS}`
   starsTotal.title = t('starsShort', { n: stars, max: MAX_STARS })
+  const coins = getCoinStars()
+  coinTotal.textContent = `\u25C9 ${coins}`
+  coinTotal.title = t('coinShort', { n: coins })
 }
 
 function toggleSound() {
@@ -1776,6 +1958,8 @@ function resetGame() {
   loadLevelById(levels[0].id)
   updateHintButton()
   updateHeader()
+  applyLogoReward()
+  renderCoinFlip()
 }
 
 init()
