@@ -3,6 +3,38 @@ CSS QUEST - PROJECT SUMMARY
 
 PROMPT LOG (newest first)
 -------------------------
+2026-11-17 — "add time achievements based on how quickly the game was finished, use names like 'Speedrunner' complete the game in x minutes, and add another one that is a secret achievement for seeing the skeleton run past your screen"
+  Status: COMPLETED
+  Outcome: Added three full-completion time achievements (60/30/15 minutes) and the hidden "The Skeleton Is Loose" achievement, which unlocks when the running skeleton animation plays. Hidden achievements show as "???" until unlocked, and skeleton sightings persist in localStorage. npm run build and headless Chrome checks passed.
+
+2026-11-17 — "add more 10 levels, trying to pick off of difficulty of the last level and increasing it bit by bit, making use of different tags together"
+  Status: COMPLETED
+  Outcome: Added levels 21-30 in English and pt-BR, with geometry validators, three new quest-map worlds (6-8), bosses at 24/28/30, three world achievements, row-gap/column-gap guide entries and updated docs. All 30 solutions pass their validators in headless Chrome; npm run build passed.
+
+2026-11-17 — "read the summary.txt and agents.md files"
+  Status: COMPLETED
+  Outcome: Read both files and returned their contents. No code was changed.
+
+2026-11-05 — "make the skeleton cross the screen in 0.75seconds"
+  Status: IN PROGRESS
+  Outcome: Setting every skeleton crossing to a fixed 750ms regardless of path length.
+
+2026-11-05 — "speed u" (clarified: faster screen crossing)
+  Status: COMPLETED
+  Outcome: Increased skeleton travel speed (about 2-4.2s per crossing) while keeping one pass per run. npm run build passed.
+
+2026-11-05 — "make it look like running and the path is correct, yes. Add the changes"
+  Status: COMPLETED
+  Outcome: Replaced the Tenor iframe with a local transparent GIF, centered the run cycle, added random horizontal/vertical/diagonal full-screen paths, direction-aware rotation/flip, random off-screen start/end points and one-shot timing. npm run build and headless Chrome checks passed.
+
+2026-11-05 — "utilizing this gif <Tenor running skeleton> make a chance of 0.0001% of appearing this gif going through the screen, for now make a keybind that allows me to force the animation"
+  Status: COMPLETED
+  Outcome: Added a Tenor skeleton GIF overlay with a 0.0001% chance per level load and Ctrl+Alt+Shift+G to force it. npm run build passed; headless Chrome confirmed the Tenor iframe loads and the keybind starts the cross-screen animation.
+
+2026-11-05 08:41 — "read the whole code, analyze it, if possible and efficient reduce and better it to be more clean"
+  Status: COMPLETED
+  Outcome: Removed unused editor.js and dead CSS, centralized iframe readiness in preview.js, merged reset actions in main.js, extracted preview helpers and trimmed unused quest-map exports. npm run build passed.
+
 2026-11-05 08:37 — "commit the changes to github"
   Status: COMPLETED
   Outcome: Verified with npm run build, committed all pending changes and pushed to main.
@@ -52,8 +84,9 @@ PROJECT RULES (AGENTS.md)
 
 GAME FEATURES
 -------------
-- 20 levels in src/levels.js (all flexbox), split into 5 worlds of 4 levels
-  (bosses at levels 4, 8, 12, 16 and 20)
+- 30 levels in src/levels.js (all flexbox), split into 8 worlds
+  (worlds 1-7 have 4 levels each, world 8 has 2; bosses at 4, 8, 12, 16,
+  20, 24, 28 and 30)
 - Editor with line numbers + live preview iframe (updates on every keystroke)
 - Target iframe showing the goal (uses level.solutions[0].css)
 - Hint box, Check Answer, Reset, Show Hint and CSS Tags buttons (there is NO
@@ -93,16 +126,17 @@ GAME LAYER (STARS, XP, MAP, ACHIEVEMENTS)
   result is stored, so replaying never lowers a previous score. Reset only
   restores the starter CSS; it does not restore hint/wrong-check counters,
   because each level visit starts a fresh run.
-- XP and ranks: 10 XP per star, 60 stars and 600 XP maximum. Ranks are
-  Novice (0), Apprentice (60), Stylist (180), Flexbox Knight (330),
-  Flexbox Master (480) and Legend (600), shown in the top header.
+- XP and ranks: 10 XP per star, 90 stars and 900 XP maximum. Rank thresholds
+  are percentages of max XP: Novice (0), Apprentice (90), Stylist (270),
+  Flexbox Knight (495), Flexbox Master (720) and Legend (900), shown in the
+  top header.
 - Sequential unlocking: level 1 is always open; every other level needs the
   previous one solved. Locked levels show a lock on the Quest Map.
-- Quest Map modal: two tabs. "Levels" shows the 5 worlds, per-level stars,
+- Quest Map modal: two tabs. "Levels" shows the 8 worlds, per-level stars,
   best time, current level and a Daily Challenge card. "Achievements" shows
-  all 16 badges (world clears, speed, daily streak, linguist, perfectionist,
-  boss slayer, quest complete and others). A reset-progress button also lives
-  in this modal.
+  all 23 badges (world clears, speed, daily streak, linguist, perfectionist,
+  boss slayer, quest complete, three full-completion time tiers and one hidden
+  skeleton achievement). A reset-progress button also lives in this modal.
 - Daily Challenge: picks a solved level based on the local date, disables
   hints and tracks a day streak. It does not add a separate XP reward.
 - Boss levels show a short intro overlay before play. The final level opens a
@@ -113,6 +147,22 @@ GAME LAYER (STARS, XP, MAP, ACHIEVEMENTS)
   versioned key lets the save format evolve without crashing old saves.
 - Every new UI string, achievement and level 13-20 exists in English and
   Portuguese (pt-BR).
+
+RARE EASTER EGG
+---------------
+- A "Running Skeleton" GIF has a 0.0001% chance (1 in 1,000,000) to run
+  across the screen whenever a level loads.
+- Press Ctrl+Alt+Shift+G to force the animation at any time (handy for tests).
+- The GIF is local (src/assets/running-skeleton.gif), with a transparent
+  background and a centered/looping leg cycle. It was derived from the Tenor
+  original and no longer needs the Tenor embed script/iframe.
+- Each run picks horizontal, vertical or diagonal movement, a random start
+  and end along opposite screen edges, and starts/ends fully off-screen.
+- The skeleton rotates to face the path; leftward paths are mirrored.
+- It crosses once in roughly 2-4s, fades out and removes itself after the
+  animation.
+- The runner is larger (clamp(150px, 20vw, 300px)), has a drop shadow and is
+  pointer-events-free while hidden or running.
 
 HIDDEN DEV TOOL
 ---------------
@@ -152,6 +202,43 @@ LEVELS (20)
 18. Reverse Direction (flex-direction: row-reverse)
 19. Text That Fits (min-width: 0 + text-overflow: ellipsis)
 20. Boss: The Whole Interface (nested flex containers + flex: 1)
+
+LEVELS 21-30 - WHAT WAS ADDED
+-----------------------------
+- Level 21 (two-axis gaps): six tiles stay in two rows of three, but the row
+  gap must be twice the column gap (gap shorthand or row-gap/column-gap).
+- Level 22 (baseline): three price chips have different font sizes; the text
+  baselines must line up with align-items: baseline.
+- Level 23 (stretch + nested flex): three cards become equal height with
+  align-items: stretch, then each card is a column with margin-top: auto on
+  its button.
+- Level 24 (boss): profile widget combining a nested header row, an automatic
+  margin on the status, a growing bio and a space-between footer.
+- Level 25 (column wrap): six items wrap into two columns inside a fixed
+  height panel, spread with align-content: space-between.
+- Level 26 (modal): flex: 1 + min-height: 0 + overflow: auto let the modal
+  body shrink below its content while the header and footer stay visible.
+- Level 27 (column-reverse): chat messages drawn newest-first with
+  flex-direction: column-reverse and aligned right with align-items: flex-end.
+- Level 28 (boss): pricing table with a full-width first row (flex-basis:
+  100% + order: -1), two cards per row via calc(), two different gaps and
+  align-content: space-between.
+- Level 29 (workspace): app column + space-between header + growing middle
+  row + fixed rail + flex: 1 and flex: 2 panes + bottom status bar.
+- Level 30 (final boss): complete page combining a three-group topbar, a
+  growing hero, wrapped cards with unequal gaps and a space-between footer.
+- Every new level has English and Portuguese text, its own Dracula themeCSS,
+  a full CSS solution and a geometry-based validator.
+- Worlds 6 ("The Component Library"), 7 ("The Responsive Studio") and 8
+  ("The Master Layout") were added, with three new world-clear achievements
+  (19 total) and bosses at 24, 28 and 30.
+- Rank thresholds are percentages of MAX_XP, so they scaled automatically
+  from 600 to 900 XP; the HUD and final overlay use levels.length/TOTAL_LEVELS.
+- The CSS Tags guide gained row-gap and column-gap (with pt-BR translations).
+- Verification: a temporary harness ran all 30 solution CSS strings and all
+  30 starter CSS strings through their real validators in headless Chrome.
+  Every solution passed and all new starters failed (levels 13 and 15 already
+  passed with the starter before this change). npm run build passed.
 
 VAGUE HINTS (changed later)
 ---------------------------
@@ -280,30 +367,45 @@ LEVEL DATA FORMAT
 KEY FILES
 ---------
 - index.html: layout, HUD (XP/rank/stars/sound), mission strip, modals,
-  explanation panel, language picker, boss/final overlays, hidden dev tool
-  and toast stack
+  explanation panel, language picker, boss/final overlays, skeleton easter
+  egg, hidden dev tool and toast stack
 - vite.config.js: base '/LearningGame/' for GitHub Pages
-- src/levels.js: 20 levels (html, starterCSS, themeCSS,
+- src/levels.js: 30 levels (html, starterCSS, themeCSS,
   solutions[{css, explanation, tip}], validate, cssTagsGuide export)
-- src/levels-pt-BR.js: Portuguese texts of all 20 levels (title, description,
+- src/levels-pt-BR.js: Portuguese texts of all 30 levels (title, description,
   hint, starterCSS comments and the explanations/tip of each solution)
 - src/tags-pt-BR.js: Portuguese texts of the CSS Tags guide (summary and
   details of each property)
 - src/i18n.js: translation engine - languages list, UI dictionary (en and
   pt-BR), t(key, params), getLevelText(level), getTagText(item)
 - src/main.js: game logic, stars/XP, run timer, sequential loading, map,
-  achievements, daily challenge, boss/final overlays, hidden dev tool and
-  language switching
+  achievements, daily challenge, boss/final overlays, skeleton path/orientation
+  randomization, hidden dev tool and language switching
 - src/progress.js: versioned localStorage save, level records, totals,
   unlocks, achievements, daily state and streak
-- src/quest-map.js: 5 worlds, boss IDs, star/XP constants and rank helpers
-- src/achievements.js: the 16 achievement definitions and their en/pt-BR text
+- src/quest-map.js: 8 worlds, boss IDs, star/XP constants and rank helpers
+- src/achievements.js: the 23 achievement definitions, en/pt-BR text and hidden flag
 - src/sound.js: Web Audio generated sound effects with mute support
 - src/styles.css: Dracula theme, editor, HUD, mission strip, map,
-  achievements, overlays, toasts, focus states and responsive breakpoints
-- src/preview.js: iframe rendering (updatePreview, updateTarget) with render id
-- src/editor.js: old syntax highlighter (unused)
+  achievements, overlays, toasts, skeleton runner animation, focus states and
+  responsive breakpoints
+- src/assets/running-skeleton.gif: local transparent running-skeleton sprite
+  (derived from Tenor) with a centered, looping leg cycle
+- src/preview.js: iframe rendering (updatePreview, updateTarget), render id
+  checks (isIframeReady)
 - .github/workflows/deploy.yml: auto-deploy pipeline
+
+CODE CLEANUP (2026-11-05)
+-------------------------
+- Deleted src/editor.js (unused syntax highlighter).
+- Removed dead CSS: .level-nav, .level-dot, .progress-text,
+  .editor-highlight, .syntax-* rules and --syntax-* variables.
+- Added isIframeReady() to preview.js; main.js and visual-check.js now share
+  the same readiness check.
+- main.js: unified playAgain/resetAllProgress into resetGame(), extracted
+  renderPreview() and scheduleLiveStatus() (removed duplicated debounce code).
+- quest-map.js: removed unused LEVELS_PER_WORLD and getXpForStars exports.
+- Behavior is unchanged; npm run build passed after the cleanup.
 
 GIT LOG (recent commits)
 ------------------------

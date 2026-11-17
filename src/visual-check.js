@@ -1,3 +1,5 @@
+import { isIframeReady } from './preview.js'
+
 const POSITION_TOLERANCE = 3
 const SIZE_TOLERANCE = 4
 
@@ -40,11 +42,10 @@ function sameRect(first, second, rootFirst, rootSecond) {
 }
 
 export function visuallyMatchesTarget(previewFrame, targetFrame) {
-  const previewDoc = previewFrame && previewFrame.contentDocument
-  const targetDoc = targetFrame && targetFrame.contentDocument
-  if (!previewDoc || !targetDoc || !previewDoc.body || !targetDoc.body) return false
-  if (previewDoc.documentElement.dataset.renderId !== previewFrame.dataset.renderId) return false
-  if (targetDoc.documentElement.dataset.renderId !== targetFrame.dataset.renderId) return false
+  if (!isIframeReady(previewFrame) || !isIframeReady(targetFrame)) return false
+
+  const previewDoc = previewFrame.contentDocument
+  const targetDoc = targetFrame.contentDocument
 
   const preview = collect(previewDoc)
   const target = collect(targetDoc)

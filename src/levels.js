@@ -64,8 +64,24 @@ const cssTagsGuide = [
     group: 'Flexbox',
     summary: 'Space between the items.',
     details: 'Adds a fixed space between the items (and around them when you use two values). It is easier than adding margins to every item.',
+    values: 'any length (px, rem, %), row-gap column-gap',
+    example: '.container {\n  display: flex;\n  gap: 1rem 0.5rem;\n}'
+  },
+  {
+    tag: 'row-gap',
+    group: 'Flexbox',
+    summary: 'Space between the rows of a wrapped container.',
+    details: 'Sets the space between lines (rows in a row layout, columns in a column layout). It only does something when the items wrap into several lines.',
     values: 'any length (px, rem, %)',
-    example: '.container {\n  display: flex;\n  gap: 20px;\n}'
+    example: '.container {\n  display: flex;\n  flex-wrap: wrap;\n  row-gap: 1rem;\n}'
+  },
+  {
+    tag: 'column-gap',
+    group: 'Flexbox',
+    summary: 'Space between the items of one line.',
+    details: 'In a row layout it is the horizontal space between the items. In a column layout it is the space between the wrapped columns. Together with <code>row-gap</code> it forms the <code>gap</code> shorthand.',
+    values: 'any length (px, rem, %)',
+    example: '.container {\n  display: flex;\n  column-gap: 0.5rem;\n}'
   },
   {
     tag: 'order',
@@ -3051,6 +3067,1538 @@ const levels = [
         layoutIsAboveFooter &&
         noOverflow
       )
+    }
+  },
+  {
+    id: 21,
+    title: 'Different Gaps on Each Axis',
+    description: 'The tiles wrap into two rows of three. Keep that layout, but make the space between the rows twice as big as the space between the tiles.',
+    hint: 'The gap shorthand accepts two values: the first one is for rows and the second one is for columns. There are also separate row-gap and column-gap properties if you prefer to write them out.',
+    html: `<div class="gallery">
+   <div class="tile">Tile 1</div>
+   <div class="tile">Tile 2</div>
+   <div class="tile">Tile 3</div>
+   <div class="tile">Tile 4</div>
+   <div class="tile">Tile 5</div>
+   <div class="tile">Tile 6</div>
+ </div>`,
+    starterCSS: `.gallery {
+  width: 100%;
+  max-width: 24rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  /* ?? rows need twice the space of columns ?? */
+}
+
+.tile {
+  flex: 0 0 calc(33.333% - 0.5rem);
+  padding: 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+}`,
+    themeCSS: `.gallery {
+  background: linear-gradient(135deg, #1e1b2e, #282a36 60%, #2d2a3e);
+  border: 1px solid #44475a;
+  border-radius: 1rem;
+}
+.tile {
+  background: linear-gradient(135deg, #8be9fd, #bd93f9);
+  color: #14121f;
+  border: 1px solid rgba(248, 248, 242, 0.3);
+  border-radius: 0.5rem;
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+}`,
+    solutions: [
+      {
+        css: `.gallery {
+  width: 100%;
+  max-width: 24rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 0.5rem;
+}
+.tile {
+  flex: 0 0 calc(33.333% - 0.5rem);
+  padding: 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+}`,
+        explanation: [
+          {
+            label: 'div.gallery',
+            text: 'The flex container. It already wraps the tiles into two rows, so it has both a horizontal gap (between the tiles of a row) and a vertical gap (between the rows).'
+          },
+          {
+            label: 'gap: 1rem 0.5rem',
+            text: 'The two-value shorthand: the first value is <code>row-gap</code> (vertical here) and the second one is <code>column-gap</code> (horizontal here). The rows get twice the space of the columns.'
+          },
+          {
+            label: 'row-gap / column-gap',
+            text: 'The long way to write the same thing. <code>row-gap: 1rem; column-gap: 0.5rem;</code> produces exactly the same layout as the shorthand.'
+          },
+          {
+            label: 'flex: 0 0 calc(33.333% - 0.5rem) (.tile)',
+            text: 'Already in the starter. Three tiles plus two column gaps must fit exactly in the row, so each tile takes one third of the width minus one gap. The gap value did not change, so the tiles still fit.'
+          }
+        ],
+        tip: 'A single <code>gap</code> value is used on both axes. Two values mean <code>row-gap</code> first and <code>column-gap</code> second. This is the same shortcut pattern as <code>padding: 1rem 2rem</code>, where the first number is vertical and the second is horizontal.'
+      }
+    ],
+    validate(iframe) {
+      const doc = iframe.contentDocument
+      const win = iframe.contentWindow
+      const gallery = doc.querySelector('.gallery')
+      const tiles = [...doc.querySelectorAll('.tile')]
+      if (!gallery || tiles.length !== 6) return false
+      const style = win.getComputedStyle(gallery)
+      if (style.display !== 'flex' || style.flexWrap !== 'wrap') return false
+      const rowGap = parseFloat(style.rowGap)
+      const columnGap = parseFloat(style.columnGap)
+      if (!(columnGap > 4 && Math.abs(rowGap - columnGap * 2) < 2)) return false
+      if (gallery.scrollWidth > gallery.clientWidth + 3) return false
+      const rects = tiles.map(tile => tile.getBoundingClientRect())
+      const widths = rects.map(rect => rect.width)
+      if (Math.max(...widths) - Math.min(...widths) > 8) return false
+      const tops = [...new Set(rects.map(rect => Math.round(rect.top)))].sort((a, b) => a - b)
+      if (tops.length !== 2) return false
+      const firstRow = rects.filter(rect => Math.abs(rect.top - tops[0]) < 4)
+      const secondRow = rects.filter(rect => Math.abs(rect.top - tops[1]) < 4)
+      if (firstRow.length !== 3 || secondRow.length !== 3) return false
+      const actualGap = Math.min(...secondRow.map(rect => rect.top)) - Math.max(...firstRow.map(rect => rect.bottom))
+      return Math.abs(actualGap - rowGap) < 12
+    }
+  },
+  {
+    id: 22,
+    title: 'Aligning Text Baselines',
+    description: 'The three price chips have different text sizes. Line up the bottom of the text instead of the center of the chips.',
+    hint: 'Aligning the boxes is not the same as aligning the text inside them. One value of align-items uses the invisible line that the letters sit on.',
+    html: `<div class="prices">
+   <div class="price price-small"><span class="amount">$5</span></div>
+   <div class="price price-medium"><span class="amount">$15</span></div>
+   <div class="price price-large"><span class="amount">$30</span></div>
+ </div>`,
+    starterCSS: `.prices {
+  width: 100%;
+  max-width: 22rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  /* ?? align the text, not the boxes ?? */
+}
+
+.price {
+  padding: 0.75rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+}
+
+.amount { font-weight: bold; line-height: 1; }
+.price-small .amount { font-size: 0.9rem; }
+.price-medium .amount { font-size: 1.3rem; }
+.price-large .amount { font-size: 1.8rem; }`,
+    themeCSS: `.prices {
+  background: linear-gradient(135deg, #1e1b2e, #282a36 60%, #2d2a3e);
+  border: 1px solid #44475a;
+  border-radius: 1rem;
+}
+.price {
+  background: linear-gradient(135deg, #8be9fd, #60a5fa 55%, #bd93f9);
+  color: #14121f;
+  border: 1px solid rgba(248, 248, 242, 0.35);
+  border-radius: 0.5rem;
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+}`,
+    solutions: [
+      {
+        css: `.prices {
+  width: 100%;
+  max-width: 22rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+.price {
+  padding: 0.75rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+}
+.amount { font-weight: bold; line-height: 1; }
+.price-small .amount { font-size: 0.9rem; }
+.price-medium .amount { font-size: 1.3rem; }
+.price-large .amount { font-size: 1.8rem; }`,
+        explanation: [
+          {
+            label: 'div.prices',
+            text: 'The flex container. The three chips are flex items, and their texts have deliberately different sizes to make the alignment easy to see.'
+          },
+          {
+            label: 'align-items: center',
+            text: 'The value in the starter. It centers the chip boxes on the cross axis, so the small text and the large text end up at different heights.'
+          },
+          {
+            label: 'align-items: baseline',
+            text: 'Aligns the invisible line where the letters sit. The chip boxes get different top positions, but the three prices read as one straight line of text.'
+          },
+          {
+            label: 'span.amount',
+            text: 'The text inside each chip. The font sizes are different, which is why aligning the boxes and aligning the text give two different results.'
+          },
+          {
+            label: 'gap',
+            text: 'Keeps the same distance between the chips. It works the same way no matter which alignment value you choose.'
+          }
+        ],
+        tip: '<code>baseline</code> is the alignment value for text. Use it when items contain text of different sizes, like a price next to a label or a heading next to a small caption. It is a cross-axis value, so it still belongs to <code>align-items</code>.'
+      }
+    ],
+    validate(iframe) {
+      const doc = iframe.contentDocument
+      const win = iframe.contentWindow
+      const prices = doc.querySelector('.prices')
+      const chips = [...doc.querySelectorAll('.price')]
+      const amounts = [...doc.querySelectorAll('.amount')]
+      if (!prices || chips.length !== 3 || amounts.length !== 3) return false
+      const style = win.getComputedStyle(prices)
+      if (style.display !== 'flex' || style.alignItems !== 'baseline') return false
+      const chipRects = chips.map(chip => chip.getBoundingClientRect())
+      const chipHeights = chipRects.map(rect => rect.height)
+      if (Math.max(...chipHeights) - Math.min(...chipHeights) < 8) return false
+      const bottoms = amounts.map(amount => amount.getBoundingClientRect().bottom)
+      if (Math.max(...bottoms) - Math.min(...bottoms) > 10) return false
+      return chipRects[0].left < chipRects[1].left && chipRects[1].left < chipRects[2].left &&
+        chipRects[1].left - chipRects[0].right > 4 && chipRects[2].left - chipRects[1].right > 4
+    }
+  },
+  {
+    id: 23,
+    title: 'Cards That Stretch',
+    description: 'The three cards have different amounts of text, but they must be the same height and each button must sit at the bottom of its card.',
+    hint: 'The default cross-axis alignment makes the items fill the height, but the starter overrides it. Then each card needs to become its own column so an automatic margin can push the button down.',
+    html: `<div class="cards">
+   <div class="card">
+     <div class="card-title">Starter</div>
+     <div class="card-text">A short description.</div>
+     <div class="action">Choose</div>
+   </div>
+   <div class="card">
+     <div class="card-title">Pro</div>
+     <div class="card-text">A longer description with two lines of text so this card asks for more room.</div>
+     <div class="action">Choose</div>
+   </div>
+   <div class="card">
+     <div class="card-title">Team</div>
+     <div class="card-text">Medium description.</div>
+     <div class="action">Choose</div>
+   </div>
+ </div>`,
+    starterCSS: `.cards {
+  width: 100%;
+  max-width: 26rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+
+  /* ?? same height for all cards ?? */
+}
+
+.card {
+  padding: 0.75rem;
+  background: white;
+  border-radius: 0.5rem;
+
+  /* ?? make the button go to the bottom ?? */
+}
+
+.card-title { font-weight: bold; }
+.card-text { margin-top: 0.5rem; font-size: 0.85rem; }
+.action {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}`,
+    themeCSS: `.cards {
+  background: linear-gradient(135deg, #1e1b2e, #282a36 60%, #2d2a3e);
+  border: 1px solid #44475a;
+  border-radius: 1rem;
+}
+.card {
+  background: rgba(248, 248, 242, 0.06);
+  border: 1px solid #44475a;
+  border-radius: 0.75rem;
+}
+.card-title { color: #8be9fd; font-family: 'Space Grotesk', sans-serif; }
+.card-text { color: #f8f8f2; font-family: ui-monospace, 'JetBrains Mono', monospace; }
+.action {
+  background: linear-gradient(135deg, #bd93f9, #8be9fd);
+  color: #14121f;
+  border-radius: 0.5rem;
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+}`,
+    solutions: [
+      {
+        css: `.cards {
+  width: 100%;
+  max-width: 26rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+}
+.card {
+  padding: 0.75rem;
+  background: white;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.card-title { font-weight: bold; }
+.card-text { font-size: 0.85rem; }
+.action {
+  margin-top: auto;
+  padding: 0.5rem 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}`,
+        explanation: [
+          {
+            label: 'div.cards',
+            text: 'The flex container. With <code>align-items: flex-start</code> each card had its own natural height, so the row looked uneven.'
+          },
+          {
+            label: 'align-items: stretch',
+            text: 'The default flexbox value. Without <code>flex-start</code>, every card fills the height of the tallest one, so all three cards become equal.'
+          },
+          {
+            label: '.card { display: flex; flex-direction: column }',
+            text: 'A card is now a flex container too. Its title, text and button stack vertically, which lets flexbox properties work inside the card.'
+          },
+          {
+            label: 'margin-top: auto (.action)',
+            text: 'The automatic margin eats all the free space above the button inside the column card. The button is pushed to the bottom, even when the text above it is short.'
+          },
+          {
+            label: 'gap on the card',
+            text: 'A fixed minimum space between the title, the text and the button. The automatic margin adds its free space on top of that gap.'
+          }
+        ],
+        tip: 'This is a pattern used by almost every card UI: stretch the cards on the outside, make each card a column on the inside, then use <code>margin-top: auto</code> on the last element. The result looks like a grid, but it is only nested flexbox.'
+      }
+    ],
+    validate(iframe) {
+      const doc = iframe.contentDocument
+      const win = iframe.contentWindow
+      const cardsRow = doc.querySelector('.cards')
+      const cards = [...doc.querySelectorAll('.card')]
+      if (!cardsRow || cards.length !== 3) return false
+      const rowStyle = win.getComputedStyle(cardsRow)
+      if (rowStyle.display !== 'flex' || rowStyle.alignItems !== 'stretch') return false
+      const cardStyle = win.getComputedStyle(cards[0])
+      if (cardStyle.display !== 'flex' || cardStyle.flexDirection !== 'column') return false
+      const heights = cards.map(card => card.getBoundingClientRect().height)
+      if (Math.max(...heights) - Math.min(...heights) > 6) return false
+      for (const card of cards) {
+        const action = card.querySelector('.action')
+        if (!action) return false
+        const cardRect = card.getBoundingClientRect()
+        const style = win.getComputedStyle(card)
+        const innerBottom = cardRect.bottom - card.clientTop - parseFloat(style.paddingBottom)
+        if (Math.abs(action.getBoundingClientRect().bottom - innerBottom) > 10) return false
+      }
+      return true
+    }
+  },
+  {
+    id: 24,
+    title: 'Boss: The Profile Widget',
+    description: 'Assemble the profile card: the avatar and the name in a row, the status pushed to the right edge, the bio filling the free height, and the footer with tags on the left and the edit button on the right.',
+    hint: 'Four small fixes: make the header a flex row, use an automatic margin on the status, let the bio grow inside the card column, and distribute the footer with justify-content.',
+    html: `<div class="profile">
+   <div class="header">
+     <div class="avatar">A</div>
+     <div class="name">Ada Lovelace</div>
+     <div class="status">Online</div>
+   </div>
+   <div class="bio">Writes about layouts, flexbox and accessible interfaces. This text makes the card taller.</div>
+   <div class="footer">
+     <div class="tags"><span>CSS</span><span>Flex</span></div>
+     <div class="edit">Edit</div>
+   </div>
+ </div>`,
+    starterCSS: `.profile {
+  width: 100%;
+  max-width: 24rem;
+  min-height: 17rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.header {
+  gap: 0.75rem;
+  align-items: center;
+
+  /* ?? avatar and name side by side ?? */
+}
+
+.avatar {
+  padding: 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}
+
+.name { font-weight: bold; }
+
+.status {
+  padding: 0.35rem 0.6rem;
+  background: #50fa7b;
+  color: #14121f;
+  border-radius: 999px;
+  font-weight: bold;
+
+  /* ?? push the status to the right ?? */
+}
+
+.bio {
+  padding: 0.75rem;
+  background: white;
+  border-radius: 0.5rem;
+
+  /* ?? fill the free height ?? */
+}
+
+.footer {
+  gap: 0.5rem;
+  align-items: center;
+
+  /* ?? tags left, edit right ?? */
+}
+
+.tags { display: flex; gap: 0.35rem; }
+.tags span {
+  padding: 0.25rem 0.5rem;
+  background: #e2e8f0;
+  border-radius: 999px;
+  font-weight: bold;
+}
+.edit {
+  padding: 0.35rem 0.6rem;
+  background: #8b5cf6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}`,
+    themeCSS: `.profile {
+  background: linear-gradient(135deg, #1e1b2e, #282a36 60%, #2d2a3e);
+  border: 1px solid rgba(255, 121, 198, 0.45);
+  border-radius: 1rem;
+  box-shadow: 0 0 36px rgba(255, 121, 198, 0.12);
+}
+.header, .footer {
+  background: rgba(248, 248, 242, 0.06);
+  border: 1px solid #44475a;
+  border-radius: 0.75rem;
+}
+.avatar { background: linear-gradient(135deg, #8be9fd, #60a5fa); color: #14121f; }
+.name, .bio { color: #f8f8f2; font-family: ui-monospace, 'JetBrains Mono', monospace; }
+.bio { background: rgba(139, 233, 253, 0.06); border: 1px solid #44475a; }
+.tags span { background: rgba(189, 147, 249, 0.18); color: #f8f8f2; }
+.edit { background: linear-gradient(135deg, #bd93f9, #8be9fd); color: #14121f; }`,
+    solutions: [
+      {
+        css: `.profile {
+  width: 100%;
+  max-width: 24rem;
+  min-height: 17rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.header {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+.avatar { padding: 0.75rem; background: #3b82f6; color: white; border-radius: 0.5rem; font-weight: bold; }
+.name { font-weight: bold; }
+.status {
+  margin-left: auto;
+  padding: 0.35rem 0.6rem;
+  background: #50fa7b;
+  color: #14121f;
+  border-radius: 999px;
+  font-weight: bold;
+}
+.bio {
+  flex: 1;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 0.5rem;
+}
+.footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  align-items: center;
+}
+.tags { display: flex; gap: 0.35rem; }
+.tags span { padding: 0.25rem 0.5rem; background: #e2e8f0; border-radius: 999px; font-weight: bold; }
+.edit { padding: 0.35rem 0.6rem; background: #8b5cf6; color: white; border-radius: 0.5rem; font-weight: bold; }`,
+        explanation: [
+          {
+            label: 'div.profile',
+            text: 'The outer flex container, in column direction. Its <code>min-height</code> creates free space for the bio to grow into.'
+          },
+          {
+            label: '.header { display: flex }',
+            text: 'The <code>gap</code> and <code>align-items</code> were already written but did nothing, because the header was a normal block. Now the avatar, name and status are flex items in a row.'
+          },
+          {
+            label: 'margin-left: auto (.status)',
+            text: 'The automatic margin eats the free space between the name and the status, so the status touches the right edge of the header.'
+          },
+          {
+            label: 'flex: 1 (.bio)',
+            text: 'In the outer column this makes the bio take all the height that is left. As a result the footer is pushed to the bottom without an auto margin.'
+          },
+          {
+            label: '.footer { display: flex; justify-content: space-between }',
+            text: 'The footer becomes a second nested flex container. <code>space-between</code> sends the tags to the left and the edit button to the right.'
+          },
+          {
+            label: 'div.tags',
+            text: 'A third level of flexbox: its own <code>display: flex</code> and <code>gap</code> keep the two tag pills together as one group.'
+          }
+        ],
+        tip: 'A boss is just several small puzzles stacked in one layout. Solve it from the outside in: first the outer column, then each nested row, and finally the automatic margins that decide which item gets the free space.'
+      }
+    ],
+    validate(iframe) {
+      const doc = iframe.contentDocument
+      const win = iframe.contentWindow
+      const profile = doc.querySelector('.profile')
+      const header = doc.querySelector('.header')
+      const avatar = doc.querySelector('.avatar')
+      const name = doc.querySelector('.name')
+      const status = doc.querySelector('.status')
+      const bio = doc.querySelector('.bio')
+      const footer = doc.querySelector('.footer')
+      const tags = doc.querySelector('.tags')
+      const edit = doc.querySelector('.edit')
+      if (!profile || !header || !avatar || !name || !status || !bio || !footer || !tags || !edit) return false
+      const profileStyle = win.getComputedStyle(profile)
+      const headerStyle = win.getComputedStyle(header)
+      const footerStyle = win.getComputedStyle(footer)
+      if (profileStyle.display !== 'flex' || profileStyle.flexDirection !== 'column') return false
+      if (headerStyle.display !== 'flex' || headerStyle.flexDirection !== 'row') return false
+      if (footerStyle.display !== 'flex' || footerStyle.justifyContent !== 'space-between') return false
+      const headerRect = header.getBoundingClientRect()
+      const headerRight = headerRect.right - header.clientLeft - parseFloat(headerStyle.paddingRight)
+      const footerRect = footer.getBoundingClientRect()
+      const footerRight = footerRect.right - footer.clientLeft - parseFloat(footerStyle.paddingRight)
+      const avatarRect = avatar.getBoundingClientRect()
+      const nameRect = name.getBoundingClientRect()
+      const statusRect = status.getBoundingClientRect()
+      const tagsRect = tags.getBoundingClientRect()
+      const editRect = edit.getBoundingClientRect()
+      if (Math.abs(headerRight - statusRect.right) > 12) return false
+      if (!(nameRect.left >= avatarRect.right - 2 && statusRect.left - nameRect.right > 24)) return false
+      if (tagsRect.left - footerRect.left > 20) return false
+      if (Math.abs(footerRight - editRect.right) > 12) return false
+      const profileRect = profile.getBoundingClientRect()
+      const profileBottom = profileRect.bottom - profile.clientTop - parseFloat(profileStyle.paddingBottom)
+      if (Math.abs(profileBottom - footerRect.bottom) > 12) return false
+      if (bio.getBoundingClientRect().height < 60) return false
+      return profile.scrollHeight <= profile.clientHeight + 3
+    }
+  },
+  {
+    id: 25,
+    title: 'Wrapping into Columns',
+    description: 'The six items are stacked in one tall column and overflow the panel. Make them flow into two columns and spread those columns from the left edge to the right edge.',
+    hint: 'The main axis can be vertical. If you wrap a column, the items form new columns instead of new rows, and align-content distributes those columns.',
+    html: `<div class="panel">
+   <div class="item">Item 1</div>
+   <div class="item">Item 2</div>
+   <div class="item">Item 3</div>
+   <div class="item">Item 4</div>
+   <div class="item">Item 5</div>
+   <div class="item">Item 6</div>
+ </div>`,
+    starterCSS: `.panel {
+  width: 100%;
+  max-width: 26rem;
+  height: 11rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  /* ?? wrap into columns and spread them ?? */
+}
+
+.item {
+  padding: 0.6rem 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}`,
+    themeCSS: `.panel {
+  background: linear-gradient(135deg, #1e1b2e, #282a36 60%, #2d2a3e);
+  border: 1px solid #44475a;
+  border-radius: 1rem;
+}
+.item {
+  background: linear-gradient(135deg, #50fa7b, #8be9fd);
+  color: #14121f;
+  border-radius: 0.5rem;
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+}`,
+    solutions: [
+      {
+        css: `.panel {
+  width: 100%;
+  max-width: 26rem;
+  height: 11rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: space-between;
+  gap: 0.5rem;
+}
+.item {
+  padding: 0.6rem 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}`,
+        explanation: [
+          {
+            label: 'div.panel',
+            text: 'The flex container. Its direction is <code>column</code>, so the main axis is vertical and the six items do not fit in the fixed height.'
+          },
+          {
+            label: 'flex-wrap: wrap',
+            text: 'In a column the items wrap into <strong>columns</strong> instead of rows. The first three fill the left column and the next three start a new one.'
+          },
+          {
+            label: 'align-content: space-between',
+            text: 'After wrapping, there are two lines (two columns). <code>align-content</code> distributes those lines on the cross axis, which is horizontal here, so the first column goes left and the last one goes right.'
+          },
+          {
+            label: 'height vs min-height',
+            text: 'A fixed <code>height</code> is what forces the wrap: the items have nowhere else to go. With <code>min-height</code> the panel would simply grow and no wrap would happen.'
+          }
+        ],
+        tip: 'Wrapping follows the main axis: a row wraps into rows, a column wraps into columns. The properties keep their names but change their visual direction, so always ask first: which way is the main axis pointing?'
+      }
+    ],
+    validate(iframe) {
+      const doc = iframe.contentDocument
+      const win = iframe.contentWindow
+      const panel = doc.querySelector('.panel')
+      const items = [...doc.querySelectorAll('.item')]
+      if (!panel || items.length !== 6) return false
+      const style = win.getComputedStyle(panel)
+      if (style.display !== 'flex' || style.flexDirection !== 'column' || style.flexWrap !== 'wrap') return false
+      if (style.alignContent !== 'space-between') return false
+      if (panel.scrollHeight > panel.clientHeight + 3) return false
+      const rects = items.map(item => item.getBoundingClientRect()).sort((a, b) => a.left - b.left)
+      const columns = []
+      for (const rect of rects) {
+        const last = columns[columns.length - 1]
+        if (last && Math.abs(rect.left - last.left) < 8) last.rects.push(rect)
+        else columns.push({ left: rect.left, rects: [rect] })
+      }
+      if (columns.length !== 2) return false
+      if (columns[0].rects.length !== 3 || columns[1].rects.length !== 3) return false
+      const panelRect = panel.getBoundingClientRect()
+      const contentLeft = panelRect.left + panel.clientLeft + parseFloat(style.paddingLeft)
+      const contentRight = panelRect.right - panel.clientLeft - parseFloat(style.paddingRight)
+      const rightEdge = Math.max(...columns[1].rects.map(rect => rect.right))
+      return Math.abs(columns[0].left - contentLeft) < 12 && Math.abs(contentRight - rightEdge) < 12
+    }
+  },
+  {
+    id: 26,
+    title: 'The Modal That Fits',
+    description: 'The modal body is too tall and pushes the footer out of the card. Make the body take the remaining height, scroll inside it, and keep the header and the footer visible.',
+    hint: 'In a column flex container a child can grow with flex: 1. To let it actually become smaller than its content, its minimum size on that axis also has to be zero: the vertical version of the long-label trick.',
+    html: `<div class="modal">
+   <div class="modal-header">Terms of use</div>
+   <div class="modal-body">A very long paragraph that keeps going and going. Flexbox items refuse to be smaller than their content by default, so this text needs permission to be clipped into a scroll area. Here is another sentence to make sure the content is taller than the modal.</div>
+   <div class="modal-footer">Close</div>
+ </div>`,
+    starterCSS: `.modal {
+  width: 100%;
+  max-width: 22rem;
+  height: 14rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modal-header {
+  padding: 0.5rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}
+
+.modal-body {
+  padding: 0.75rem;
+  background: white;
+  border-radius: 0.5rem;
+
+  /* ?? grow, allow shrinking and scroll inside ?? */
+}
+
+.modal-footer {
+  padding: 0.5rem;
+  background: #8b5cf6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+}`,
+    themeCSS: `.modal {
+  background: linear-gradient(135deg, #1e1b2e, #282a36 60%, #2d2a3e);
+  border: 1px solid #44475a;
+  border-radius: 1rem;
+}
+.modal-header { background: linear-gradient(135deg, #8be9fd, #60a5fa); color: #14121f; }
+.modal-body { background: rgba(248, 248, 242, 0.06); color: #f8f8f2; border: 1px solid #44475a; font-family: ui-monospace, 'JetBrains Mono', monospace; font-size: 0.8rem; }
+.modal-footer { background: linear-gradient(135deg, #bd93f9, #8be9fd); color: #14121f; }`,
+    solutions: [
+      {
+        css: `.modal {
+  width: 100%;
+  max-width: 22rem;
+  height: 14rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.modal-header {
+  padding: 0.5rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}
+.modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 0.5rem;
+}
+.modal-footer {
+  padding: 0.5rem;
+  background: #8b5cf6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+}`,
+        explanation: [
+          {
+            label: 'div.modal',
+            text: 'A column flex container with a fixed height. The header and the footer have their natural size, so the body has to live with whatever height is left.'
+          },
+          {
+            label: 'flex: 1 (.modal-body)',
+            text: 'Makes the body grow into the free space of the column. This gives the middle section all the height that the header and footer do not use.'
+          },
+          {
+            label: 'min-height: 0 (.modal-body)',
+            text: 'A flex item has <code>min-height: auto</code> by default, which means it refuses to become shorter than its content. Setting it to zero lets the body be smaller than the long paragraph.'
+          },
+          {
+            label: 'overflow: auto',
+            text: 'Once the body is smaller than its content, the extra text needs somewhere to go. <code>auto</code> adds a scrollbar only when it is needed.'
+          },
+          {
+            label: 'modal footer',
+            text: 'Because the body stops growing at the available height, the footer stays inside the modal and keeps its own natural size.'
+          }
+        ],
+        tip: 'This is the vertical version of the long-label fix: <code>flex: 1</code> to take the space, <code>min-height: 0</code> to allow shrinking below the content, and <code>overflow: auto</code> to scroll. You will see this exact trio in real modals and sidebars.'
+      }
+    ],
+    validate(iframe) {
+      const doc = iframe.contentDocument
+      const win = iframe.contentWindow
+      const modal = doc.querySelector('.modal')
+      const body = doc.querySelector('.modal-body')
+      const footer = doc.querySelector('.modal-footer')
+      if (!modal || !body || !footer) return false
+      const modalStyle = win.getComputedStyle(modal)
+      const bodyStyle = win.getComputedStyle(body)
+      if (modalStyle.display !== 'flex' || modalStyle.flexDirection !== 'column') return false
+      if (parseFloat(bodyStyle.minHeight) !== 0) return false
+      if (bodyStyle.overflowY !== 'auto') return false
+      if (body.scrollHeight <= body.clientHeight + 5) return false
+      const modalRect = modal.getBoundingClientRect()
+      const modalBottom = modalRect.bottom - modal.clientTop - parseFloat(modalStyle.paddingBottom)
+      if (Math.abs(footer.getBoundingClientRect().bottom - modalBottom) > 12) return false
+      return modal.scrollHeight <= modal.clientHeight + 3 && body.getBoundingClientRect().height > 40
+    }
+  },
+  {
+    id: 27,
+    title: 'Newest Message on Top',
+    description: 'The messages are stored in chronological order in the HTML, but the chat should show the newest one at the top and keep every message aligned to the right.',
+    hint: 'You can flip the main axis of a column. The first HTML item then goes to the bottom and the last one to the top; align-items still controls the other axis.',
+    html: `<div class="chat">
+   <div class="message">Message 1</div>
+   <div class="message">Message 2</div>
+   <div class="message">Message 3</div>
+   <div class="message">Message 4 (newest)</div>
+ </div>`,
+    starterCSS: `.chat {
+  width: 100%;
+  max-width: 20rem;
+  min-height: 14rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+
+  /* ?? newest first, messages on the right ?? */
+}
+
+.message {
+  padding: 0.5rem 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}`,
+    themeCSS: `.chat {
+  background: linear-gradient(135deg, #1e1b2e, #282a36 60%, #2d2a3e);
+  border: 1px solid #44475a;
+  border-radius: 1rem;
+}
+.message {
+  background: linear-gradient(135deg, #8be9fd, #60a5fa);
+  color: #14121f;
+  border-radius: 0.5rem;
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+}
+.message:last-child { background: linear-gradient(135deg, #bd93f9, #ff79c6); color: #f8f8f2; }`,
+    solutions: [
+      {
+        css: `.chat {
+  width: 100%;
+  max-width: 20rem;
+  min-height: 14rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.message {
+  padding: 0.5rem 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}`,
+        explanation: [
+          {
+            label: 'div.chat',
+            text: 'The flex container. The HTML order is the real time order: Message 1 is the oldest and Message 4 is the newest.'
+          },
+          {
+            label: 'flex-direction: column-reverse',
+            text: 'Flips the main axis vertically. The start of the column is now at the bottom, so the first HTML item is drawn at the bottom and the last one at the top.'
+          },
+          {
+            label: 'align-items: flex-end',
+            text: 'The cross axis of a column is horizontal. <code>flex-end</code> sends every message to the right side of the chat.'
+          },
+          {
+            label: 'gap',
+            text: 'The gap is still measured in visual order, so the messages keep an even distance even though the column is reversed.'
+          },
+          {
+            label: 'justify-content',
+            text: 'The default <code>flex-start</code> now means the bottom of the chat, so all messages stay together at the bottom instead of floating apart.'
+          }
+        ],
+        tip: '<code>column-reverse</code> and <code>row-reverse</code> flip the whole main axis; <code>order</code> moves single items. Both change only the picture: the HTML and the screen-reader order are still the original chronological order.'
+      }
+    ],
+    validate(iframe) {
+      const doc = iframe.contentDocument
+      const win = iframe.contentWindow
+      const chat = doc.querySelector('.chat')
+      const messages = [...doc.querySelectorAll('.message')]
+      if (!chat || messages.length !== 4) return false
+      const style = win.getComputedStyle(chat)
+      if (style.display !== 'flex' || style.flexDirection !== 'column-reverse' || style.alignItems !== 'flex-end') return false
+      const rects = messages.map(message => message.getBoundingClientRect())
+      if (!(rects[3].bottom < rects[0].top)) return false
+      const chatRect = chat.getBoundingClientRect()
+      const contentRight = chatRect.right - chat.clientLeft - parseFloat(style.paddingRight)
+      return rects.every(rect => Math.abs(contentRight - rect.right) < 12)
+    }
+  },
+  {
+    id: 28,
+    title: 'Boss: The Pricing Table',
+    description: 'The featured plan must fill the whole first row, the other four plans must form two rows of two, the rows must be farther apart than the columns, and all rows must spread across the height.',
+    hint: 'A full-width card is a card with a 100% basis, and order can move it to the first line. The others need a basis that fits two per row. Then set two different gaps and spread the wrapped lines.',
+    html: `<div class="plans">
+   <div class="plan plan-featured">Pro (featured)</div>
+   <div class="plan">Basic</div>
+   <div class="plan">Team</div>
+   <div class="plan">Plus</div>
+   <div class="plan">Max</div>
+ </div>`,
+    starterCSS: `.plans {
+  width: 100%;
+  max-width: 26rem;
+  min-height: 18rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  /* ?? larger row gap and spread the rows ?? */
+}
+
+.plan {
+  padding: 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+
+  /* ?? two plans per row ?? */
+}
+
+.plan-featured {
+  background: #8b5cf6;
+
+  /* ?? first row, full width ?? */
+}`,
+    themeCSS: `.plans {
+  background: radial-gradient(circle at 50% 30%, rgba(189, 147, 249, 0.18), transparent 60%), linear-gradient(135deg, #1e1b2e, #282a36 60%, #2d2a3e);
+  border: 1px solid rgba(255, 121, 198, 0.45);
+  border-radius: 1rem;
+  box-shadow: 0 0 40px rgba(255, 121, 198, 0.12);
+}
+.plan {
+  background: linear-gradient(135deg, #8be9fd, #60a5fa);
+  color: #14121f;
+  border: 1px solid rgba(248, 248, 242, 0.3);
+  border-radius: 0.5rem;
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+}
+.plan-featured { background: linear-gradient(135deg, #ff79c6, #bd93f9); color: #f8f8f2; }`,
+    solutions: [
+      {
+        css: `.plans {
+  width: 100%;
+  max-width: 26rem;
+  min-height: 18rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 0.5rem;
+  align-content: space-between;
+}
+.plan {
+  flex: 0 0 calc(50% - 0.25rem);
+  padding: 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+}
+.plan-featured {
+  order: -1;
+  flex-basis: 100%;
+  background: #8b5cf6;
+}`,
+        explanation: [
+          {
+            label: 'gap: 1rem 0.5rem',
+            text: 'The row gap is twice the column gap. Because the cards create three wrapped lines, this makes the separation between the plans easy to read.'
+          },
+          {
+            label: 'align-content: space-between',
+            text: 'There are three lines (featured row plus two normal rows). This property sends the first line to the top, the last one to the bottom and shares the remaining height between them.'
+          },
+          {
+            label: 'flex: 0 0 calc(50% - 0.25rem) (.plan)',
+            text: 'Each normal plan takes half of the row minus half of the column gap. Two plans plus one gap fit exactly, so they form two columns.'
+          },
+          {
+            label: 'order: -1 and flex-basis: 100% (.plan-featured)',
+            text: 'The featured plan is first in the HTML already, but <code>order: -1</code> guarantees it stays the first line. Its 100% basis makes it occupy the whole row, pushing all other plans below it.'
+          },
+          {
+            label: 'flex-wrap: wrap',
+            text: 'Already in the starter. Without wrapping, the full-width featured plan would squeeze every other plan into the same line.'
+          }
+        ],
+        tip: 'Combine the small tricks you already know: a 100% basis creates a full-width row, <code>order</code> chooses which one comes first, <code>calc()</code> fits a fixed number of cards per row, and <code>align-content</code> distributes the rows. That is a whole responsive layout with only flexbox.'
+      }
+    ],
+    validate(iframe) {
+      const doc = iframe.contentDocument
+      const win = iframe.contentWindow
+      const plans = doc.querySelector('.plans')
+      const all = [...doc.querySelectorAll('.plan')]
+      const featured = doc.querySelector('.plan-featured')
+      if (!plans || all.length !== 5 || !featured) return false
+      const style = win.getComputedStyle(plans)
+      if (style.display !== 'flex' || style.flexWrap !== 'wrap') return false
+      if (style.alignContent !== 'space-between') return false
+      const rowGap = parseFloat(style.rowGap)
+      const columnGap = parseFloat(style.columnGap)
+      if (!(columnGap > 4 && rowGap > columnGap + 4)) return false
+      if (plans.scrollWidth > plans.clientWidth + 3) return false
+      const planRect = plans.getBoundingClientRect()
+      const contentLeft = planRect.left + plans.clientLeft + parseFloat(style.paddingLeft)
+      const contentRight = planRect.right - plans.clientLeft - parseFloat(style.paddingRight)
+      const contentTop = planRect.top + plans.clientTop + parseFloat(style.paddingTop)
+      const contentBottom = planRect.bottom - plans.clientTop - parseFloat(style.paddingBottom)
+      const featuredRect = featured.getBoundingClientRect()
+      if (Math.abs(featuredRect.width - (contentRight - contentLeft)) > 12) return false
+      if (Math.abs(featuredRect.top - contentTop) > 12) return false
+      const others = all.filter(plan => plan !== featured).map(plan => plan.getBoundingClientRect())
+      const widths = others.map(rect => rect.width)
+      if (Math.max(...widths) - Math.min(...widths) > 8) return false
+      if (Math.abs(widths[0] - (contentRight - contentLeft - columnGap) / 2) > 12) return false
+      const tops = [...new Set(others.map(rect => Math.round(rect.top)))].sort((a, b) => a - b)
+      if (tops.length !== 2) return false
+      if (others.filter(rect => Math.abs(rect.top - tops[0]) < 4).length !== 2) return false
+      if (others.filter(rect => Math.abs(rect.top - tops[1]) < 4).length !== 2) return false
+      return Math.abs(Math.max(...others.map(rect => rect.bottom)) - contentBottom) < 12
+    }
+  },
+  {
+    id: 29,
+    title: 'The Editor Workspace',
+    description: 'Build the editor workspace: a header with the title on the left and the buttons on the right, a fixed file rail, a code area that grows once, a preview area that grows twice as much, and a status bar at the bottom.',
+    hint: 'Four layers again: the page is a column, the header is a row, the middle row has to eat the free height, and inside that row the two panes share the remaining width in a 1 to 2 ratio.',
+    html: `<div class="workspace">
+   <header class="bar">
+     <div class="title">CSS Quest Editor</div>
+     <div class="tools"><span>Save</span><span>Run</span></div>
+   </header>
+   <div class="main">
+     <aside class="rail">Files</aside>
+     <div class="code">Code editor</div>
+     <div class="preview">Live preview</div>
+   </div>
+   <footer class="status">Ready</footer>
+ </div>`,
+    starterCSS: `.workspace {
+  width: 100%;
+  max-width: 26rem;
+  min-height: 20rem;
+  padding: 0.75rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bar {
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 0.5rem;
+
+  /* ?? title left, tools right ?? */
+}
+
+.title { font-weight: bold; }
+.tools { display: flex; gap: 0.35rem; }
+.tools span { padding: 0.25rem 0.5rem; background: #e2e8f0; border-radius: 0.35rem; font-weight: bold; }
+
+.main {
+  display: flex;
+  gap: 0.5rem;
+
+  /* ?? fill the free height of the workspace ?? */
+}
+
+.rail {
+  flex: 0 0 25%;
+  padding: 0.75rem;
+  background: #8b5cf6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}
+
+.code {
+  padding: 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+
+  /* ?? one share of the remaining width ?? */
+}
+
+.preview {
+  padding: 0.75rem;
+  background: #10b981;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+
+  /* ?? two shares of the remaining width ?? */
+}
+
+.status {
+  padding: 0.5rem;
+  background: #1e293b;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}`,
+    themeCSS: `.workspace {
+  background: linear-gradient(135deg, #1e1b2e, #282a36 60%, #2d2a3e);
+  border: 1px solid #44475a;
+  border-radius: 1rem;
+}
+.bar { background: rgba(248, 248, 242, 0.06); border: 1px solid #44475a; border-radius: 0.75rem; }
+.title { color: #8be9fd; font-family: 'Space Grotesk', sans-serif; }
+.tools span { background: rgba(189, 147, 249, 0.18); color: #f8f8f2; font-family: ui-monospace, 'JetBrains Mono', monospace; }
+.rail { background: linear-gradient(160deg, #6d28d9, #4c1d95); border-radius: 0.5rem; font-family: ui-monospace, 'JetBrains Mono', monospace; }
+.code { background: linear-gradient(160deg, #1d4ed8, #1e3a8a); border-radius: 0.5rem; font-family: ui-monospace, 'JetBrains Mono', monospace; }
+.preview { background: linear-gradient(160deg, #0f766e, #115e59); border-radius: 0.5rem; font-family: ui-monospace, 'JetBrains Mono', monospace; }
+.status { background: rgba(80, 250, 123, 0.12); color: #50fa7b; border: 1px solid rgba(80, 250, 123, 0.35); border-radius: 0.5rem; font-family: ui-monospace, 'JetBrains Mono', monospace; }`,
+    solutions: [
+      {
+        css: `.workspace {
+  width: 100%;
+  max-width: 26rem;
+  min-height: 20rem;
+  padding: 0.75rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 0.5rem;
+}
+.title { font-weight: bold; }
+.tools { display: flex; gap: 0.35rem; }
+.tools span { padding: 0.25rem 0.5rem; background: #e2e8f0; border-radius: 0.35rem; font-weight: bold; }
+.main {
+  display: flex;
+  flex: 1;
+  gap: 0.5rem;
+}
+.rail { flex: 0 0 25%; padding: 0.75rem; background: #8b5cf6; color: white; border-radius: 0.5rem; font-weight: bold; }
+.code { flex: 1; padding: 0.75rem; background: #3b82f6; color: white; border-radius: 0.5rem; font-weight: bold; }
+.preview { flex: 2; padding: 0.75rem; background: #10b981; color: white; border-radius: 0.5rem; font-weight: bold; }
+.status { padding: 0.5rem; background: #1e293b; color: white; border-radius: 0.5rem; font-weight: bold; }`,
+        explanation: [
+          {
+            label: '.bar { display: flex; justify-content: space-between }',
+            text: 'The header is a row. <code>space-between</code> keeps the title at the left content edge and the tools group at the right content edge.'
+          },
+          {
+            label: '.main { flex: 1 }',
+            text: 'Inside the page column this makes the middle row grow into all the free height. The status bar is then pushed down to the bottom.'
+          },
+          {
+            label: '.rail { flex: 0 0 25% }',
+            text: 'Already in the starter. The file rail keeps a quarter of the main row and does not grow or shrink with the two panes.'
+          },
+          {
+            label: 'flex: 1 and flex: 2',
+            text: 'After the rail and the two gaps, the remaining width is split into three equal shares. The code pane gets one and the preview gets two, so the preview is twice as wide.'
+          },
+          {
+            label: 'div.tools',
+            text: 'A nested flex container. Its own gap keeps Save and Run together while the header moves the whole group to the right.'
+          }
+        ],
+        tip: 'This is the app shell from level 20 plus proportional widths. Use <code>flex: 0 0 &lt;size&gt;</code> for parts that must keep their size and growing numbers like <code>1</code> and <code>2</code> for the parts that share what is left.'
+      }
+    ],
+    validate(iframe) {
+      const doc = iframe.contentDocument
+      const win = iframe.contentWindow
+      const workspace = doc.querySelector('.workspace')
+      const bar = doc.querySelector('.bar')
+      const title = doc.querySelector('.title')
+      const tools = doc.querySelector('.tools')
+      const main = doc.querySelector('.main')
+      const rail = doc.querySelector('.rail')
+      const code = doc.querySelector('.code')
+      const preview = doc.querySelector('.preview')
+      const status = doc.querySelector('.status')
+      if (!workspace || !bar || !title || !tools || !main || !rail || !code || !preview || !status) return false
+      const workspaceStyle = win.getComputedStyle(workspace)
+      const barStyle = win.getComputedStyle(bar)
+      const mainStyle = win.getComputedStyle(main)
+      if (workspaceStyle.display !== 'flex' || workspaceStyle.flexDirection !== 'column') return false
+      if (barStyle.display !== 'flex' || barStyle.justifyContent !== 'space-between') return false
+      if (mainStyle.display !== 'flex' || parseFloat(mainStyle.flexGrow) < 1) return false
+      const barRect = bar.getBoundingClientRect()
+      const barRight = barRect.right - bar.clientLeft - parseFloat(barStyle.paddingRight)
+      const titleRect = title.getBoundingClientRect()
+      const toolsRect = tools.getBoundingClientRect()
+      if (titleRect.left - barRect.left > 20) return false
+      if (Math.abs(barRight - toolsRect.right) > 12) return false
+      const mainRect = main.getBoundingClientRect()
+      const contentWidth = main.clientWidth - parseFloat(mainStyle.paddingLeft) - parseFloat(mainStyle.paddingRight)
+      const railRect = rail.getBoundingClientRect()
+      const codeRect = code.getBoundingClientRect()
+      const previewRect = preview.getBoundingClientRect()
+      if (Math.abs(railRect.width - contentWidth * 0.25) > 12) return false
+      if (!(previewRect.width > codeRect.width * 1.7 && previewRect.width < codeRect.width * 2.3)) return false
+      if (codeRect.left < railRect.right - 2 || previewRect.left < codeRect.right - 2) return false
+      const workspaceRect = workspace.getBoundingClientRect()
+      const workspaceBottom = workspaceRect.bottom - workspace.clientTop - parseFloat(workspaceStyle.paddingBottom)
+      if (Math.abs(workspaceBottom - status.getBoundingClientRect().bottom) > 12) return false
+      return workspace.scrollHeight <= workspace.clientHeight + 3
+    }
+  },
+  {
+    id: 30,
+    title: 'Boss: The Complete Page',
+    description: 'Final boss. Build a page with a brand on the left, a nav in the middle and actions on the right; a hero that grows; four feature cards in two rows with a larger row gap, spread across the height; and a footer with a note on the left and a link on the right.',
+    hint: 'Work from the outside in: the page is a column, the hero grows, the topbar and the footer are rows, the cards wrap two per row, and the card row gap is bigger than its column gap.',
+    html: `<div class="page">
+   <header class="topbar">
+     <div class="brand">CSS Quest</div>
+     <nav class="nav"><span>Learn</span><span>Play</span></nav>
+     <div class="actions">Start</div>
+   </header>
+   <main class="hero">
+     <div class="intro">Master Flexbox</div>
+     <div class="cards">
+       <div class="card">Centering</div>
+       <div class="card">Wrapping</div>
+       <div class="card">Order</div>
+       <div class="card">Spacing</div>
+     </div>
+   </main>
+   <footer class="bottom">
+     <div class="note">Made for students</div>
+     <div class="link">Docs</div>
+   </footer>
+ </div>`,
+    starterCSS: `.page {
+  width: 100%;
+  max-width: 26rem;
+  min-height: 22rem;
+  padding: 0.75rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.topbar {
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 0.5rem;
+
+  /* ?? brand left, nav centered, actions right ?? */
+}
+
+.brand { font-weight: bold; }
+.nav { display: flex; gap: 0.5rem; }
+.nav span { color: #475569; font-weight: bold; }
+.actions { padding: 0.35rem 0.6rem; background: #3b82f6; color: white; border-radius: 0.5rem; font-weight: bold; }
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  /* ?? fill the free height of the page ?? */
+}
+
+.intro { padding: 0.5rem; background: #8b5cf6; color: white; border-radius: 0.5rem; font-weight: bold; }
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  /* ?? bigger row gap, spread the rows, fill the hero ?? */
+}
+
+.card {
+  padding: 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+
+  /* ?? two cards per row ?? */
+}
+
+.bottom {
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem;
+  background: #1e293b;
+  color: white;
+  border-radius: 0.5rem;
+
+  /* ?? note left, link right ?? */
+}`,
+    themeCSS: `.page {
+  background: radial-gradient(circle at 50% 0%, rgba(189, 147, 249, 0.18), transparent 55%), linear-gradient(135deg, #1e1b2e, #282a36 60%, #2d2a3e);
+  border: 1px solid rgba(255, 121, 198, 0.5);
+  border-radius: 1rem;
+  box-shadow: 0 0 50px rgba(255, 121, 198, 0.14);
+}
+.topbar, .bottom {
+  background: rgba(248, 248, 242, 0.06);
+  border: 1px solid #44475a;
+  border-radius: 0.75rem;
+}
+.brand, .intro { color: #8be9fd; font-family: 'Space Grotesk', sans-serif; }
+.nav span { color: #f8f8f2; font-family: ui-monospace, 'JetBrains Mono', monospace; font-size: 0.8rem; }
+.actions { background: linear-gradient(135deg, #50fa7b, #8be9fd); color: #14121f; }
+.cards { background: rgba(248, 248, 242, 0.03); border-radius: 0.75rem; }
+.card { background: linear-gradient(135deg, #bd93f9, #8be9fd); color: #14121f; border-radius: 0.5rem; font-family: ui-monospace, 'JetBrains Mono', monospace; font-size: 0.8rem; }
+.bottom { color: #50fa7b; font-family: ui-monospace, 'JetBrains Mono', monospace; font-size: 0.78rem; }`,
+    solutions: [
+      {
+        css: `.page {
+  width: 100%;
+  max-width: 26rem;
+  min-height: 22rem;
+  padding: 0.75rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 0.5rem;
+}
+.brand { font-weight: bold; }
+.nav { display: flex; gap: 0.5rem; }
+.nav span { color: #475569; font-weight: bold; }
+.actions { padding: 0.35rem 0.6rem; background: #3b82f6; color: white; border-radius: 0.5rem; font-weight: bold; }
+.hero {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.5rem;
+}
+.intro { padding: 0.5rem; background: #8b5cf6; color: white; border-radius: 0.5rem; font-weight: bold; }
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1;
+  gap: 1.25rem 0.5rem;
+  align-content: space-between;
+}
+.card {
+  flex: 0 0 calc(50% - 0.25rem);
+  padding: 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+}
+.bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem;
+  background: #1e293b;
+  color: white;
+  border-radius: 0.5rem;
+}`,
+        explanation: [
+          {
+            label: 'div.page',
+            text: 'The outer column. It stacks the topbar, the hero and the footer, with a gap between them.'
+          },
+          {
+            label: '.topbar { justify-content: space-between }',
+            text: 'Three groups live in this row. <code>space-between</code> puts the brand at the left edge, the actions at the right edge and leaves the nav group in the middle.'
+          },
+          {
+            label: '.hero { flex: 1 }',
+            text: 'The hero grows into the free height of the page, so the footer ends up at the bottom. Inside the hero it stacks the intro and the card area.'
+          },
+          {
+            label: '.cards { flex: 1; gap: 1.25rem 0.5rem; align-content: space-between }',
+            text: 'The card area grows inside the hero, wraps its cards into two lines, uses a larger row gap than column gap, and spreads the two lines from top to bottom.'
+          },
+          {
+            label: '.card { flex: 0 0 calc(50% - 0.25rem) }',
+            text: 'Two cards plus the column gap fit the row exactly. Their width is frozen, so wrapping happens because there are four cards, not because they shrink.'
+          },
+          {
+            label: '.bottom { display: flex; justify-content: space-between }',
+            text: 'The footer is one last nested row, with the note on the left and the link on the right.'
+          }
+        ],
+        tip: 'Every level of this page is a flex container: the page column, the topbar row, the hero column, the wrapped card area and the footer row. When a layout looks too big to solve, draw the boxes first and then choose one direction and one distribution for each box.'
+      }
+    ],
+    validate(iframe) {
+      const doc = iframe.contentDocument
+      const win = iframe.contentWindow
+      const page = doc.querySelector('.page')
+      const topbar = doc.querySelector('.topbar')
+      const brand = doc.querySelector('.brand')
+      const nav = doc.querySelector('.nav')
+      const actions = doc.querySelector('.actions')
+      const hero = doc.querySelector('.hero')
+      const cards = doc.querySelector('.cards')
+      const items = [...doc.querySelectorAll('.card')]
+      const bottom = doc.querySelector('.bottom')
+      const note = doc.querySelector('.note')
+      const link = doc.querySelector('.link')
+      if (!page || !topbar || !brand || !nav || !actions || !hero || !cards || items.length !== 4 || !bottom || !note || !link) return false
+      const pageStyle = win.getComputedStyle(page)
+      const topbarStyle = win.getComputedStyle(topbar)
+      const cardsStyle = win.getComputedStyle(cards)
+      const bottomStyle = win.getComputedStyle(bottom)
+      if (pageStyle.display !== 'flex' || pageStyle.flexDirection !== 'column') return false
+      if (topbarStyle.display !== 'flex' || topbarStyle.justifyContent !== 'space-between') return false
+      if (parseFloat(win.getComputedStyle(hero).flexGrow) < 1) return false
+      if (cardsStyle.display !== 'flex' || cardsStyle.flexWrap !== 'wrap') return false
+      if (cardsStyle.alignContent !== 'space-between') return false
+      const rowGap = parseFloat(cardsStyle.rowGap)
+      const columnGap = parseFloat(cardsStyle.columnGap)
+      if (!(columnGap > 4 && rowGap > columnGap + 4)) return false
+      if (bottomStyle.display !== 'flex' || bottomStyle.justifyContent !== 'space-between') return false
+      const topbarRect = topbar.getBoundingClientRect()
+      const brandRect = brand.getBoundingClientRect()
+      const navRect = nav.getBoundingClientRect()
+      const actionsRect = actions.getBoundingClientRect()
+      const topbarRight = topbarRect.right - topbar.clientLeft - parseFloat(topbarStyle.paddingRight)
+      const pageCenter = (page.getBoundingClientRect().left + page.getBoundingClientRect().right) / 2
+      if (brandRect.left - topbarRect.left > 20) return false
+      if (Math.abs(topbarRight - actionsRect.right) > 12) return false
+      if (Math.abs((navRect.left + navRect.right) / 2 - pageCenter) > 24) return false
+      const cardsRect = cards.getBoundingClientRect()
+      const contentLeft = cardsRect.left + cards.clientLeft + parseFloat(cardsStyle.paddingLeft)
+      const contentRight = cardsRect.right - cards.clientLeft - parseFloat(cardsStyle.paddingRight)
+      const contentTop = cardsRect.top + cards.clientTop + parseFloat(cardsStyle.paddingTop)
+      const contentBottom = cardsRect.bottom - cards.clientTop - parseFloat(cardsStyle.paddingBottom)
+      const rects = items.map(item => item.getBoundingClientRect())
+      const widths = rects.map(rect => rect.width)
+      if (Math.max(...widths) - Math.min(...widths) > 8) return false
+      if (Math.abs(widths[0] - (contentRight - contentLeft - columnGap) / 2) > 12) return false
+      const tops = [...new Set(rects.map(rect => Math.round(rect.top)))].sort((a, b) => a - b)
+      if (tops.length !== 2) return false
+      if (rects.filter(rect => Math.abs(rect.top - tops[0]) < 4).length !== 2) return false
+      if (rects.filter(rect => Math.abs(rect.top - tops[1]) < 4).length !== 2) return false
+      if (Math.abs(Math.min(...rects.map(rect => rect.top)) - contentTop) > 12) return false
+      if (Math.abs(Math.max(...rects.map(rect => rect.bottom)) - contentBottom) > 12) return false
+      const bottomRect = bottom.getBoundingClientRect()
+      const bottomRight = bottomRect.right - bottom.clientLeft - parseFloat(bottomStyle.paddingRight)
+      const pageBottom = page.getBoundingClientRect().bottom - page.clientTop - parseFloat(pageStyle.paddingBottom)
+      if (note.getBoundingClientRect().left - bottomRect.left > 20) return false
+      if (Math.abs(bottomRight - link.getBoundingClientRect().right) > 12) return false
+      if (Math.abs(pageBottom - bottomRect.bottom) > 12) return false
+      return page.scrollHeight <= page.clientHeight + 3
     }
   }
 ]

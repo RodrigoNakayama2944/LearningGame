@@ -1330,5 +1330,712 @@ export const levelTranslationsPtBR = {
         tip: 'Layouts reais são feitos de flex containers aninhados. Comece pela direção maior (a coluna do app), depois faça cada seção uma linha ou uma coluna própria. Use <code>flex: 1</code> na parte que deve crescer e <code>flex: 0 0 &lt;tamanho&gt;</code> nas partes que devem manter o tamanho.'
       }
     ]
+  },
+  21: {
+    title: 'Espaços Diferentes em Cada Eixo',
+    description: 'As peças quebram em duas linhas de três. Mantenha esse layout, mas faça o espaço entre as linhas ser o dobro do espaço entre as peças.',
+    hint: 'O atalho gap aceita dois valores: o primeiro é para linhas e o segundo é para colunas. Também existem as propriedades separadas row-gap e column-gap se você preferir escrever por extenso.',
+    starterCSS: `.gallery {
+  width: 100%;
+  max-width: 24rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  /* ?? as linhas precisam do dobro do espaço das colunas ?? */
+}
+
+.tile {
+  flex: 0 0 calc(33.333% - 0.5rem);
+  padding: 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'div.gallery',
+            text: 'O flex container. Ele já quebra as peças em duas linhas, então existe um gap horizontal (entre as peças de uma linha) e outro vertical (entre as linhas).'
+          },
+          {
+            label: 'gap: 1rem 0.5rem',
+            text: 'O atalho com dois valores: o primeiro é <code>row-gap</code> (vertical aqui) e o segundo é <code>column-gap</code> (horizontal aqui). As linhas ficam com o dobro do espaço das colunas.'
+          },
+          {
+            label: 'row-gap / column-gap',
+            text: 'A forma longa de escrever a mesma coisa. <code>row-gap: 1rem; column-gap: 0.5rem;</code> produz exatamente o mesmo layout do atalho.'
+          },
+          {
+            label: 'flex: 0 0 calc(33.333% - 0.5rem) (.tile)',
+            text: 'Já estava no código inicial. Três peças mais dois gaps de coluna precisam caber exatamente na linha, então cada uma pega um terço da largura menos um gap. O valor do gap não mudou, então as peças continuam cabendo.'
+          }
+        ],
+        tip: 'Um único valor de <code>gap</code> vale para os dois eixos. Dois valores significam <code>row-gap</code> primeiro e <code>column-gap</code> depois. É o mesmo atalho de <code>padding: 1rem 2rem</code>, em que o primeiro número é vertical e o segundo é horizontal.'
+      }
+    ]
+  },
+  22: {
+    title: 'Alinhando Linhas de Texto',
+    description: 'Os três preços têm tamanhos de texto diferentes. Alinhe a base das letras em vez do centro das caixas.',
+    hint: 'Alinhar as caixas não é o mesmo que alinhar o texto dentro delas. Um valor de align-items usa a linha invisível onde as letras ficam apoiadas.',
+    starterCSS: `.prices {
+  width: 100%;
+  max-width: 22rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  /* ?? alinhar o texto, não as caixas ?? */
+}
+
+.price {
+  padding: 0.75rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+}
+
+.amount { font-weight: bold; line-height: 1; }
+.price-small .amount { font-size: 0.9rem; }
+.price-medium .amount { font-size: 1.3rem; }
+.price-large .amount { font-size: 1.8rem; }`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'div.prices',
+            text: 'O flex container. Os três cartões são flex items e os textos têm tamanhos diferentes de propósito, para deixar o alinhamento bem visível.'
+          },
+          {
+            label: 'align-items: center',
+            text: 'O valor do código inicial. Ele centraliza as caixas no eixo cruzado, então o texto pequeno e o texto grande ficam em alturas diferentes.'
+          },
+          {
+            label: 'align-items: baseline',
+            text: 'Alinha a linha invisível onde as letras se apoiam. As caixas ficam com posições diferentes no topo, mas os três preços parecem uma única linha de texto reta.'
+          },
+          {
+            label: 'span.amount',
+            text: 'O texto dentro de cada cartão. Os tamanhos de fonte são diferentes, e é por isso que alinhar as caixas e alinhar o texto dão resultados diferentes.'
+          },
+          {
+            label: 'gap',
+            text: 'Mantém a mesma distância entre os cartões. Ele funciona da mesma forma não importa qual valor de alinhamento você escolha.'
+          }
+        ],
+        tip: '<code>baseline</code> é o valor de alinhamento para texto. Use quando os itens tiverem textos de tamanhos diferentes, como um preço ao lado de um rótulo ou um título ao lado de uma legenda pequena. Continua sendo um valor de <code>align-items</code>, no eixo cruzado.'
+      }
+    ]
+  },
+  23: {
+    title: 'Cartões que Esticam',
+    description: 'Os três cartões têm quantidades diferentes de texto, mas precisam ter a mesma altura e cada botão precisa ficar no fundo do seu cartão.',
+    hint: 'O alinhamento padrão do eixo cruzado faz os itens preencherem a altura, mas o código inicial muda isso. Depois cada cartão precisa virar uma coluna para que uma margin automática empurre o botão para baixo.',
+    starterCSS: `.cards {
+  width: 100%;
+  max-width: 26rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+
+  /* ?? mesma altura para todos os cartões ?? */
+}
+
+.card {
+  padding: 0.75rem;
+  background: white;
+  border-radius: 0.5rem;
+
+  /* ?? fazer o botão ir para o fundo ?? */
+}
+
+.card-title { font-weight: bold; }
+.card-text { margin-top: 0.5rem; font-size: 0.85rem; }
+.action {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'div.cards',
+            text: 'O flex container. Com <code>align-items: flex-start</code> cada cartão tinha a sua altura natural, então a linha ficava desigual.'
+          },
+          {
+            label: 'align-items: stretch',
+            text: 'O valor padrão do flexbox. Sem <code>flex-start</code>, todo cartão preenche a altura do mais alto, então os três ficam iguais.'
+          },
+          {
+            label: '.card { display: flex; flex-direction: column }',
+            text: 'O cartão também vira um flex container. O título, o texto e o botão empilham na vertical, o que permite usar propriedades do flexbox dentro dele.'
+          },
+          {
+            label: 'margin-top: auto (.action)',
+            text: 'A margin automática come todo o espaço livre acima do botão dentro da coluna. O botão vai para o fundo, mesmo quando o texto acima é curto.'
+          },
+          {
+            label: 'gap no cartão',
+            text: 'Um espaço mínimo fixo entre o título, o texto e o botão. A margin automática soma o espaço livre em cima desse gap.'
+          }
+        ],
+        tip: 'Esse padrão aparece em quase todo cartão de interface: estique os cartões por fora, faça cada cartão uma coluna por dentro e use <code>margin-top: auto</code> no último elemento. O resultado parece um grid, mas é só flexbox aninhado.'
+      }
+    ]
+  },
+  24: {
+    title: 'Chefe: O Widget de Perfil',
+    description: 'Monte o cartão de perfil: avatar e nome na mesma linha, status encostado na direita, bio preenchendo a altura livre e o rodapé com as tags à esquerda e o botão Edit à direita.',
+    hint: 'Quatro ajustes pequenos: faça o cabeçalho virar uma linha flex, use uma margin automática no status, deixe a bio crescer na coluna do cartão e distribua o rodapé com justify-content.',
+    starterCSS: `.profile {
+  width: 100%;
+  max-width: 24rem;
+  min-height: 17rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.header {
+  gap: 0.75rem;
+  align-items: center;
+
+  /* ?? avatar e nome lado a lado ?? */
+}
+
+.avatar {
+  padding: 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}
+
+.name { font-weight: bold; }
+
+.status {
+  padding: 0.35rem 0.6rem;
+  background: #50fa7b;
+  color: #14121f;
+  border-radius: 999px;
+  font-weight: bold;
+
+  /* ?? empurrar o status para a direita ?? */
+}
+
+.bio {
+  padding: 0.75rem;
+  background: white;
+  border-radius: 0.5rem;
+
+  /* ?? preencher a altura livre ?? */
+}
+
+.footer {
+  gap: 0.5rem;
+  align-items: center;
+
+  /* ?? tags à esquerda, edit à direita ?? */
+}
+
+.tags { display: flex; gap: 0.35rem; }
+.tags span {
+  padding: 0.25rem 0.5rem;
+  background: #e2e8f0;
+  border-radius: 999px;
+  font-weight: bold;
+}
+.edit {
+  padding: 0.35rem 0.6rem;
+  background: #8b5cf6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'div.profile',
+            text: 'O flex container externo, na direção <strong>column</strong>. O <code>min-height</code> dele cria o espaço livre que a bio pode ocupar.'
+          },
+          {
+            label: '.header { display: flex }',
+            text: 'O <code>gap</code> e o <code>align-items</code> já estavam escritos, mas não faziam nada porque o cabeçalho era um bloco normal. Agora avatar, nome e status são flex items numa linha.'
+          },
+          {
+            label: 'margin-left: auto (.status)',
+            text: 'A margin automática come o espaço entre o nome e o status, então o status encosta na borda direita do cabeçalho.'
+          },
+          {
+            label: 'flex: 1 (.bio)',
+            text: 'Na coluna externa isso faz a bio pegar toda a altura que sobra. Com isso o rodapé é empurrado para o fundo sem precisar de margin automática.'
+          },
+          {
+            label: '.footer { display: flex; justify-content: space-between }',
+            text: 'O rodapé vira outro flex container aninhado. <code>space-between</code> manda as tags para a esquerda e o botão Edit para a direita.'
+          },
+          {
+            label: 'div.tags',
+            text: 'Um terceiro nível de flexbox: o <code>display: flex</code> e o <code>gap</code> dele mantêm as duas tags juntas como um só grupo.'
+          }
+        ],
+        tip: 'Um chefe é só vários quebra-cabeças pequenos empilhados no mesmo layout. Resolva de fora para dentro: primeiro a coluna externa, depois cada linha aninhada e por fim as margins automáticas que decidem quem fica com o espaço livre.'
+      }
+    ]
+  },
+  25: {
+    title: 'Quebrando em Colunas',
+    description: 'Os seis itens estão empilhados numa coluna alta e estouram o painel. Faça eles fluírem em duas colunas e espalhe essas colunas da borda esquerda até a borda direita.',
+    hint: 'O eixo principal pode ser vertical. Se você quebrar uma coluna, os itens formam novas colunas em vez de novas linhas, e o align-content distribui essas colunas.',
+    starterCSS: `.panel {
+  width: 100%;
+  max-width: 26rem;
+  height: 11rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  /* ?? quebrar em colunas e espalhar ?? */
+}
+
+.item {
+  padding: 0.6rem 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'div.panel',
+            text: 'O flex container. A direção é <code>column</code>, então o eixo principal é vertical e os seis itens não cabem na altura fixa.'
+          },
+          {
+            label: 'flex-wrap: wrap',
+            text: 'Numa coluna os itens quebram em <strong>colunas</strong> em vez de linhas. Os três primeiros preenchem a coluna da esquerda e os outros três começam uma nova.'
+          },
+          {
+            label: 'align-content: space-between',
+            text: 'Depois da quebra existem duas linhas (duas colunas). <code>align-content</code> distribui essas linhas no eixo cruzado, que aqui é horizontal, então a primeira coluna vai para a esquerda e a última para a direita.'
+          },
+          {
+            label: 'height vs min-height',
+            text: 'Uma <code>height</code> fixa é o que força a quebra: os itens não têm para onde crescer. Com <code>min-height</code> o painel simplesmente cresceria e nada quebraria.'
+          }
+        ],
+        tip: 'A quebra sempre segue o eixo principal: uma linha quebra em linhas, uma coluna quebra em colunas. As propriedades mantêm o mesmo nome, mas mudam de direção visual, então pergunte sempre: para onde aponta o eixo principal?'
+      }
+    ]
+  },
+  26: {
+    title: 'O Modal que Cabe',
+    description: 'O corpo do modal é alto demais e empurra o rodapé para fora do cartão. Faça o corpo pegar a altura que sobra, rolar por dentro e manter o cabeçalho e o rodapé visíveis.',
+    hint: 'Num flex container em coluna um filho pode crescer com flex: 1. Para ele realmente poder ficar menor que o conteúdo, o tamanho mínimo dele nesse eixo também precisa ser zero: a versão vertical do truque do texto longo.',
+    starterCSS: `.modal {
+  width: 100%;
+  max-width: 22rem;
+  height: 14rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modal-header {
+  padding: 0.5rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}
+
+.modal-body {
+  padding: 0.75rem;
+  background: white;
+  border-radius: 0.5rem;
+
+  /* ?? crescer, permitir encolher e rolar por dentro ?? */
+}
+
+.modal-footer {
+  padding: 0.5rem;
+  background: #8b5cf6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'div.modal',
+            text: 'Um flex container em coluna com altura fixa. O cabeçalho e o rodapé têm o tamanho natural, então o corpo precisa viver com a altura que sobra.'
+          },
+          {
+            label: 'flex: 1 (.modal-body)',
+            text: 'Faz o corpo crescer para o espaço livre da coluna. Ele recebe toda a altura que o cabeçalho e o rodapé não usam.'
+          },
+          {
+            label: 'min-height: 0 (.modal-body)',
+            text: 'Um flex item tem <code>min-height: auto</code> por padrão, o que impede ele de ficar mais baixo que o conteúdo. Colocar zero deixa o corpo ser menor que o parágrafo longo.'
+          },
+          {
+            label: 'overflow: auto',
+            text: 'Quando o corpo fica menor que o conteúdo, o texto extra precisa de um lugar. <code>auto</code> cria uma barra de rolagem só quando ela é necessária.'
+          },
+          {
+            label: 'rodapé do modal',
+            text: 'Como o corpo para de crescer na altura disponível, o rodapé fica dentro do modal e mantém o seu tamanho natural.'
+          }
+        ],
+        tip: 'Essa é a versão vertical da correção do texto longo: <code>flex: 1</code> para pegar o espaço, <code>min-height: 0</code> para permitir encolher abaixo do conteúdo e <code>overflow: auto</code> para rolar. Você vê essa tríade exata em modais e sidebars reais.'
+      }
+    ]
+  },
+  27: {
+    title: 'Mensagem Mais Nova no Topo',
+    description: 'As mensagens estão em ordem cronológica no HTML, mas o chat deve mostrar a mais nova no topo e manter todas alinhadas à direita.',
+    hint: 'Você pode inverter o eixo principal de uma coluna. O primeiro item do HTML vai para o fundo e o último vai para o topo; o align-items continua cuidando do outro eixo.',
+    starterCSS: `.chat {
+  width: 100%;
+  max-width: 20rem;
+  min-height: 14rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+
+  /* ?? mais nova no topo, mensagens à direita ?? */
+}
+
+.message {
+  padding: 0.5rem 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'div.chat',
+            text: 'O flex container. A ordem do HTML é a ordem real do tempo: Message 1 é a mais antiga e Message 4 é a mais nova.'
+          },
+          {
+            label: 'flex-direction: column-reverse',
+            text: 'Inverte o eixo principal na vertical. O começo da coluna agora está embaixo, então o primeiro item do HTML aparece no fundo e o último no topo.'
+          },
+          {
+            label: 'align-items: flex-end',
+            text: 'O eixo cruzado de uma coluna é horizontal. <code>flex-end</code> manda cada mensagem para o lado direito do chat.'
+          },
+          {
+            label: 'gap',
+            text: 'O gap continua medido na ordem visual, então as mensagens mantêm uma distância uniforme mesmo com a coluna invertida.'
+          },
+          {
+            label: 'justify-content',
+            text: 'O padrão <code>flex-start</code> agora significa o fundo do chat, então todas as mensagens ficam juntas embaixo em vez de espalhadas.'
+          }
+        ],
+        tip: '<code>column-reverse</code> e <code>row-reverse</code> invertem o eixo principal inteiro; <code>order</code> move itens individuais. Os dois mudam só a imagem: o HTML e a ordem do leitor de tela continuam cronológicos.'
+      }
+    ]
+  },
+  28: {
+    title: 'Chefe: A Tabela de Planos',
+    description: 'O plano em destaque deve ocupar a primeira linha inteira, os outros quatro devem formar duas linhas de dois, as linhas devem ter mais espaço que as colunas e todas devem se espalhar pela altura.',
+    hint: 'Um cartão de largura total é um cartão com basis de 100%, e o order pode colocá-lo na primeira linha. Os outros precisam de um basis que caiba dois por linha. Depois defina dois gaps diferentes e espalhe as linhas.',
+    starterCSS: `.plans {
+  width: 100%;
+  max-width: 26rem;
+  min-height: 18rem;
+  padding: 1rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  /* ?? gap maior nas linhas e espalhar ?? */
+}
+
+.plan {
+  padding: 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+
+  /* ?? dois planos por linha ?? */
+}
+
+.plan-featured {
+  background: #8b5cf6;
+
+  /* ?? primeira linha, largura total ?? */
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'gap: 1rem 0.5rem',
+            text: 'O gap das linhas é o dobro do gap das colunas. Como os cartões formam três linhas quebradas, isso deixa a separação entre os planos bem legível.'
+          },
+          {
+            label: 'align-content: space-between',
+            text: 'Existem três linhas (a do destaque mais duas normais). Essa propriedade manda a primeira para o topo, a última para o fundo e divide a altura restante entre elas.'
+          },
+          {
+            label: 'flex: 0 0 calc(50% - 0.25rem) (.plan)',
+            text: 'Cada plano normal pega metade da linha menos metade do gap de coluna. Dois planos mais um gap cabem exatamente, então eles formam duas colunas.'
+          },
+          {
+            label: 'order: -1 e flex-basis: 100% (.plan-featured)',
+            text: 'O plano em destaque já é o primeiro no HTML, mas <code>order: -1</code> garante que ele fique na primeira linha. O basis de 100% faz ele ocupar a linha inteira, empurrando todos os outros para baixo.'
+          },
+          {
+            label: 'flex-wrap: wrap',
+            text: 'Já estava no código inicial. Sem a quebra, o plano de largura total espremeria todos os outros na mesma linha.'
+          }
+        ],
+        tip: 'Combine os truques pequenos que você já conhece: um basis de 100% cria uma linha cheia, <code>order</code> escolhe qual vem primeiro, <code>calc()</code> encaixa um número fixo de cartões por linha e <code>align-content</code> distribui as linhas. Isso é um layout responsivo inteiro só com flexbox.'
+      }
+    ]
+  },
+  29: {
+    title: 'O Ambiente do Editor',
+    description: 'Monte o ambiente do editor: um cabeçalho com o título à esquerda e os botões à direita, uma barra de arquivos fixa, uma área de código que cresce uma vez, uma área de prévia que cresce o dobro e uma barra de status no fundo.',
+    hint: 'Mais uma vez são quatro camadas: a página é uma coluna, o cabeçalho é uma linha, a linha do meio precisa comer a altura livre e, dentro dela, os dois painéis dividem a largura restante na proporção 1 para 2.',
+    starterCSS: `.workspace {
+  width: 100%;
+  max-width: 26rem;
+  min-height: 20rem;
+  padding: 0.75rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bar {
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 0.5rem;
+
+  /* ?? título à esquerda, ferramentas à direita ?? */
+}
+
+.title { font-weight: bold; }
+.tools { display: flex; gap: 0.35rem; }
+.tools span { padding: 0.25rem 0.5rem; background: #e2e8f0; border-radius: 0.35rem; font-weight: bold; }
+
+.main {
+  display: flex;
+  gap: 0.5rem;
+
+  /* ?? preencher a altura livre do ambiente ?? */
+}
+
+.rail {
+  flex: 0 0 25%;
+  padding: 0.75rem;
+  background: #8b5cf6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}
+
+.code {
+  padding: 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+
+  /* ?? uma parte da largura que sobra ?? */
+}
+
+.preview {
+  padding: 0.75rem;
+  background: #10b981;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+
+  /* ?? duas partes da largura que sobra ?? */
+}
+
+.status {
+  padding: 0.5rem;
+  background: #1e293b;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: '.bar { display: flex; justify-content: space-between }',
+            text: 'O cabeçalho é uma linha. <code>space-between</code> mantém o título na borda esquerda do conteúdo e o grupo de ferramentas na borda direita.'
+          },
+          {
+            label: '.main { flex: 1 }',
+            text: 'Dentro da coluna da página isso faz a linha do meio crescer para toda a altura livre. A barra de status é empurrada para o fundo.'
+          },
+          {
+            label: '.rail { flex: 0 0 25% }',
+            text: 'Já estava no código inicial. A barra de arquivos mantém um quarto da linha principal e não cresce nem encolhe com os dois painéis.'
+          },
+          {
+            label: 'flex: 1 e flex: 2',
+            text: 'Depois da barra e dos dois gaps, a largura restante é dividida em três partes iguais. O código pega uma e a prévia pega duas, então a prévia fica com o dobro da largura.'
+          },
+          {
+            label: 'div.tools',
+            text: 'Um flex container aninhado. O gap dele mantém Save e Run juntos enquanto o cabeçalho move o grupo inteiro para a direita.'
+          }
+        ],
+        tip: 'É o app shell do nível 20 com larguras proporcionais. Use <code>flex: 0 0 &lt;tamanho&gt;</code> nas partes que devem manter o tamanho e números que crescem como <code>1</code> e <code>2</code> nas partes que dividem o que sobra.'
+      }
+    ]
+  },
+  30: {
+    title: 'Chefe: A Página Completa',
+    description: 'Chefe final. Construa uma página com a marca à esquerda, o nav no meio e as ações à direita; um hero que cresce; quatro cartões em duas linhas com um gap maior entre linhas, espalhados pela altura; e um rodapé com uma nota à esquerda e um link à direita.',
+    hint: 'Trabalhe de fora para dentro: a página é uma coluna, o hero cresce, a topbar e o rodapé são linhas, os cartões quebram dois por linha e o gap das linhas dos cartões é maior que o das colunas.',
+    starterCSS: `.page {
+  width: 100%;
+  max-width: 26rem;
+  min-height: 22rem;
+  padding: 0.75rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.topbar {
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 0.5rem;
+
+  /* ?? marca à esquerda, nav no meio, ações à direita ?? */
+}
+
+.brand { font-weight: bold; }
+.nav { display: flex; gap: 0.5rem; }
+.nav span { color: #475569; font-weight: bold; }
+.actions { padding: 0.35rem 0.6rem; background: #3b82f6; color: white; border-radius: 0.5rem; font-weight: bold; }
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  /* ?? preencher a altura livre da página ?? */
+}
+
+.intro { padding: 0.5rem; background: #8b5cf6; color: white; border-radius: 0.5rem; font-weight: bold; }
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  /* ?? gap maior nas linhas, espalhar e preencher o hero ?? */
+}
+
+.card {
+  padding: 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+
+  /* ?? dois cartões por linha ?? */
+}
+
+.bottom {
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem;
+  background: #1e293b;
+  color: white;
+  border-radius: 0.5rem;
+
+  /* ?? nota à esquerda, link à direita ?? */
+}`,
+    solutions: [
+      {
+        explanation: [
+          {
+            label: 'div.page',
+            text: 'A coluna externa. Ela empilha a topbar, o hero e o rodapé, com um gap entre eles.'
+          },
+          {
+            label: '.topbar { justify-content: space-between }',
+            text: 'Três grupos vivem nessa linha. <code>space-between</code> coloca a marca na borda esquerda, as ações na borda direita e deixa o nav no meio.'
+          },
+          {
+            label: '.hero { flex: 1 }',
+            text: 'O hero cresce para a altura livre da página, então o rodapé vai para o fundo. Dentro dele ficam o título e a área dos cartões.'
+          },
+          {
+            label: '.cards { flex: 1; gap: 1.25rem 0.5rem; align-content: space-between }',
+            text: 'A área dos cartões cresce dentro do hero, quebra os cartões em duas linhas, usa um gap de linha maior que o de coluna e espalha as duas linhas do topo ao fundo.'
+          },
+          {
+            label: '.card { flex: 0 0 calc(50% - 0.25rem) }',
+            text: 'Dois cartões mais o gap de coluna cabem exatamente na linha. A largura deles é fixa, então a quebra acontece porque existem quatro cartões, não porque eles encolhem.'
+          },
+          {
+            label: '.bottom { display: flex; justify-content: space-between }',
+            text: 'O rodapé é mais uma linha aninhada, com a nota à esquerda e o link à direita.'
+          }
+        ],
+        tip: 'Todos os níveis desta página são flex containers: a coluna da página, a linha da topbar, a coluna do hero, a área dos cartões quebrados e a linha do rodapé. Quando um layout parece grande demais, desenhe as caixas primeiro e depois escolha uma direção e uma distribuição para cada caixa.'
+      }
+    ]
   }
 }

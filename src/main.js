@@ -1,5 +1,5 @@
 import levels, { cssTagsGuide } from './levels.js'
-import { updatePreview, updateTarget } from './preview.js'
+import { updatePreview, updateTarget, isIframeReady } from './preview.js'
 import { visuallyMatchesTarget } from './visual-check.js'
 import {
   languages,
@@ -38,6 +38,7 @@ import {
   getSoundOn,
   recordTagOpened,
   recordLanguageTried,
+  recordSkeletonSeen,
   unlockAchievements,
   hasAchievement,
   getUnlockedAchievements,
@@ -117,6 +118,7 @@ const finalOverlay = document.getElementById('finalOverlay')
 const finalStats = document.getElementById('finalStats')
 const btnPlayAgain = document.getElementById('btnPlayAgain')
 const btnReviewLevels = document.getElementById('btnReviewLevels')
+const skeletonRunner = document.getElementById('skeletonRunner')
 const toastStack = document.getElementById('toastStack')
 const devModal = document.getElementById('devModal')
 const devClose = document.getElementById('devClose')
@@ -130,6 +132,8 @@ const devAnswer = document.getElementById('devAnswer')
 const devFill = document.getElementById('devFill')
 
 const DEV_PASSWORD_HASH = 0xd7460570
+const SKELETON_CHANCE = 0.000001
+const SKELETON_DURATION_MS = 750
 
 let currentLevelIndex = 0
 let currentCSS = ''
@@ -141,6 +145,8 @@ let isDailyMode = false
 let dailyLevelId = null
 let finalShown = false
 let timerId = null
+let previewStatusTimeout = null
+let skeletonTimeout = null
 let devUnlocked = false
 let devSolutionIndex = 0
 let run = createRun()
@@ -216,7 +222,7 @@ function loadLevel(index, options = {}) {
   updateLineNumbers()
   setLastLevelId(level.id)
 
-  updatePreview(previewFrame, level.html, text.starterCSS, level.themeCSS)
+  renderPreview(text.starterCSS)
   updateTarget(targetFrame, level.html, text.solutions[0].css, level.themeCSS)
   targetWrapper.classList.add('visible')
 
@@ -231,6 +237,7 @@ function loadLevel(index, options = {}) {
   editorInput.focus()
 
   maybeShowBossIntro(level, text)
+  maybeRunSkeleton()
 }
 
 function setupEventListeners() {
@@ -257,12 +264,12 @@ function setupEventListeners() {
   questTabMap.addEventListener('click', () => switchQuestTab('map'))
   questTabAchievements.addEventListener('click', () => switchQuestTab('achievements'))
   questBody.addEventListener('click', onQuestBodyClick)
-  btnResetProgress.addEventListener('click', resetAllProgress)
+  btnResetProgress.addEventListener('click', resetGame)
   bossStart.addEventListener('click', () => {
     bossOverlay.classList.add('hidden')
     editorInput.focus()
   })
-  btnPlayAgain.addEventListener('click', playAgain)
+  btnPlayAgain.addEventListener('click', resetGame)
   btnReviewLevels.addEventListener('click', () => {
     finalOverlay.classList.add('hidden')
     openQuestModal('map')
@@ -279,6 +286,12 @@ function setupEventListeners() {
     if (!e.target.closest('.language-picker')) closeLanguageMenu()
   })
   document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.altKey && e.shiftKey && e.code === 'KeyG' && !e.repeat) {
+      e.preventDefault()
+      runSkeleton()
+      return
+    }
+
     if (e.ctrlKey && e.altKey && e.shiftKey && e.code === 'KeyD') {
       e.preventDefault()
       if (devModal.classList.contains('hidden')) {
@@ -304,12 +317,20 @@ function onEditorInput() {
   startTimerIfNeeded()
   currentCSS = editorInput.value
   updateLineNumbers()
+  renderPreview(currentCSS)
+  scheduleLiveStatus()
+}
+
+function renderPreview(css) {
   const level = levels[currentLevelIndex]
-  updatePreview(previewFrame, level.html, currentCSS, level.themeCSS)
+  updatePreview(previewFrame, level.html, css, level.themeCSS)
+}
+
+function scheduleLiveStatus() {
   previewIsLive = false
   previewStatus.textContent = t('updating')
-  clearTimeout(previewStatus._timeout)
-  previewStatus._timeout = setTimeout(() => {
+  clearTimeout(previewStatusTimeout)
+  previewStatusTimeout = setTimeout(() => {
     previewIsLive = true
     previewStatus.textContent = t('live')
   }, 300)
@@ -366,10 +387,10 @@ function checkAnswer() {
   const level = levels[currentLevelIndex]
   const startedAt = Date.now()
 
-  updatePreview(previewFrame, level.html, currentCSS, level.themeCSS)
+  renderPreview(currentCSS)
 
   const tryCheck = () => {
-    if (isPreviewReady() || Date.now() - startedAt > 2000) {
+    if (isIframeReady(previewFrame) || Date.now() - startedAt > 2000) {
       applyCheckResult(level)
       return
     }
@@ -377,12 +398,6 @@ function checkAnswer() {
   }
 
   setTimeout(tryCheck, 50)
-}
-
-function isPreviewReady() {
-  const doc = previewFrame.contentDocument
-  if (!doc || !doc.body) return false
-  return doc.documentElement.dataset.renderId === previewFrame.dataset.renderId
 }
 
 function applyCheckResult(level) {
@@ -529,14 +544,8 @@ function resetLevel() {
   currentCSS = text.starterCSS
   editorInput.value = text.starterCSS
   updateLineNumbers()
-  updatePreview(previewFrame, level.html, currentCSS, level.themeCSS)
-  previewIsLive = false
-  previewStatus.textContent = t('updating')
-  clearTimeout(previewStatus._timeout)
-  previewStatus._timeout = setTimeout(() => {
-    previewIsLive = true
-    previewStatus.textContent = t('live')
-  }, 300)
+  renderPreview(currentCSS)
+  scheduleLiveStatus()
   hideResult()
   renderMissionStrip()
   editorInput.focus()
@@ -906,7 +915,7 @@ function applyLanguage(editorHasStarter = true) {
     editorInput.value = text.starterCSS
     currentCSS = text.starterCSS
     updateLineNumbers()
-    updatePreview(previewFrame, levels[currentLevelIndex].html, currentCSS, levels[currentLevelIndex].themeCSS)
+    renderPreview(currentCSS)
   }
 
   if (lastResult) {
@@ -1147,12 +1156,22 @@ function updateSoundButton() {
   btnSound.title = `${t('toggleSound')} (${t(isSoundEnabled() ? 'soundOn' : 'soundOff')})`
 }
 
+function getCampaignTimeMs(state) {
+  const first = state.levels[levels[0].id]?.solvedAt
+  const last = state.levels[levels[levels.length - 1].id]?.solvedAt
+  if (!first || !last) return null
+  const elapsed = new Date(last).getTime() - new Date(first).getTime()
+  return Number.isFinite(elapsed) && elapsed > 0 ? elapsed : null
+}
+
 function buildAchievementContext(lastRun = null) {
+  const progress = getProgress()
   return {
-    progress: getProgress(),
+    progress,
     solvedCount: getSolvedCount(),
     totalLevels: levels.length,
     totalStars: getTotalStars(),
+    completionTimeMs: getCampaignTimeMs(progress),
     lastRun
   }
 }
@@ -1171,7 +1190,126 @@ function showAchievementToast(id) {
   const achievement = achievements.find(item => item.id === id)
   if (!achievement) return
   const text = getAchievementText(achievement, getLanguage())
-  showToast(text.title, text.description, 'achievement')
+  const title = achievement.secret ? t('secretAchievementUnlocked') : text.title
+  showToast(title, text.description, 'achievement')
+}
+
+function maybeRunSkeleton() {
+  if (Math.random() < SKELETON_CHANCE) runSkeleton()
+}
+
+function runSkeleton() {
+  if (!skeletonRunner) return
+
+  const spriteWidth = skeletonRunner.offsetWidth || 220
+  const spriteHeight = skeletonRunner.offsetHeight || (spriteWidth * 130) / 110
+  const path = createSkeletonPath(spriteWidth, spriteHeight)
+  const orientation = getSkeletonOrientation(path)
+  const duration = SKELETON_DURATION_MS
+
+  clearTimeout(skeletonTimeout)
+  skeletonRunner.classList.remove('is-running')
+  skeletonRunner.style.setProperty('--skeleton-start-x', `${path.startX}px`)
+  skeletonRunner.style.setProperty('--skeleton-start-y', `${path.startY}px`)
+  skeletonRunner.style.setProperty('--skeleton-end-x', `${path.endX}px`)
+  skeletonRunner.style.setProperty('--skeleton-end-y', `${path.endY}px`)
+  skeletonRunner.style.setProperty('--skeleton-angle', `${orientation.angle}deg`)
+  skeletonRunner.style.setProperty('--skeleton-flip', `${orientation.flip}`)
+  skeletonRunner.style.setProperty('--skeleton-duration', `${duration}ms`)
+
+  void skeletonRunner.offsetWidth
+  skeletonRunner.classList.add('is-running')
+  skeletonRunner.setAttribute('aria-hidden', 'false')
+
+  if (recordSkeletonSeen()) {
+    const newIds = checkNewAchievements()
+    if (newIds.length) playAchievement()
+    newIds.forEach(id => showAchievementToast(id))
+  }
+
+  skeletonTimeout = setTimeout(() => {
+    skeletonRunner.classList.remove('is-running')
+    skeletonRunner.setAttribute('aria-hidden', 'true')
+  }, duration + 100)
+}
+
+function createSkeletonPath(spriteWidth, spriteHeight) {
+  const viewportWidth = window.innerWidth
+  const viewportHeight = window.innerHeight
+  const margin = 24
+  const span = Math.max(spriteWidth, spriteHeight)
+  const halfDiagonal = Math.hypot(spriteWidth, spriteHeight) / 2
+  const extraX = Math.max(0, halfDiagonal - spriteWidth / 2)
+  const extraY = Math.max(0, halfDiagonal - spriteHeight / 2)
+  const maxX = Math.max(0, viewportWidth - span)
+  const maxY = Math.max(0, viewportHeight - span)
+  const mode = pickRandom(['horizontal', 'vertical', 'diagonal'])
+
+  if (mode === 'horizontal') {
+    const y = randomBetween(0, maxY)
+    return horizontalPath(y, y, spriteWidth, viewportWidth, margin, extraX)
+  }
+
+  if (mode === 'vertical') {
+    const x = randomBetween(0, maxX)
+    return verticalPath(x, x, spriteHeight, viewportHeight, margin, extraY)
+  }
+
+  if (Math.random() < 0.5) {
+    const [startY, endY] = separatePair(randomBetween(0, maxY), randomBetween(0, maxY), maxY)
+    return horizontalPath(startY, endY, spriteWidth, viewportWidth, margin, extraX)
+  }
+
+  const [startX, endX] = separatePair(randomBetween(0, maxX), randomBetween(0, maxX), maxX)
+  return verticalPath(startX, endX, spriteHeight, viewportHeight, margin, extraY)
+}
+
+function horizontalPath(startY, endY, spriteWidth, viewportWidth, margin, extraX) {
+  const leftToRight = Math.random() < 0.5
+  return {
+    startX: leftToRight ? -spriteWidth - extraX - margin : viewportWidth + extraX + margin,
+    startY,
+    endX: leftToRight ? viewportWidth + extraX + margin : -spriteWidth - extraX - margin,
+    endY
+  }
+}
+
+function verticalPath(startX, endX, spriteHeight, viewportHeight, margin, extraY) {
+  const topToBottom = Math.random() < 0.5
+  return {
+    startX,
+    startY: topToBottom ? -spriteHeight - extraY - margin : viewportHeight + extraY + margin,
+    endX,
+    endY: topToBottom ? viewportHeight + extraY + margin : -spriteHeight - extraY - margin
+  }
+}
+
+function separatePair(first, second, max) {
+  const minimum = Math.min(max, Math.max(60, max * 0.25))
+  if (Math.abs(second - first) >= minimum) return [first, second]
+  if (first <= max / 2) return [first, Math.min(max, first + minimum)]
+  return [Math.max(0, first - minimum), first]
+}
+
+function getSkeletonOrientation(path) {
+  let angle = Math.atan2(path.endY - path.startY, path.endX - path.startX) * (180 / Math.PI)
+  let flip = 1
+
+  if (angle > 90 || angle < -90) {
+    angle += 180
+    flip = -1
+  }
+
+  angle = (((angle + 180) % 360) + 360) % 360 - 180
+  return { angle, flip }
+}
+
+function randomBetween(min, max) {
+  return min + Math.random() * Math.max(0, max - min)
+}
+
+function pickRandom(items) {
+  return items[Math.floor(Math.random() * items.length)]
 }
 
 function showToast(title, text, kind = '') {
@@ -1414,12 +1552,15 @@ function renderAchievements() {
   const items = achievements.map(achievement => {
     const earned = unlocked.includes(achievement.id)
     const text = getAchievementText(achievement, getLanguage())
+    const hidden = achievement.secret && !earned
+    const title = hidden ? t('secretAchievementTitle') : text.title
+    const description = hidden ? t('secretAchievementDescription') : text.description
     return `
       <div class="achievement-item${earned ? ' unlocked' : ''}">
         <div class="achievement-icon">${earned ? '\u2713' : '\u2022'}</div>
         <div class="achievement-text">
-          <h5>${escapeHtml(text.title)}</h5>
-          <p>${escapeHtml(text.description)}</p>
+          <h5>${escapeHtml(title)}</h5>
+          <p>${escapeHtml(description)}</p>
         </div>
       </div>`
   }).join('')
@@ -1439,7 +1580,7 @@ function startDailyChallenge(levelId) {
   showToast(t('dailyTitle'), t('missionDaily'), 'daily')
 }
 
-function resetAllProgress() {
+function resetGame() {
   if (!window.confirm(t('resetConfirm'))) return
 
   resetProgress()
@@ -1451,20 +1592,6 @@ function resetAllProgress() {
   closeQuestModal()
   finalOverlay.classList.add('hidden')
   bossOverlay.classList.add('hidden')
-  loadLevelById(levels[0].id)
-  updateHeader()
-}
-
-function playAgain() {
-  if (!window.confirm(t('resetConfirm'))) return
-  resetProgress()
-  setSoundEnabled(false)
-  updateSoundButton()
-  finalShown = false
-  seenBossIntros.clear()
-  seenWorldClears.clear()
-  finalOverlay.classList.add('hidden')
-  closeQuestModal()
   loadLevelById(levels[0].id)
   updateHeader()
 }

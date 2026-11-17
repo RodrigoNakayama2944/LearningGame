@@ -4,7 +4,6 @@
 // Keeping this data separate means the map, the achievements and the HUD
 // can all use the same numbers without touching the level content.
 
-export const LEVELS_PER_WORLD = 4
 export const STAR_XP = 10
 export const MAX_STARS_PER_LEVEL = 3
 
@@ -38,10 +37,28 @@ export const worlds = [
     nameKey: 'world5Name',
     subtitleKey: 'world5Subtitle',
     levelIds: [17, 18, 19, 20]
+  },
+  {
+    id: 6,
+    nameKey: 'world6Name',
+    subtitleKey: 'world6Subtitle',
+    levelIds: [21, 22, 23, 24]
+  },
+  {
+    id: 7,
+    nameKey: 'world7Name',
+    subtitleKey: 'world7Subtitle',
+    levelIds: [25, 26, 27, 28]
+  },
+  {
+    id: 8,
+    nameKey: 'world8Name',
+    subtitleKey: 'world8Subtitle',
+    levelIds: [29, 30]
   }
 ]
 
-export const BOSS_LEVEL_IDS = [4, 8, 12, 16, 20]
+export const BOSS_LEVEL_IDS = [4, 8, 12, 16, 20, 24, 28, 30]
 export const TOTAL_LEVELS = worlds.reduce((total, world) => total + world.levelIds.length, 0)
 export const MAX_STARS = TOTAL_LEVELS * MAX_STARS_PER_LEVEL
 export const MAX_XP = MAX_STARS * STAR_XP
@@ -67,10 +84,6 @@ export function getWorldForLevel(levelId) {
 
 export function getWorldNameKey(levelId) {
   return getWorldForLevel(levelId).nameKey
-}
-
-export function getXpForStars(stars) {
-  return Math.max(0, Math.min(MAX_STARS_PER_LEVEL, stars)) * STAR_XP
 }
 
 // Returns the current rank plus the next one (null when the player reached

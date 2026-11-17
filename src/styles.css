@@ -23,13 +23,6 @@
   --error: #FF5555;
   --error-dim: #CC3333;
   --warning: #F1FA8C;
-  --syntax-tag: #FF79C6;
-  --syntax-attr: #50FA7B;
-  --syntax-value: #F1FA8C;
-  --syntax-selector: #BD93F9;
-  --syntax-property: #FF79C6;
-  --syntax-punctuation: #F8F8F2;
-  --syntax-comment: #6272A4;
   --radius: 8px;
   --radius-lg: 12px;
   --font-display: 'Space Grotesk', sans-serif;
@@ -87,63 +80,10 @@ html, body {
   padding-left: 12px;
 }
 
-.level-nav {
-  display: flex;
-  gap: 4px;
-  min-width: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.level-nav::-webkit-scrollbar {
-  display: none;
-}
-
-.level-dot {
-  width: 28px;
-  height: 28px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  border: 2px solid var(--dracula-current);
-  background: transparent;
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.level-dot:hover {
-  border-color: var(--dracula-purple);
-  color: var(--text-primary);
-}
-
-.level-dot.active {
-  border-color: var(--dracula-purple);
-  background: var(--dracula-purple);
-  color: var(--dracula-bg);
-}
-
-.level-dot.completed {
-  border-color: var(--dracula-green);
-  background: var(--success-dim);
-  color: var(--text-primary);
-}
-
 .header-right {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.progress-text {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  color: var(--text-secondary);
 }
 
 /* Botão de escolha de idioma */
@@ -360,10 +300,6 @@ html, body {
   flex: 1;
   position: relative;
   overflow: hidden;
-}
-
-.editor-highlight {
-  display: none;
 }
 
 .editor-input {
@@ -720,17 +656,6 @@ html, body {
 .btn-next:hover {
   background: #6FFF9E;
 }
-
-/* Syntax highlighting colors - Dracula theme */
-.syntax-tag { color: var(--dracula-pink); }
-.syntax-attr { color: var(--dracula-green); }
-.syntax-value { color: var(--dracula-yellow); }
-.syntax-selector { color: var(--dracula-purple); }
-.syntax-property { color: var(--dracula-pink); }
-.syntax-punctuation { color: var(--dracula-fg); }
-.syntax-comment { color: var(--dracula-comment); font-style: italic; }
-.syntax-string { color: var(--dracula-yellow); }
-.syntax-number { color: var(--dracula-purple); }
 
 /* Success glow animation */
 @keyframes glowPulse {
@@ -2161,4 +2086,46 @@ html, body {
 .tag-header:focus-visible {
   outline: 2px solid var(--dracula-cyan);
   outline-offset: 2px;
+}
+
+/* Rare easter egg: a skeleton running across the screen */
+.skeleton-runner {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 2000;
+  width: clamp(150px, 20vw, 300px);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(-50vw, -50vh, 0);
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.45));
+  will-change: transform, opacity;
+}
+
+.skeleton-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform-origin: center;
+  transform: rotate(var(--skeleton-angle, 0deg)) scaleX(var(--skeleton-flip, 1));
+}
+
+.skeleton-runner.is-running {
+  visibility: visible;
+  animation: skeleton-cross var(--skeleton-duration, 4500ms) linear forwards;
+}
+
+@keyframes skeleton-cross {
+  0% {
+    opacity: 1;
+    transform: translate3d(var(--skeleton-start-x), var(--skeleton-start-y), 0);
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--skeleton-end-x), var(--skeleton-end-y), 0);
+  }
 }

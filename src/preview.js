@@ -32,10 +32,9 @@ function render(iframe, html, css, themeCSS) {
   iframe.srcdoc = renderDoc(html, css, themeCSS, renderCount)
 }
 
-export function updatePreview(iframe, html, css, themeCSS) {
-  render(iframe, html, css, themeCSS)
+export function isIframeReady(iframe) {
+  const doc = iframe && iframe.contentDocument
+  return Boolean(doc && doc.body && doc.documentElement.dataset.renderId === iframe.dataset.renderId)
 }
 
-export function updateTarget(iframe, html, css, themeCSS) {
-  render(iframe, html, css, themeCSS)
-}
+export { render as updatePreview, render as updateTarget }

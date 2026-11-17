@@ -26,7 +26,27 @@ const worldClearText = {
   5: {
     en: ['Final Interface Restored', 'Solve every level of The Final Interface.'],
     'pt-BR': ['Interface Final Restaurada', 'Resolva todos os níveis da Interface Final.']
+  },
+  6: {
+    en: ['Component Library Built', 'Solve every level of The Component Library.'],
+    'pt-BR': ['Biblioteca de Componentes', 'Resolva todos os níveis da Biblioteca de Componentes.']
+  },
+  7: {
+    en: ['Responsive Studio Open', 'Solve every level of The Responsive Studio.'],
+    'pt-BR': ['Estúdio Responsivo Aberto', 'Resolva todos os níveis do Estúdio Responsivo.']
+  },
+  8: {
+    en: ['Master Layout Done', 'Solve every level of The Master Layout.'],
+    'pt-BR': ['Layout Mestre Concluído', 'Resolva todos os níveis do Layout Mestre.']
   }
+}
+
+function finishedWithin(context, minutes) {
+  return (
+    context.completionTimeMs !== null &&
+    context.completionTimeMs > 0 &&
+    context.completionTimeMs < minutes * 60 * 1000
+  )
 }
 
 function solveCountWithStars(context, stars) {
@@ -151,16 +171,56 @@ export const achievements = [
     id: 'questComplete',
     title: { en: 'Quest Complete', 'pt-BR': 'Missão Cumprida' },
     description: {
-      en: 'Solve all twenty levels.',
-      'pt-BR': 'Resolva todos os vinte níveis.'
+      en: 'Solve all thirty levels.',
+      'pt-BR': 'Resolva todos os trinta níveis.'
     },
     check: context => context.solvedCount >= context.totalLevels
+  },
+  {
+    id: 'speedrunner',
+    title: { en: 'Speedrunner', 'pt-BR': 'Speedrunner' },
+    description: {
+      en: 'Complete all thirty levels in under 60 minutes.',
+      'pt-BR': 'Conclua os trinta níveis em menos de 60 minutos.'
+    },
+    check: context => finishedWithin(context, 60)
+  },
+  {
+    id: 'turboRunner',
+    title: { en: 'Turbo Runner', 'pt-BR': 'Corredor Turbo' },
+    description: {
+      en: 'Complete all thirty levels in under 30 minutes.',
+      'pt-BR': 'Conclua os trinta níveis em menos de 30 minutos.'
+    },
+    check: context => finishedWithin(context, 30)
+  },
+  {
+    id: 'lightningRunner',
+    title: { en: 'Lightning Runner', 'pt-BR': 'Corredor Relâmpago' },
+    description: {
+      en: 'Complete all thirty levels in under 15 minutes.',
+      'pt-BR': 'Conclua os trinta níveis em menos de 15 minutos.'
+    },
+    check: context => finishedWithin(context, 15)
+  },
+  {
+    id: 'skeletonSeen',
+    secret: true,
+    title: { en: 'The Skeleton Is Loose', 'pt-BR': 'O Esqueleto Solto' },
+    description: {
+      en: 'Catch the running skeleton crossing your screen.',
+      'pt-BR': 'Pegue o esqueleto correndo atravessar a sua tela.'
+    },
+    check: context => Boolean(context.progress.skeletonSeen)
   },
   worldAchievement(1),
   worldAchievement(2),
   worldAchievement(3),
   worldAchievement(4),
-  worldAchievement(5)
+  worldAchievement(5),
+  worldAchievement(6),
+  worldAchievement(7),
+  worldAchievement(8)
 ]
 
 export function getAchievementText(achievement, language) {

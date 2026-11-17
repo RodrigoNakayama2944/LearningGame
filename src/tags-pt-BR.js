@@ -43,7 +43,17 @@ export const tagTranslationsPtBR = {
   gap: {
     group: 'Flexbox',
     summary: 'Espaço entre os itens.',
-    details: 'Adiciona um espaço fixo entre os itens (e ao redor deles quando você usa dois valores). É mais fácil do que colocar margin em cada item.'
+    details: 'Adiciona um espaço fixo entre os itens (e ao redor deles quando você usa dois valores). Com dois valores, o primeiro é <code>row-gap</code> e o segundo é <code>column-gap</code>. É mais fácil do que colocar margin em cada item.'
+  },
+  'row-gap': {
+    group: 'Flexbox',
+    summary: 'Espaço entre as linhas de um container que quebra.',
+    details: 'Define o espaço entre as linhas (linhas numa direção row, colunas numa direção column). Só faz algo quando os itens quebram em várias linhas.'
+  },
+  'column-gap': {
+    group: 'Flexbox',
+    summary: 'Espaço entre os itens de uma mesma linha.',
+    details: 'Numa direção row é o espaço horizontal entre os itens. Numa direção column é o espaço entre as colunas quebradas. Junto com <code>row-gap</code> ele forma o atalho <code>gap</code>.'
   },
   order: {
     group: 'Flexbox',

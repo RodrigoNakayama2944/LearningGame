@@ -17,6 +17,7 @@ function createDefaultProgress() {
     achievements: [],
     tagsOpened: [],
     languagesTried: [],
+    skeletonSeen: false,
     daily: {
       date: null,
       levelId: null,
@@ -50,6 +51,7 @@ function normalize(saved) {
     achievements: Array.isArray(saved.achievements) ? saved.achievements : [],
     tagsOpened: Array.isArray(saved.tagsOpened) ? saved.tagsOpened : [],
     languagesTried: Array.isArray(saved.languagesTried) ? saved.languagesTried : [],
+    skeletonSeen: Boolean(saved.skeletonSeen),
     daily: {
       ...base.daily,
       ...(saved.daily && typeof saved.daily === 'object' ? saved.daily : {})
@@ -216,6 +218,17 @@ export function recordLanguageTried(code) {
     state.languagesTried.push(code)
     saveProgress()
   }
+}
+
+// Remembers that the running skeleton was actually seen on screen. The
+// return value tells the caller if this is the first sighting, so the secret
+// achievement is only checked once.
+export function recordSkeletonSeen() {
+  const state = getProgress()
+  if (state.skeletonSeen) return false
+  state.skeletonSeen = true
+  saveProgress()
+  return true
 }
 
 export function getUnlockedAchievements() {
