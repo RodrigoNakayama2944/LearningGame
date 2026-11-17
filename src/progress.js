@@ -14,6 +14,9 @@ function createDefaultProgress() {
     levels: {},
     lastLevelId: 1,
     soundOn: false,
+    mode: 'normal',
+    effectsOn: true,
+    showTimer: true,
     achievements: [],
     tagsOpened: [],
     languagesTried: [],
@@ -52,6 +55,9 @@ function normalize(saved) {
     tagsOpened: Array.isArray(saved.tagsOpened) ? saved.tagsOpened : [],
     languagesTried: Array.isArray(saved.languagesTried) ? saved.languagesTried : [],
     skeletonSeen: Boolean(saved.skeletonSeen),
+    mode: ['normal', 'hard', 'hardcore'].includes(saved.mode) ? saved.mode : 'normal',
+    effectsOn: saved.effectsOn !== false,
+    showTimer: saved.showTimer !== false,
     daily: {
       ...base.daily,
       ...(saved.daily && typeof saved.daily === 'object' ? saved.daily : {})
@@ -202,6 +208,36 @@ export function setSoundOn(value) {
 
 export function getSoundOn() {
   return Boolean(getProgress().soundOn)
+}
+
+export function setMode(value) {
+  const state = getProgress()
+  state.mode = ['normal', 'hard', 'hardcore'].includes(value) ? value : 'normal'
+  saveProgress()
+}
+
+export function getMode() {
+  return getProgress().mode
+}
+
+export function setEffectsOn(value) {
+  const state = getProgress()
+  state.effectsOn = Boolean(value)
+  saveProgress()
+}
+
+export function getEffectsOn() {
+  return getProgress().effectsOn !== false
+}
+
+export function setShowTimer(value) {
+  const state = getProgress()
+  state.showTimer = Boolean(value)
+  saveProgress()
+}
+
+export function getShowTimer() {
+  return getProgress().showTimer !== false
 }
 
 export function recordTagOpened(tag) {

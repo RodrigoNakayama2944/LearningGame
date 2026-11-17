@@ -36,6 +36,12 @@ import {
   recordBadCheck,
   setSoundOn,
   getSoundOn,
+  setMode,
+  getMode,
+  setEffectsOn,
+  getEffectsOn,
+  setShowTimer,
+  getShowTimer,
   recordTagOpened,
   recordLanguageTried,
   recordSkeletonSeen,
@@ -119,6 +125,22 @@ const finalStats = document.getElementById('finalStats')
 const btnPlayAgain = document.getElementById('btnPlayAgain')
 const btnReviewLevels = document.getElementById('btnReviewLevels')
 const skeletonRunner = document.getElementById('skeletonRunner')
+const startMenu = document.getElementById('startMenu')
+const menuHome = document.getElementById('menuHome')
+const menuConfig = document.getElementById('menuConfig')
+const menuCredits = document.getElementById('menuCredits')
+const btnStartGame = document.getElementById('btnStartGame')
+const btnMenuConfig = document.getElementById('btnMenuConfig')
+const btnConfigBack = document.getElementById('btnConfigBack')
+const btnMenuCredits = document.getElementById('btnMenuCredits')
+const btnCreditsBack = document.getElementById('btnCreditsBack')
+const menuSoundToggle = document.getElementById('menuSoundToggle')
+const menuEffectsToggle = document.getElementById('menuEffectsToggle')
+const menuTimerToggle = document.getElementById('menuTimerToggle')
+const hardcoreOverlay = document.getElementById('hardcoreOverlay')
+const runOverText = document.getElementById('runOverText')
+const btnRestartRun = document.getElementById('btnRestartRun')
+const btnRunOverMenu = document.getElementById('btnRunOverMenu')
 const toastStack = document.getElementById('toastStack')
 const devModal = document.getElementById('devModal')
 const devClose = document.getElementById('devClose')
@@ -149,6 +171,9 @@ let previewStatusTimeout = null
 let skeletonTimeout = null
 let devUnlocked = false
 let devSolutionIndex = 0
+let hardcoreCleared = 0
+let hardcoreRunOver = false
+let hardcoreFailedLevel = 1
 let run = createRun()
 
 const seenBossIntros = new Set()
@@ -175,6 +200,115 @@ function init() {
   updateSoundButton()
   updateHeader()
   applyLanguage(false)
+  btnStartGame.focus()
+}
+
+function updateToggleButton(button, isOn) {
+  button.textContent = isOn ? t('settingOn') : t('settingOff')
+  button.classList.toggle('active', isOn)
+  button.setAttribute('aria-pressed', String(isOn))
+}
+
+function updateStartMenu() {
+  document.querySelectorAll('[data-menu-lang]').forEach(button => {
+    button.classList.toggle('active', button.dataset.menuLang === getLanguage())
+  })
+  document.querySelectorAll('[data-mode]').forEach(button => {
+    button.classList.toggle('active', button.dataset.mode === getMode())
+  })
+  updateToggleButton(menuSoundToggle, isSoundEnabled())
+  updateToggleButton(menuEffectsToggle, getEffectsOn())
+  updateToggleButton(menuTimerToggle, getShowTimer())
+}
+
+function showMenuPage(page) {
+  menuHome.classList.toggle('hidden', page !== 'home')
+  menuConfig.classList.toggle('hidden', page !== 'config')
+  menuCredits.classList.toggle('hidden', page !== 'credits')
+  const firstButton = page === 'config' ? btnConfigBack : page === 'credits' ? btnCreditsBack : btnStartGame
+  firstButton.focus()
+}
+
+function isHardcoreMode() {
+  return getMode() === 'hardcore'
+}
+
+function hintsAllowed() {
+  return getMode() === 'normal'
+}
+
+function startGame() {
+  startMenu.classList.add('hidden')
+  hardcoreRunOver = false
+  if (isHardcoreMode()) {
+    hardcoreCleared = 0
+    loadLevelById(levels[0].id)
+  }
+  playClick()
+  btnStartGame.blur()
+  editorInput.focus()
+}
+
+function setDifficulty(mode) {
+  if (!['normal', 'hard', 'hardcore'].includes(mode) || getMode() === mode) return
+
+  setMode(mode)
+  hardcoreCleared = 0
+  hardcoreRunOver = false
+  hardcoreOverlay.classList.add('hidden')
+  updateStartMenu()
+  updateHintButton()
+  renderMissionStrip()
+  playClick()
+  showToast(t('menuDifficulty'), t(mode === 'hard' ? 'modeHard' : mode === 'hardcore' ? 'modeHardcore' : 'modeNormal'))
+
+  const newAchievements = checkNewAchievements()
+  if (newAchievements.length) {
+    playAchievement()
+    newAchievements.forEach(id => showAchievementToast(id))
+  }
+}
+
+function toggleEffects() {
+  setEffectsOn(!getEffectsOn())
+  updateStartMenu()
+  playClick()
+}
+
+function toggleTimer() {
+  setShowTimer(!getShowTimer())
+  updateStartMenu()
+  renderMissionStrip()
+  playClick()
+}
+
+function refreshRunOverText() {
+  runOverText.textContent = t('runOverText', { n: hardcoreCleared, level: hardcoreFailedLevel })
+}
+
+function showHardcoreOverlay(levelId) {
+  hardcoreFailedLevel = levelId
+  refreshRunOverText()
+  hardcoreOverlay.classList.remove('hidden')
+  btnRestartRun.focus()
+}
+
+function restartHardcoreRun() {
+  hardcoreOverlay.classList.add('hidden')
+  hardcoreRunOver = false
+  hardcoreCleared = 0
+  finalShown = false
+  seenBossIntros.clear()
+  loadLevelById(levels[0].id)
+  playClick()
+  editorInput.focus()
+}
+
+function showMainMenu() {
+  hardcoreOverlay.classList.add('hidden')
+  showMenuPage('home')
+  startMenu.classList.remove('hidden')
+  btnStartGame.focus()
 }
 
 function getResumeLevelId() {
@@ -244,6 +378,22 @@ function setupEventListeners() {
   editorInput.addEventListener('input', onEditorInput)
   editorInput.addEventListener('keydown', onEditorKeydown)
   editorInput.addEventListener('scroll', syncScroll)
+  btnStartGame.addEventListener('click', startGame)
+  btnMenuConfig.addEventListener('click', () => showMenuPage('config'))
+  btnConfigBack.addEventListener('click', () => showMenuPage('home'))
+  btnMenuCredits.addEventListener('click', () => showMenuPage('credits'))
+  btnCreditsBack.addEventListener('click', () => showMenuPage('home'))
+  menuSoundToggle.addEventListener('click', toggleSound)
+  menuEffectsToggle.addEventListener('click', toggleEffects)
+  menuTimerToggle.addEventListener('click', toggleTimer)
+  startMenu.addEventListener('click', (event) => {
+    const languageButton = event.target.closest('[data-menu-lang]')
+    if (languageButton) changeLanguage(languageButton.dataset.menuLang)
+    const modeButton = event.target.closest('[data-mode]')
+    if (modeButton) setDifficulty(modeButton.dataset.mode)
+  })
+  btnRestartRun.addEventListener('click', restartHardcoreRun)
+  btnRunOverMenu.addEventListener('click', showMainMenu)
   btnCheck.addEventListener('click', checkAnswer)
   btnReset.addEventListener('click', resetLevel)
   btnHint.addEventListener('click', toggleHint)
@@ -303,6 +453,11 @@ function setupEventListeners() {
     }
 
     if (e.key === 'Escape') {
+      if (!hardcoreOverlay.classList.contains('hidden')) return
+      if (!startMenu.classList.contains('hidden')) {
+        showMenuPage('home')
+        return
+      }
       closeTagsGuide()
       closeLanguageMenu()
       closeQuestModal()
@@ -314,6 +469,7 @@ function setupEventListeners() {
 }
 
 function onEditorInput() {
+  if (hardcoreRunOver) return
   startTimerIfNeeded()
   currentCSS = editorInput.value
   updateLineNumbers()
@@ -383,6 +539,7 @@ function syncScroll() {
 }
 
 function checkAnswer() {
+  if (hardcoreRunOver) return
   startTimerIfNeeded()
   const level = levels[currentLevelIndex]
   const startedAt = Date.now()
@@ -425,6 +582,10 @@ function applyCheckResult(level) {
     wrongFeedback()
     playError()
     showResult('error', 'resultError', false, null, false)
+    if (isHardcoreMode() && !hardcoreRunOver) {
+      hardcoreRunOver = true
+      setTimeout(() => showHardcoreOverlay(level.id), 450)
+    }
     return
   }
 
@@ -442,6 +603,7 @@ function applyCheckResult(level) {
     stars: earnedStars,
     timeMs: run.elapsedMs
   })
+  if (isHardcoreMode()) hardcoreCleared += 1
 
   const lastRun = {
     correct: true,
@@ -515,7 +677,7 @@ function showLevelSuccess(level, extra) {
 
   if (extra.firstSolve) {
     spawnParticles()
-    previewFrame.parentElement.classList.add('success-glow')
+    if (getEffectsOn()) previewFrame.parentElement.classList.add('success-glow')
     flashScreen('pass')
     applyStamp(previewFrame.parentElement, 'pass', 'Correct!')
   }
@@ -557,6 +719,11 @@ function toggleHint() {
     return
   }
 
+  if (!hintsAllowed()) {
+    showToast(t('menuDifficulty'), t('toastModeHintOff'), 'daily')
+    return
+  }
+
   if (!hintBox.classList.contains('visible') && !run.hintRevealed) {
     run.hintRevealed = true
     run.hintsUsed += 1
@@ -569,8 +736,9 @@ function toggleHint() {
 
 function updateHintButton() {
   btnHint.textContent = hintBox.classList.contains('visible') ? t('hideHint') : t('showHint')
-  btnHint.disabled = isDailyMode
-  btnHint.title = isDailyMode ? t('toastHintOff') : ''
+  const hintsOff = isDailyMode || !hintsAllowed()
+  btnHint.disabled = hintsOff
+  btnHint.title = hintsOff ? (isDailyMode ? t('toastHintOff') : t('toastModeHintOff')) : ''
 }
 
 function toggleExplanation() {
@@ -788,6 +956,7 @@ function hideResult() {
 }
 
 function flashScreen(kind) {
+  if (!getEffectsOn()) return
   document.querySelectorAll('.vignette-flash').forEach(f => f.remove())
   const flash = document.createElement('div')
   flash.className = 'vignette-flash ' + kind
@@ -796,6 +965,7 @@ function flashScreen(kind) {
 }
 
 function applyStamp(host, kind, text) {
+  if (!getEffectsOn()) return
   host.querySelectorAll('.stamp').forEach(s => s.remove())
   const stamp = document.createElement('div')
   stamp.className = 'stamp ' + kind
@@ -817,6 +987,7 @@ function wrongFeedback() {
 }
 
 function spawnParticles() {
+  if (!getEffectsOn()) return
   const colors = ['#50FA7B', '#BD93F9', '#FF79C6', '#8BE9FD', '#F1FA8C']
   const bannerRect = resultBanner.getBoundingClientRect()
   const cx = bannerRect.left + bannerRect.width / 2
@@ -907,6 +1078,7 @@ function applyLanguage(editorHasStarter = true) {
   updateHintButton()
   updateSoundButton()
   updateHeader()
+  updateStartMenu()
   refreshLevelText()
   previewStatus.textContent = previewIsLive ? t('live') : t('updating')
 
@@ -938,6 +1110,7 @@ function applyLanguage(editorHasStarter = true) {
   if (!questModal.classList.contains('hidden')) renderQuestBody()
   if (!bossOverlay.classList.contains('hidden')) refreshBossIntro()
   if (!finalOverlay.classList.contains('hidden')) refreshFinalStats()
+  if (!hardcoreOverlay.classList.contains('hidden')) refreshRunOverText()
   if (!devModal.classList.contains('hidden') && devUnlocked) renderDevAnswer()
 }
 
@@ -1084,7 +1257,10 @@ function renderMissionStrip(resultStars = null) {
   })
 
   missionStrip.classList.toggle('daily', isDailyMode)
-  missionStrip.title = isDailyMode ? t('missionDaily') : ''
+  missionStrip.title = isDailyMode
+    ? t('missionDaily')
+    : isHardcoreMode() ? t('missionHardcoreMode') : !hintsAllowed() ? t('missionHardMode') : ''
+  missionTimer.classList.toggle('hidden', !getShowTimer())
 }
 
 function resetRun() {
@@ -1154,6 +1330,7 @@ function updateSoundButton() {
   btnSound.setAttribute('aria-pressed', String(isSoundEnabled()))
   btnSound.textContent = isSoundEnabled() ? 'SFX ON' : 'SFX OFF'
   btnSound.title = `${t('toggleSound')} (${t(isSoundEnabled() ? 'soundOn' : 'soundOff')})`
+  updateStartMenu()
 }
 
 function getCampaignTimeMs(state) {
@@ -1172,6 +1349,7 @@ function buildAchievementContext(lastRun = null) {
     totalLevels: levels.length,
     totalStars: getTotalStars(),
     completionTimeMs: getCampaignTimeMs(progress),
+    mode: getMode(),
     lastRun
   }
 }
@@ -1592,7 +1770,11 @@ function resetGame() {
   closeQuestModal()
   finalOverlay.classList.add('hidden')
   bossOverlay.classList.add('hidden')
+  hardcoreOverlay.classList.add('hidden')
+  hardcoreCleared = 0
+  hardcoreRunOver = false
   loadLevelById(levels[0].id)
+  updateHintButton()
   updateHeader()
 }
 

@@ -10,6 +10,102 @@
   <link rel="stylesheet" href="/src/styles.css" />
 </head>
 <body>
+  <div class="start-menu" id="startMenu" role="dialog" aria-modal="true" aria-labelledby="startTitle">
+    <div class="start-menu-inner">
+      <div class="start-menu-main" id="menuHome">
+        <div class="start-brand">
+          <img class="start-emblem" src="/src/assets/deadlocklockkcol.jpeg" alt="" aria-hidden="true" />
+          <span class="start-kicker" data-i18n="menuKicker">A Flexbox Puzzle Game</span>
+          <h1 class="start-title" id="startTitle">CSS QUEST</h1>
+          <p class="start-tagline" data-i18n="menuTagline">Solve puzzles. Master Flexbox.</p>
+        </div>
+        <nav class="start-nav" aria-label="Main menu">
+          <button class="start-nav-btn primary" id="btnStartGame">
+            <span data-i18n="menuStartGame">Start Game</span>
+            <span class="start-nav-arrow" aria-hidden="true">&#8594;</span>
+          </button>
+          <button class="start-nav-btn" id="btnMenuConfig" data-i18n="menuConfigurations">Configurations</button>
+          <button class="start-nav-btn" id="btnMenuCredits" data-i18n="menuCredits">Credits</button>
+        </nav>
+        <p class="start-footer" data-i18n="menuFooter">Learn layouts one level at a time.</p>
+      </div>
+
+      <div class="start-panel hidden" id="menuConfig">
+        <div class="start-panel-head">
+          <h2 data-i18n="menuConfigurations">Configurations</h2>
+          <button class="start-back" id="btnConfigBack">
+            <span aria-hidden="true">&#8592;</span> <span data-i18n="menuBack">Back</span>
+          </button>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong data-i18n="menuDifficulty">Difficulty</strong>
+            <p data-i18n="menuDifficultyHelp">Change the rules of your run.</p>
+          </div>
+          <div class="mode-options" id="modeOptions">
+            <button class="mode-btn" type="button" data-mode="normal">
+              <strong data-i18n="modeNormal">Normal</strong>
+              <small data-i18n="modeNormalHelp">Hints on</small>
+            </button>
+            <button class="mode-btn" type="button" data-mode="hard">
+              <strong data-i18n="modeHard">Hard</strong>
+              <small data-i18n="modeHardHelp">No hints</small>
+            </button>
+            <button class="mode-btn" type="button" data-mode="hardcore">
+              <strong data-i18n="modeHardcore">Hardcore</strong>
+              <small data-i18n="modeHardcoreHelp">No hints, one life</small>
+            </button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong data-i18n="menuSound">Sound effects</strong>
+            <p data-i18n="menuSoundHelp">Short tones when you solve a level.</p>
+          </div>
+          <button class="setting-toggle" id="menuSoundToggle" aria-pressed="false">SFX OFF</button>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong data-i18n="menuLanguage">Language</strong>
+            <p data-i18n="menuLanguageHelp">Interface and level texts.</p>
+          </div>
+          <div class="setting-languages">
+            <button class="start-lang-btn" type="button" data-menu-lang="en">EN</button>
+            <button class="start-lang-btn" type="button" data-menu-lang="pt-BR">PT</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong data-i18n="menuEffects">Celebration effects</strong>
+            <p data-i18n="menuEffectsHelp">Particles, flashes and stamps.</p>
+          </div>
+          <button class="setting-toggle" id="menuEffectsToggle" aria-pressed="true">ON</button>
+        </div>
+        <div class="setting-row">
+          <div>
+            <strong data-i18n="menuTimer">Show timer</strong>
+            <p data-i18n="menuTimerHelp">Display the time on the mission strip.</p>
+          </div>
+          <button class="setting-toggle" id="menuTimerToggle" aria-pressed="true">ON</button>
+        </div>
+      </div>
+
+      <div class="start-panel hidden" id="menuCredits">
+        <div class="start-panel-head">
+          <h2 data-i18n="menuCredits">Credits</h2>
+          <button class="start-back" id="btnCreditsBack">
+            <span aria-hidden="true">&#8592;</span> <span data-i18n="menuBack">Back</span>
+          </button>
+        </div>
+        <p class="credits-text" data-i18n="menuCreditsText">CSS Quest was created as a learning project.</p>
+        <ul class="credits-list">
+          <li><span data-i18n="creditCreatorLabel">Creator</span>: <strong>Rodrigo Nakayama</strong></li>
+          <li><span data-i18n="creditTeacherLabel">Teacher</span>: <strong>Bruno Tadeu</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
   <header class="header">
     <div class="header-left">
       <h1 class="logo">&lt;CSS Quest/&gt;</h1>
@@ -194,6 +290,18 @@
       <div class="final-actions">
         <button class="btn btn-check" id="btnPlayAgain" data-i18n="playAgain">Play again</button>
         <button class="btn btn-tags" id="btnReviewLevels" data-i18n="reviewLevels">Review levels</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="final-overlay hidden" id="hardcoreOverlay">
+    <div class="final-card run-over-card">
+      <span class="final-kicker" data-i18n="modeHardcore">Hardcore</span>
+      <h2 class="final-title" id="runOverTitle" data-i18n="runOverTitle">Run Over!</h2>
+      <p class="final-text" id="runOverText"></p>
+      <div class="final-actions">
+        <button class="btn btn-check" id="btnRestartRun" data-i18n="runOverRestart">Restart from level 1</button>
+        <button class="btn btn-tags" id="btnRunOverMenu" data-i18n="runOverMenu">Main menu</button>
       </div>
     </div>
   </div>

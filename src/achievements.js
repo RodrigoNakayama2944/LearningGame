@@ -204,6 +204,24 @@ export const achievements = [
     check: context => finishedWithin(context, 15)
   },
   {
+    id: 'hardMode',
+    title: { en: 'No Hints, No Fear', 'pt-BR': 'Sem Dicas, Sem Medo' },
+    description: {
+      en: 'Turn on Hard mode.',
+      'pt-BR': 'Ative o modo difícil.'
+    },
+    check: context => context.mode === 'hard'
+  },
+  {
+    id: 'hardcoreMode',
+    title: { en: 'One Life', 'pt-BR': 'Uma Vida Só' },
+    description: {
+      en: 'Turn on Hardcore mode: no hints and one life.',
+      'pt-BR': 'Ative o modo hardcore: sem dicas e uma vida.'
+    },
+    check: context => context.mode === 'hardcore'
+  },
+  {
     id: 'skeletonSeen',
     secret: true,
     title: { en: 'The Skeleton Is Loose', 'pt-BR': 'O Esqueleto Solto' },

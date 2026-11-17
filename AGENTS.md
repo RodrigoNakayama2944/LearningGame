@@ -16,7 +16,8 @@ Não é um projeto React e não consome uma API Express.
 
 O jogo tem 30 níveis em 8 mundos (chefes nos níveis 4, 8, 12, 16, 20, 24, 28 e 30),
 estrelas, XP, ranks, desbloqueio sequencial, mapa de missões, conquistas,
-desafio diário e efeitos sonoros opcionais. O progresso fica no localStorage
+desafio diário, modos normal/difícil/hardcore e efeitos sonoros opcionais.
+O progresso fica no localStorage
 (chave "cssquest-progress-v1"). Não há login, banco de dados nem backend.
 
 ## Regras importantes
@@ -35,6 +36,8 @@ desafio diário e efeitos sonoros opcionais. O progresso fica no localStorage
 - Registrar cada prompt do usuário no topo de summary.txt (mais recente primeiro)
   antes de iniciar alterações, com status IN PROGRESS ou COMPLETED e um resumo
   do resultado. Se os tokens acabarem antes de terminar, deixar IN PROGRESS.
+  Exceção: NÃO registrar prompts que servem apenas para ler arquivos
+  (por exemplo, "read the summary.txt and agents.md files").
 - Perguntar ao usuário antes de commitar ou fazer push para o GitHub.
 
 ## Arquivos principais
@@ -47,8 +50,8 @@ desafio diário e efeitos sonoros opcionais. O progresso fica no localStorage
 - src/progress.js: progresso no localStorage, desbloqueio, estrelas, diário e
   registro do esqueleto visto
 - src/quest-map.js: mundos, chefes, totais e ranks
-- src/achievements.js: as 23 conquistas em inglês e português, incluindo as de
-  tempo e a conquista secreta do esqueleto
+- src/achievements.js: as 25 conquistas em inglês e português, incluindo as de
+  tempo, as dos modos difícil/hardcore e a conquista secreta do esqueleto
 - src/sound.js: efeitos sonoros com Web Audio (desligados por padrão)
 - src/preview.js: renderização dos iframes de preview e alvo
 - src/styles.css: tema Dracula, editor, HUD, mapa, overlays e responsividade

@@ -3,6 +3,30 @@ CSS QUEST - PROJECT SUMMARY
 
 PROMPT LOG (newest first)
 -------------------------
+2026-11-17 — "sooooo open code, add the credits back, with the creator name as Rodrigo Nakayama and teacher as Bruno Tadeu"
+  Status: COMPLETED
+  Outcome: Restored the Credits button and panel in the main menu with Rodrigo Nakayama as creator and Bruno Tadeu as teacher, in English and Portuguese. npm run build and headless Chrome checks passed.
+
+2026-11-17 — "remove the credits of the game, add more configs and a hard mode, which will have no hints and a hardcore mode which has no hints and one life, making it so one mistake ends your run and have to restart from the beginning, both granting achievements"
+  Status: COMPLETED
+  Outcome: Removed the Credits screen, expanded Configurations with difficulty, celebration effects and timer settings, and added Hard (no hints) and Hardcore (no hints, one life; a wrong check ends the run and restarts at level 1). Both modes unlock achievements. npm run build and headless Chrome checks passed.
+
+2026-11-17 — "remove the transparent logo in the back"
+  Status: COMPLETED
+  Outcome: Deleted the .start-menu::before background watermark rule from styles.css, leaving only the main logo image in the menu. npm run build passed.
+
+2026-11-17 — "use the deadlocklockkcol image and use it as the logo, dont create just a pause like menu, create a full main menu one, with the start game, configurations, credits"
+  Status: COMPLETED
+  Outcome: Replaced the small dialog with a full-screen main menu using src/assets/deadlocklockkcol.jpeg as the logo (also a faint background watermark). The menu has Start Game, Configurations (sound toggle and EN/PT language) and Credits screens, with Back/Escape navigation and pt-BR translations. npm run build and headless Chrome checks passed.
+
+2026-11-17 — "add a menu, with the name of the game and a logo, which will be the deadlock logo but with the game's name"
+  Status: COMPLETED
+  Outcome: Added a full-screen start menu with a Deadlock-inspired orange seal (CQ monogram and diagonal slashes), the CSS QUEST wordmark, EN/PT buttons and a Start/Continue button that focuses the editor. Text is translated in i18n.js; menu logic lives in main.js and styles in styles.css. npm run build and headless Chrome checks passed.
+
+2026-11-17 — "whenever the prompt is to read the files dont add it to the summary as a log of prompt"
+  Status: COMPLETED
+  Outcome: Added an exception to the summary logging rule in AGENTS.md so read-only prompts are not logged, and removed the two existing "read the summary.txt and agents.md files" entries from the prompt log.
+
 2026-11-17 — "add time achievements based on how quickly the game was finished, use names like 'Speedrunner' complete the game in x minutes, and add another one that is a secret achievement for seeing the skeleton run past your screen"
   Status: COMPLETED
   Outcome: Added three full-completion time achievements (60/30/15 minutes) and the hidden "The Skeleton Is Loose" achievement, which unlocks when the running skeleton animation plays. Hidden achievements show as "???" until unlocked, and skeleton sightings persist in localStorage. npm run build and headless Chrome checks passed.
@@ -10,10 +34,6 @@ PROMPT LOG (newest first)
 2026-11-17 — "add more 10 levels, trying to pick off of difficulty of the last level and increasing it bit by bit, making use of different tags together"
   Status: COMPLETED
   Outcome: Added levels 21-30 in English and pt-BR, with geometry validators, three new quest-map worlds (6-8), bosses at 24/28/30, three world achievements, row-gap/column-gap guide entries and updated docs. All 30 solutions pass their validators in headless Chrome; npm run build passed.
-
-2026-11-17 — "read the summary.txt and agents.md files"
-  Status: COMPLETED
-  Outcome: Read both files and returned their contents. No code was changed.
 
 2026-11-05 — "make the skeleton cross the screen in 0.75seconds"
   Status: IN PROGRESS
@@ -134,11 +154,19 @@ GAME LAYER (STARS, XP, MAP, ACHIEVEMENTS)
   previous one solved. Locked levels show a lock on the Quest Map.
 - Quest Map modal: two tabs. "Levels" shows the 8 worlds, per-level stars,
   best time, current level and a Daily Challenge card. "Achievements" shows
-  all 23 badges (world clears, speed, daily streak, linguist, perfectionist,
-  boss slayer, quest complete, three full-completion time tiers and one hidden
-  skeleton achievement). A reset-progress button also lives in this modal.
+  all 25 badges (world clears, speed, daily streak, linguist, perfectionist,
+  boss slayer, quest complete, three full-completion time tiers, hard/hardcore
+  mode badges and one hidden skeleton achievement). A reset-progress button
+  also lives in this modal.
 - Daily Challenge: picks a solved level based on the local date, disables
   hints and tracks a day streak. It does not add a separate XP reward.
+- Main menu Configurations: sound, language, difficulty (Normal / Hard / Hardcore),
+  celebration effects and timer visibility are saved in localStorage.
+  Hard disables hints. Hardcore disables hints and has one life: one wrong
+  check opens a Run Over screen whose restart button goes back to level 1.
+  Choosing Hard or Hardcore unlocks its own achievement.
+- Credits screen: available from the main menu, names Rodrigo Nakayama as
+  creator and Bruno Tadeu as teacher, in English and Portuguese.
 - Boss levels show a short intro overlay before play. The final level opens a
   completion overlay with total stars, XP and rank.
 - Sound effects are OFF by default for classroom use. They use the Web Audio
@@ -384,7 +412,7 @@ KEY FILES
 - src/progress.js: versioned localStorage save, level records, totals,
   unlocks, achievements, daily state and streak
 - src/quest-map.js: 8 worlds, boss IDs, star/XP constants and rank helpers
-- src/achievements.js: the 23 achievement definitions, en/pt-BR text and hidden flag
+- src/achievements.js: the 25 achievement definitions, en/pt-BR text and hidden flag
 - src/sound.js: Web Audio generated sound effects with mute support
 - src/styles.css: Dracula theme, editor, HUD, mission strip, map,
   achievements, overlays, toasts, skeleton runner animation, focus states and
