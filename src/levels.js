@@ -612,35 +612,37 @@ const levels = [
   },
   {
     id: 4,
-    title: 'Flexbox Wrapping',
-    description: 'The tags overflow the container. Make them wrap to the next line when there is not enough space. The space between the tags is already set.',
-    hint: 'The tags should form several rows instead of one long line. When the items do not fit, flexbox can push them to a new line. The gap is already in the starter code.',
-    html: `<div class="container">
-  <div class="box">HTML</div>
-  <div class="box">CSS</div>
-  <div class="box">Flex</div>
-  <div class="box">Wrap</div>
-  <div class="box">Grid</div>
-  <div class="box">Text</div>
+    title: 'Boss: The Quest Board',
+    description: 'Six quest badges must form two centered columns of three. Stack them in a column, let them wrap into two columns, center every column vertically and every badge inside its column, and keep an equal gap.',
+    hint: 'This boss uses every idea from World 1. Change the direction so the main axis is vertical, allow wrapping so the badges make two columns, then use one alignment property for the whole column and one for the items inside each column.',
+    html: `<div class="board">
+  <div class="badge">Quest 1</div>
+  <div class="badge">Quest 2</div>
+  <div class="badge">Quest 3</div>
+  <div class="badge">Quest 4</div>
+  <div class="badge">Quest 5</div>
+  <div class="badge">Quest 6</div>
 </div>`,
-    starterCSS: `.container {
+    starterCSS: `.board {
   width: 100%;
   max-width: 16rem;
+  height: 11rem;
   padding: 1rem;
   background: #e2e8f0;
   border-radius: 0.5rem;
   display: flex;
   gap: 0.75rem;
 
-  /* ?? make the tags wrap ?? */
+  /* ?? stack in two centered columns ?? */
 }
 
-.box {
-  padding: 0.75rem 1rem;
+.badge {
+  padding: 0.6rem 0.8rem;
   background: #3b82f6;
   color: white;
   border-radius: 0.5rem;
   font-weight: bold;
+  text-align: center;
 }`,
     themeCSS: `.container {
   background:
@@ -671,65 +673,76 @@ const levels = [
 .box:nth-child(6) { background: linear-gradient(135deg, #fef08a, #fde047); }`,
     solutions: [
       {
-        css: `.container {
+        css: `.board {
   width: 100%;
   max-width: 16rem;
+  height: 11rem;
   padding: 1rem;
   background: #e2e8f0;
   border-radius: 0.5rem;
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
   gap: 0.75rem;
 }
-.box {
-  padding: 0.75rem 1rem;
+.badge {
+  padding: 0.6rem 0.8rem;
   background: #3b82f6;
   color: white;
   border-radius: 0.5rem;
   font-weight: bold;
+  text-align: center;
 }`,
         explanation: [
-          {
-            label: 'div.container',
-            text: 'The flex container. Its width is limited, and the six tags together ask for more room than it can offer.'
-          },
-          {
-            label: 'div.box',
-            text: 'Six flex items with short words. Each tag gets its size from its text and padding, so the layout adapts to the content.'
-          },
-          {
-            label: 'display: flex',
-            text: 'Already in the starter code. It makes the six tags flex items instead of normal block boxes.'
-          },
-          {
-            label: 'flex-wrap: wrap',
-            text: 'By default flex items <em>shrink</em> (<code>flex-shrink: 1</code>) to fit in one single line. With <code>wrap</code>, an item that does not fit moves to a new line instead of being squashed.'
-          },
-          {
-            label: 'gap',
-            text: 'Already in the starter code. It keeps the same space between the items of a row and between the rows themselves, so the grid of tags looks even.'
-          },
-          {
-            label: 'padding',
-            text: 'Space <em>inside</em> each tag, between its border and its text. Padding belongs to the element itself, while margin lives outside it.'
-          }
+          { label: 'display: flex', text: 'Already in the starter. It turns the board into a flex container and the six badges into flex items.' },
+          { label: 'flex-direction: column', text: 'From level 2: the main axis becomes vertical, so the badges try to stack from top to bottom.' },
+          { label: 'flex-wrap: wrap', text: 'From level 4: the six badges do not fit in the fixed height, so they form a second column instead of overflowing.' },
+          { label: 'justify-content: center', text: 'From level 1: it centers the badges inside each column along the main axis, which is now vertical.' },
+          { label: 'align-items: center', text: 'From level 1: it centers each badge inside its column along the cross axis, which is now horizontal.' },
+          { label: 'gap', text: 'From level 3: the same fixed space between the badges of a column and between the two columns.' }
         ],
-        tip: 'Wrapping always happens on the main axis: in a row layout the items wrap into new rows, and in a column layout they wrap into new columns. Resize the container width in the editor and watch the rows rearrange themselves.'
+        tip: 'A boss is several small puzzles at once: direction from level 2, wrapping from level 4 and the two alignments from level 1. Ask yourself which way the main axis points, then choose the property that works on it.'
       }
     ],
     validate(iframe) {
       const doc = iframe.contentDocument
-      const container = doc.querySelector('.container')
-      const boxes = doc.querySelectorAll('.box')
-      if (!container || boxes.length !== 6) return false
-      const style = iframe.contentWindow.getComputedStyle(container)
-      if (style.display !== 'flex' || style.flexWrap !== 'wrap') return false
-      if (!(parseFloat(style.columnGap) > 0)) return false
-      const rows = new Set()
-      for (const box of boxes) {
-        rows.add(Math.round(box.getBoundingClientRect().top))
-      }
-      return rows.size >= 2
+            const win = iframe.contentWindow
+            const board = doc.querySelector('.board')
+            const badges = [...doc.querySelectorAll('.badge')]
+            if (!board || badges.length !== 6) return false
+            const style = win.getComputedStyle(board)
+            if (style.display !== 'flex' || style.flexDirection !== 'column' || style.flexWrap !== 'wrap') return false
+            if (style.justifyContent !== 'center' || style.alignItems !== 'center') return false
+            if (!(parseFloat(style.rowGap) > 0)) return false
+            if (board.scrollWidth > board.clientWidth + 3 || board.scrollHeight > board.clientHeight + 3) return false
+      
+            const rects = badges.map(badge => badge.getBoundingClientRect())
+            const columns = []
+            for (const rect of rects) {
+              const last = columns[columns.length - 1]
+              if (last && Math.abs(rect.left - last[0].left) < 8) last.push(rect)
+              else columns.push([rect])
+            }
+            if (columns.length !== 2 || columns.some(column => column.length !== 3)) return false
+      
+            const boardRect = board.getBoundingClientRect()
+            const contentTop = boardRect.top + board.clientTop + parseFloat(style.paddingTop)
+            const contentBottom = boardRect.bottom - board.clientTop - parseFloat(style.paddingBottom)
+            const contentLeft = boardRect.left + board.clientLeft + parseFloat(style.paddingLeft)
+            const contentRight = boardRect.right - board.clientLeft - parseFloat(style.paddingRight)
+            const centers = []
+            for (const column of columns) {
+              const top = Math.min(...column.map(rect => rect.top))
+              const bottom = Math.max(...column.map(rect => rect.bottom))
+              if (Math.abs(top - contentTop - (contentBottom - bottom)) > 14) return false
+              centers.push((Math.min(...column.map(rect => rect.left)) + Math.max(...column.map(rect => rect.right))) / 2)
+            }
+            centers.sort((a, b) => a - b)
+            const contentWidth = contentRight - contentLeft
+            return Math.abs(centers[0] - (contentLeft + contentWidth * 0.25)) < 18 &&
+              Math.abs(centers[1] - (contentLeft + contentWidth * 0.75)) < 18
     }
   },
   {
@@ -1156,14 +1169,20 @@ const levels = [
   },
   {
     id: 8,
-    title: 'Spreading Items with space-between',
-    description: 'The four buttons are glued together on the left. Spread them across the whole row with the same space between them.',
-    hint: 'There is empty space inside the container and the four buttons must use all of it. Flexbox has three ways to distribute that space between the items, and only one of them glues the first and the last button to the edges.',
+    title: 'Boss: The Control Panel',
+    description: 'Combine the four ideas of World 2 in one panel. The three steps must be spread to both edges but shown in reverse order, and the three bars below must wrap, keep a minimum readable width, with the middle bar receiving twice the growth share.',
+    hint: 'The upper row needs a distribution value and an order value. The lower row needs wrapping, a minimum width on every bar and a growing number that gives the middle bar two shares instead of one.',
     html: `<div class="container">
-  <div class="button">One</div>
-  <div class="button">Two</div>
-  <div class="button">Three</div>
-  <div class="button">Four</div>
+  <div class="steps">
+    <div class="step step-1">Plan</div>
+    <div class="step step-2">Build</div>
+    <div class="step step-3">Ship</div>
+  </div>
+  <div class="bars">
+    <div class="bar bar-1">HTML</div>
+    <div class="bar bar-2">CSS</div>
+    <div class="bar bar-3">JS</div>
+  </div>
 </div>`,
     starterCSS: `.container {
   width: 100%;
@@ -1172,17 +1191,38 @@ const levels = [
   background: #e2e8f0;
   border-radius: 0.5rem;
   display: flex;
-  align-items: center;
+  gap: 0.75rem;
 
-  /* ?? spread the buttons across the row ?? */
+  /* ?? stack the two rows ?? */
 }
 
-.button {
-  padding: 0.75rem 1rem;
+.steps {
+  gap: 0.5rem;
+
+  /* ?? spread the steps but reverse their order ?? */
+}
+
+.step {
+  padding: 0.6rem 0.8rem;
   background: #3b82f6;
   color: white;
   border-radius: 0.5rem;
   font-weight: bold;
+}
+
+.bars {
+  gap: 0.5rem;
+
+  /* ?? wrap the bars and set their minimum width ?? */
+}
+
+.bar {
+  padding: 0.6rem 0.4rem;
+  background: #8b5cf6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  text-align: center;
 }`,
     solutions: [
       {
@@ -1193,71 +1233,87 @@ const levels = [
   background: #e2e8f0;
   border-radius: 0.5rem;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 0.75rem;
 }
-.button {
-  padding: 0.75rem 1rem;
+.steps {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.step {
+  padding: 0.6rem 0.8rem;
   background: #3b82f6;
   color: white;
   border-radius: 0.5rem;
   font-weight: bold;
-}`,
+}
+.step-1 { order: 3; }
+.step-2 { order: 2; }
+.step-3 { order: 1; }
+.bars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.bar {
+  flex: 1 1 0;
+  min-width: 4rem;
+  padding: 0.6rem 0.4rem;
+  background: #8b5cf6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+}
+.bar-2 { flex-grow: 2; }`,
         explanation: [
-          {
-            label: 'div.container',
-            text: 'The flex container. The four buttons take their own size from the text and padding, so the rest of the width is free space to distribute.'
-          },
-          {
-            label: 'div.button',
-            text: 'Four flex items. With the default <code>justify-content</code> they all stay glued to the left edge.'
-          },
-          {
-            label: 'display: flex',
-            text: 'Already in the starter code. It puts the four buttons in a single row.'
-          },
-          {
-            label: 'justify-content: space-between',
-            text: 'Puts the first button at the start of the row and the last one at the end, spreading the free space equally between the buttons.'
-          },
-          {
-            label: 'justify-content: space-around',
-            text: 'Almost the same idea, but it also adds half of the gap space at the edges, so the first button does not touch the left border.'
-          },
-          {
-            label: 'justify-content: space-evenly',
-            text: 'Spreads the free space equally everywhere, including the edges, so the gap at the borders is the same size as the gap between the buttons.'
-          },
-          {
-            label: 'align-items: center',
-            text: 'Already in the starter code. It centers the buttons vertically inside the row.'
-          }
+          { label: 'div.container', text: 'The outer flex container, in column direction. It stacks the two rows and keeps a gap between them.' },
+          { label: 'justify-content: space-between (.steps)', text: 'From level 8: the first step touches the left edge and the last one touches the right edge, with equal space between them.' },
+          { label: 'order: 3 / 2 / 1', text: 'From level 5: the visual order becomes Ship, Build, Plan while the HTML stays Plan, Build, Ship.' },
+          { label: 'flex-wrap: wrap (.bars)', text: 'From level 6: the bars are allowed to move to a new line instead of being squeezed forever.' },
+          { label: 'min-width: 4rem (.bar)', text: 'From level 6: a bar never becomes narrower than this, so the text stays readable.' },
+          { label: 'flex-grow: 2 (.bar-2)', text: 'From level 7: the middle bar receives two shares of the free space while the other two receive one each.' }
         ],
-        tip: 'The three space options differ only in what happens with the leftover space: <code>space-between</code> glues the first and the last item to the edges, <code>space-around</code> leaves half a gap at the edges, and <code>space-evenly</code> leaves a full gap at the edges.'
+        tip: 'Read the target as two separate puzzles: ordering and distribution on the first row, sizing and wrapping on the second. A boss is easier when you solve one flex container at a time.'
       }
     ],
     validate(iframe) {
       const doc = iframe.contentDocument
-      const container = doc.querySelector('.container')
-      if (!container) return false
-      const style = iframe.contentWindow.getComputedStyle(container)
-      if (style.display !== 'flex') return false
-      const buttons = doc.querySelectorAll('.button')
-      if (buttons.length !== 4) return false
-      const rects = [...buttons].map(button => button.getBoundingClientRect())
-      const cRect = container.getBoundingClientRect()
-      const contentLeft = cRect.left + parseFloat(style.paddingLeft)
-      const contentRight = cRect.right - parseFloat(style.paddingRight)
-      if (Math.abs(rects[0].left - contentLeft) > 8) return false
-      if (Math.abs(rects[3].right - contentRight) > 8) return false
-      const gaps = []
-      for (let i = 1; i < rects.length; i++) {
-        gaps.push(rects[i].left - rects[i - 1].right)
-      }
-      const biggest = Math.max(...gaps)
-      const smallest = Math.min(...gaps)
-      if (smallest <= 0) return false
-      return biggest - smallest <= 10
+            const win = iframe.contentWindow
+            const container = doc.querySelector('.container')
+            const steps = doc.querySelector('.steps')
+            const stepEls = [...doc.querySelectorAll('.step')]
+            const bars = doc.querySelector('.bars')
+            const barEls = [...doc.querySelectorAll('.bar')]
+            if (!container || !steps || stepEls.length !== 3 || !bars || barEls.length !== 3) return false
+      
+            const containerStyle = win.getComputedStyle(container)
+            const stepsStyle = win.getComputedStyle(steps)
+            const barsStyle = win.getComputedStyle(bars)
+            if (containerStyle.display !== 'flex' || containerStyle.flexDirection !== 'column') return false
+            if (stepsStyle.display !== 'flex' || stepsStyle.justifyContent !== 'space-between') return false
+            if (barsStyle.display !== 'flex' || barsStyle.flexWrap !== 'wrap') return false
+      
+            const orders = stepEls.map(step => parseInt(win.getComputedStyle(step).order, 10))
+            if (!(orders[0] > orders[1] && orders[1] > orders[2])) return false
+            const stepRects = stepEls.map(step => step.getBoundingClientRect())
+            if (!(stepRects[2].left < stepRects[1].left && stepRects[1].left < stepRects[0].left)) return false
+      
+            const stepsRect = steps.getBoundingClientRect()
+            const contentLeft = stepsRect.left + steps.clientLeft + parseFloat(stepsStyle.paddingLeft)
+            const contentRight = stepsRect.right - steps.clientLeft - parseFloat(stepsStyle.paddingRight)
+            if (Math.abs(stepRects[2].left - contentLeft) > 12) return false
+            if (Math.abs(contentRight - stepRects[0].right) > 12) return false
+            const stepGaps = [stepRects[1].right - stepRects[2].left, stepRects[0].right - stepRects[1].left]
+            if (stepGaps.some(gap => gap <= 0) || Math.abs(stepGaps[0] - stepGaps[1]) > 10) return false
+      
+            const grows = barEls.map(bar => parseFloat(win.getComputedStyle(bar).flexGrow))
+            if (!(grows[1] === grows[0] * 2 && grows[1] === grows[2] * 2)) return false
+            if (!(parseFloat(win.getComputedStyle(barEls[0]).minWidth) > 0)) return false
+            const widths = barEls.map(bar => bar.getBoundingClientRect().width)
+            if (widths.some(width => width < 20)) return false
+            return Math.abs(widths[1] / widths[0] - 2) < 0.3 && Math.abs(widths[1] / widths[2] - 2) < 0.3
     }
   },
   {
@@ -1612,15 +1668,20 @@ const levels = [
   },
   {
     id: 12,
-    title: 'Flexbox Inside Flexbox',
-    description: 'The avatar and the title should be side by side in the card header, but they are stacked on top of each other.',
-    hint: 'The header already has a distance between the items and it centers them vertically, but neither of those has any effect. Both of them are ignored when the element is not really a flex container.',
+    title: 'Boss: The Dashboard Card',
+    description: 'Finish the card. The header must be a flex row where the badge breaks the centering rule and drops to the bottom on the right. The footer keeps a long label on the left and a button that refuses to shrink.',
+    hint: 'Four fixes from World 3: give the header display:flex, use a self alignment on the badge, give that badge an automatic left margin, and protect the button from shrinking in the nested footer row.',
     html: `<div class="card">
   <div class="header">
     <div class="avatar">A</div>
     <h2 class="title">Card title</h2>
+    <div class="badge">New</div>
   </div>
   <p class="body">This is the card body. It takes the space that is left.</p>
+  <div class="footer">
+    <div class="label">A long label that needs room to fit</div>
+    <div class="button">Keep me</div>
+  </div>
 </div>`,
     starterCSS: `.card {
   width: 100%;
@@ -1630,18 +1691,18 @@ const levels = [
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .header {
-
-  /* ?? put the avatar and the title side by side ?? */
-  gap: 0.75rem;
   align-items: center;
+  gap: 0.75rem;
+
+  /* ?? row, badge right and at the bottom ?? */
 }
 
 .avatar {
-  padding: 1rem;
+  padding: 1.25rem 1rem;
   background: #3b82f6;
   color: white;
   border-radius: 0.5rem;
@@ -1653,13 +1714,50 @@ const levels = [
   font-size: 1.25rem;
 }
 
+.badge {
+  padding: 0.35rem 0.6rem;
+  background: #ec4899;
+  color: white;
+  border-radius: 999px;
+  font-weight: bold;
+
+  /* ?? break the centering rule and go right ?? */
+}
+
 .body {
   flex: 1;
   margin: 0;
-  padding: 1rem;
-  background: #ec4899;
+  padding: 0.75rem;
+  background: #f1f5f9;
+  border-radius: 0.5rem;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.label {
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 0.75rem;
+  background: #e2e8f0;
+  border-radius: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.button {
+  padding: 0.6rem 0.8rem;
+  background: #8b5cf6;
   color: white;
   border-radius: 0.5rem;
+  font-weight: bold;
+  white-space: nowrap;
+
+  /* ?? keep the button from shrinking ?? */
 }`,
     solutions: [
       {
@@ -1671,84 +1769,98 @@ const levels = [
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 .header {
   display: flex;
-  gap: 0.75rem;
   align-items: center;
+  gap: 0.75rem;
 }
 .avatar {
-  padding: 1rem;
+  padding: 1.25rem 1rem;
   background: #3b82f6;
   color: white;
   border-radius: 0.5rem;
   font-weight: bold;
 }
-.title {
-  margin: 0;
-  font-size: 1.25rem;
-}
-.body {
-  flex: 1;
-  margin: 0;
-  padding: 1rem;
+.title { margin: 0; font-size: 1.25rem; }
+.badge {
+  margin-left: auto;
+  align-self: flex-end;
+  padding: 0.35rem 0.6rem;
   background: #ec4899;
   color: white;
+  border-radius: 999px;
+  font-weight: bold;
+}
+.body { flex: 1; margin: 0; padding: 0.75rem; background: #f1f5f9; border-radius: 0.5rem; }
+.footer { display: flex; align-items: center; gap: 0.75rem; }
+.label {
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 0.75rem;
+  background: #e2e8f0;
   border-radius: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.button {
+  flex-shrink: 0;
+  padding: 0.6rem 0.8rem;
+  background: #8b5cf6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  white-space: nowrap;
 }`,
         explanation: [
-          {
-            label: 'div.card',
-            text: 'The outer flex container, in column direction. It stacks the header and the body vertically.'
-          },
-          {
-            label: 'div.header',
-            text: 'It should be a flex container as well, but it misses the <code>display: flex</code>. Without it the avatar and the title are normal blocks.'
-          },
-          {
-            label: 'div.avatar',
-            text: 'The first flex item of the header. It is a rounded badge with a letter, and its size comes from the text and the padding.'
-          },
-          {
-            label: 'h2.title',
-            text: 'The second flex item. It is a real heading with text, so the layout is built from content instead of an empty bar.'
-          },
-          {
-            label: 'display: flex',
-            text: 'The missing piece. It turns the header into a flex container, so the avatar and the title become flex items in a row.'
-          },
-          {
-            label: 'gap',
-            text: 'Already in the starter code. It only works on a flex container, that is why the gap did nothing until <code>display: flex</code> was added.'
-          },
-          {
-            label: 'align-items: center',
-            text: 'Already in the starter code. It centers the title vertically against the avatar.'
-          },
-          {
-            label: 'flex: 1',
-            text: 'Inside the .body it takes the height that is left in the card, because the card is a column flex container.'
-          }
+          { label: 'div.card', text: 'The outer column, already in the starter. It stacks the header, the body and the footer.' },
+          { label: 'display: flex (.header)', text: 'From level 12: without it the gap and align-items do nothing and the avatar, title and badge stay stacked.' },
+          { label: 'align-items: center (.header)', text: 'The rule for the whole header: avatar and title stay centered on the cross axis.' },
+          { label: 'align-self: flex-end (.badge)', text: 'From level 9: one item breaks the rule and moves to the end of the cross axis, which is the bottom of the row.' },
+          { label: 'margin-left: auto (.badge)', text: 'From level 10: the automatic margin eats the free space on the left, pushing the badge to the right edge.' },
+          { label: 'flex-shrink: 0 (.button)', text: 'From level 11: the button keeps the width of its text while the long label in the footer shrinks.' }
         ],
-        tip: 'Flexbox works inside flexbox: any element can become a flex container. The rule of thumb is simple: whenever you write <code>gap</code> or <code>align-items</code>, check if that element really has <code>display: flex</code>, otherwise those properties do nothing.'
+        tip: 'The container sets the rule, the item can break it with align-self, and an automatic margin decides who gets the free space. Combine those with a protected size and you can build almost any toolbar.'
       }
     ],
     validate(iframe) {
       const doc = iframe.contentDocument
-      const header = doc.querySelector('.header')
-      const avatar = doc.querySelector('.avatar')
-      const title = doc.querySelector('.title')
-      if (!header || !avatar || !title) return false
-      const style = iframe.contentWindow.getComputedStyle(header)
-      if (style.display !== 'flex') return false
-      const avatarRect = avatar.getBoundingClientRect()
-      const titleRect = title.getBoundingClientRect()
-      const gap = titleRect.left - avatarRect.right
-      if (gap <= 0) return false
-      const avatarCenter = (avatarRect.top + avatarRect.bottom) / 2
-      const titleCenter = (titleRect.top + titleRect.bottom) / 2
-      return Math.abs(avatarCenter - titleCenter) <= 6
+            const win = iframe.contentWindow
+            const card = doc.querySelector('.card')
+            const header = doc.querySelector('.header')
+            const avatar = doc.querySelector('.avatar')
+            const title = doc.querySelector('.title')
+            const badge = doc.querySelector('.badge')
+            const footer = doc.querySelector('.footer')
+            const label = doc.querySelector('.label')
+            const button = doc.querySelector('.button')
+            if (!card || !header || !avatar || !title || !badge || !footer || !label || !button) return false
+      
+            const cardStyle = win.getComputedStyle(card)
+            const headerStyle = win.getComputedStyle(header)
+            const badgeStyle = win.getComputedStyle(badge)
+            const footerStyle = win.getComputedStyle(footer)
+            if (cardStyle.display !== 'flex' || cardStyle.flexDirection !== 'column') return false
+            if (headerStyle.display !== 'flex' || headerStyle.alignItems !== 'center') return false
+            if (footerStyle.display !== 'flex') return false
+            if (parseFloat(badgeStyle.marginLeft) <= 0 || badgeStyle.alignSelf !== 'flex-end') return false
+      
+            const headerRect = header.getBoundingClientRect()
+            const headerRight = headerRect.right - header.clientLeft - parseFloat(headerStyle.paddingRight)
+            const avatarRect = avatar.getBoundingClientRect()
+            const titleRect = title.getBoundingClientRect()
+            const badgeRect = badge.getBoundingClientRect()
+            if (Math.abs(headerRight - badgeRect.right) > 12) return false
+            if (Math.abs(badgeRect.bottom - avatarRect.bottom) > 8) return false
+            const avatarCenter = (avatarRect.top + avatarRect.bottom) / 2
+            const titleCenter = (titleRect.top + titleRect.bottom) / 2
+            if (Math.abs(avatarCenter - titleCenter) > 8) return false
+      
+            if (win.getComputedStyle(button).flexShrink !== '0') return false
+            if (button.getBoundingClientRect().width < button.scrollWidth - 2) return false
+            return label.getBoundingClientRect().width < label.scrollWidth - 10
     }
   },
   {
@@ -2170,8 +2282,8 @@ const levels = [
   {
     id: 16,
     title: 'Boss: Responsive Gallery',
-    description: 'Six cards must wrap into at least two rows, all with the same starting width, and the rows must use the whole height of the gallery. This is a boss: combine wrapping, flex-basis and align-content.',
-    hint: 'Take the two ideas from this world: give every card the same starting width with flex-basis and spread the wrapped lines with align-content. The gap also has to be subtracted from the card width so three cards fit in one row.',
+    description: 'Six cards wrap into two rows of three. Give every card the same starting width, subtract the gap from that width, spread the rows across the height, and make the outer gaps half of the gaps between the cards.',
+    hint: 'This boss mixes levels 13 to 15: wrapping and align-content for the lines, flex-basis with calc() for the card width, and the space value whose edge gaps are half of the inner gaps.',
     html: `<div class="gallery">
   <div class="card">Card 1</div>
   <div class="card">Card 2</div>
@@ -2191,7 +2303,7 @@ const levels = [
   flex-wrap: wrap;
   gap: 0.5rem;
 
-  /* ?? spread the wrapped rows across the height ?? */
+  /* ?? spread the lines and the cards inside them ?? */
 }
 
 .card {
@@ -2202,7 +2314,7 @@ const levels = [
   font-weight: bold;
   text-align: center;
 
-  /* ?? equal starting width for three cards per row ?? */
+  /* ?? equal starting width, gap already subtracted ?? */
 }`,
     themeCSS: `.gallery {
   background:
@@ -2242,80 +2354,65 @@ const levels = [
   border-radius: 0.5rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  justify-content: space-around;
   align-content: space-between;
+  gap: 0.5rem;
 }
 .card {
+  flex: 0 0 calc(30% - 0.5rem);
   padding: 0.75rem;
   background: #3b82f6;
   color: white;
   border-radius: 0.5rem;
   font-weight: bold;
   text-align: center;
-  flex: 0 0 calc(33.333% - 0.5rem);
 }`,
         explanation: [
-          {
-            label: 'div.gallery',
-            text: 'The flex container. It wraps the cards into lines and distributes those lines on the cross axis.'
-          },
-          {
-            label: 'flex: 0 0 calc(33.333% - 0.5rem) (.card)',
-            text: 'Each card starts at one third of the row, minus a part of the gap. Without subtracting the gap, three cards plus two gaps would be wider than the gallery and only two would fit.'
-          },
-          {
-            label: 'flex-basis and calc()',
-            text: '<code>calc()</code> lets the browser do the math with different units. Here it mixes a percentage with a length, which is exactly what a responsive grid needs.'
-          },
-          {
-            label: 'align-content: space-between',
-            text: 'The cards create two lines. This property sends the first line to the top, the last line to the bottom and shares the free space between them.'
-          },
-          {
-            label: 'flex-wrap: wrap',
-            text: 'Already in the starter. It is what turns six cards into multiple lines instead of squeezing all of them into one row.'
-          },
-          {
-            label: 'gap',
-            text: 'The fixed space between cards. It also explains the <code>- 0.5rem</code> inside the <code>calc()</code>: the gap has to be discounted from the percentage.'
-          }
+          { label: 'flex-wrap: wrap', text: 'From level 13: six cards cannot fit in one line, so they form two rows.' },
+          { label: 'align-content: space-between', text: 'From level 13: the first row goes to the top and the last row to the bottom of the gallery.' },
+          { label: 'flex: 0 0 calc(30% - 0.5rem)', text: 'From level 14: each card starts below one third, so three cards fit and free space remains for the distribution. The gap is subtracted so nothing overflows.' },
+          { label: 'justify-content: space-around', text: 'From level 15: the extra space inside a row is shared so the outer gaps are half of the gaps between the cards.' },
+          { label: 'gap', text: 'The fixed space between cards. The distribution adds free space on top of it, which is why the inner gap is bigger than the edge gap.' }
         ],
-        tip: 'For a responsive card grid with flexbox: <code>flex-wrap: wrap</code>, a <code>flex-basis</code> that already subtracts the gap, and <code>align-content</code> to distribute the lines. The same card width works when the container gets narrower, because the percentage shrinks with it.'
+        tip: 'One property for the lines, one for the items inside each line, and a basis that leaves room for both. That is the whole World 4 recipe in a single gallery.'
       }
     ],
     validate(iframe) {
       const doc = iframe.contentDocument
-      const win = iframe.contentWindow
-      const gallery = doc.querySelector('.gallery')
-      const cards = [...doc.querySelectorAll('.card')]
-      if (!gallery || cards.length !== 6) return false
-
-      const style = win.getComputedStyle(gallery)
-      if (style.display !== 'flex' || style.flexWrap !== 'wrap') return false
-
-      const galleryRect = gallery.getBoundingClientRect()
-      const contentTop = galleryRect.top + gallery.clientTop + parseFloat(style.paddingTop)
-      const contentBottom = galleryRect.bottom - gallery.clientTop - parseFloat(style.paddingBottom)
-      const contentWidth = gallery.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)
-      const columnGap = parseFloat(style.columnGap) || 0
-      const rects = cards.map(card => card.getBoundingClientRect())
-
-      if (gallery.scrollWidth > gallery.clientWidth + 3) return false
-
-      const widths = rects.map(rect => rect.width)
-      const widthsAreEqual = Math.max(...widths) - Math.min(...widths) < 10
-      const expectedWidth = (contentWidth - columnGap * 2) / 3
-      const hasThreeColumns = Math.abs(widths[0] - expectedWidth) < 14
-
-      const tops = [...new Set(rects.map(rect => Math.round(rect.top)))].sort((a, b) => a - b)
-      if (tops.length < 2) return false
-      const firstTop = Math.min(...rects.map(rect => rect.top))
-      const lastBottom = Math.max(...rects.map(rect => rect.bottom))
-      const rowsAreSpread =
-        Math.abs(firstTop - contentTop) < 12 &&
-        Math.abs(lastBottom - contentBottom) < 12
-
-      return widthsAreEqual && hasThreeColumns && rowsAreSpread
+            const win = iframe.contentWindow
+            const gallery = doc.querySelector('.gallery')
+            const cards = [...doc.querySelectorAll('.card')]
+            if (!gallery || cards.length !== 6) return false
+            const style = win.getComputedStyle(gallery)
+            if (style.display !== 'flex' || style.flexWrap !== 'wrap') return false
+            if (style.alignContent !== 'space-between' || style.justifyContent !== 'space-around') return false
+            const columnGap = parseFloat(style.columnGap)
+            if (!(columnGap > 4)) return false
+            if (gallery.scrollWidth > gallery.clientWidth + 3) return false
+      
+            const galleryRect = gallery.getBoundingClientRect()
+            const contentTop = galleryRect.top + gallery.clientTop + parseFloat(style.paddingTop)
+            const contentBottom = galleryRect.bottom - gallery.clientTop - parseFloat(style.paddingBottom)
+            const contentLeft = galleryRect.left + gallery.clientLeft + parseFloat(style.paddingLeft)
+            const contentRight = galleryRect.right - gallery.clientLeft - parseFloat(style.paddingRight)
+            const rects = cards.map(card => card.getBoundingClientRect())
+            const widths = rects.map(rect => rect.width)
+            if (Math.max(...widths) - Math.min(...widths) > 10) return false
+      
+            const tops = [...new Set(rects.map(rect => Math.round(rect.top)))].sort((a, b) => a - b)
+            if (tops.length !== 2) return false
+            for (const top of tops) {
+              const row = rects.filter(rect => Math.abs(rect.top - top) < 4).sort((a, b) => a.left - b.left)
+              if (row.length !== 3) return false
+              const inner = row[1].left - row[0].right
+              const leftEdge = row[0].left - contentLeft
+              const rightEdge = contentRight - row[2].right
+              if (inner <= columnGap + 4) return false
+              if (Math.abs(leftEdge - rightEdge) > 12) return false
+              if (Math.abs((inner - columnGap) - leftEdge * 2) > 16) return false
+            }
+            return Math.abs(Math.min(...rects.map(rect => rect.top)) - contentTop) < 12 &&
+              Math.abs(Math.max(...rects.map(rect => rect.bottom)) - contentBottom) < 12
     }
   },
   {
@@ -2757,8 +2854,8 @@ const levels = [
   {
     id: 20,
     title: 'Boss: The Whole Interface',
-    description: 'Build the final app shell: a topbar with the brand on the left and the user on the right, a sidebar next to a main area that grows, and a footer at the bottom. Every section is a flex container, and the app is a column.',
-    hint: 'Think in layers. The app is a column. The topbar and the layout are rows. One of those layers has to eat the free height so the footer reaches the bottom, and the main area has to eat the free width next to the sidebar.',
+    description: 'Build the app shell from World 5. The topbar pushes the user to the right with an automatic margin and draws the menu in reverse. Inside the content area a long file name shrinks with an ellipsis while its counter stays visible.',
+    hint: 'Work from the outside in: the app is a column, the topbar and layout are rows, the menu flips its direction, the user uses an automatic left margin, and the file name needs permission to shrink below its text.',
     html: `<div class="app">
   <header class="topbar">
     <div class="brand">CSS Quest</div>
@@ -2770,7 +2867,10 @@ const levels = [
   </header>
   <div class="layout">
     <aside class="sidebar">Sidebar</aside>
-    <main class="content">Main content area</main>
+    <main class="content">
+      <div class="file">A very long file name that should not push the counter outside the card</div>
+      <div class="count">12</div>
+    </main>
   </div>
   <footer class="footer">Footer</footer>
 </div>`,
@@ -2787,21 +2887,22 @@ const levels = [
 }
 
 .topbar {
-  /* ?? brand left, user right, menu in the middle ?? */
   gap: 0.5rem;
   align-items: center;
   padding: 0.5rem;
   background: white;
   border-radius: 0.5rem;
+
+  /* ?? make this a row ?? */
 }
 
-.brand {
-  font-weight: bold;
-}
+.brand { font-weight: bold; }
 
 .menu {
   display: flex;
   gap: 0.5rem;
+
+  /* ?? show the items in reverse ?? */
 }
 
 .menu-item {
@@ -2815,6 +2916,8 @@ const levels = [
   color: white;
   border-radius: 0.5rem;
   font-weight: bold;
+
+  /* ?? push the user to the right ?? */
 }
 
 .layout {
@@ -2834,11 +2937,32 @@ const levels = [
 }
 
 .content {
-  /* ?? take the width that is left ?? */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.75rem;
   background: #3b82f6;
   color: white;
   border-radius: 0.5rem;
+
+  /* ?? take the width that is left ?? */
+}
+
+.file {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  /* ?? allow the text to shrink ?? */
+}
+
+.count {
+  flex: 0 0 auto;
+  padding: 0.3rem 0.5rem;
+  background: #ec4899;
+  color: white;
+  border-radius: 999px;
   font-weight: bold;
 }
 
@@ -2924,25 +3048,21 @@ const levels = [
 }
 .topbar {
   display: flex;
-  justify-content: space-between;
   gap: 0.5rem;
   align-items: center;
   padding: 0.5rem;
   background: white;
   border-radius: 0.5rem;
 }
-.brand {
-  font-weight: bold;
-}
+.brand { font-weight: bold; }
 .menu {
   display: flex;
+  flex-direction: row-reverse;
   gap: 0.5rem;
 }
-.menu-item {
-  color: #475569;
-  font-weight: bold;
-}
+.menu-item { color: #475569; font-weight: bold; }
 .user {
+  margin-left: auto;
   padding: 0.4rem 0.55rem;
   background: #3b82f6;
   color: white;
@@ -2951,8 +3071,8 @@ const levels = [
 }
 .layout {
   display: flex;
-  gap: 0.5rem;
   flex: 1;
+  gap: 0.5rem;
 }
 .sidebar {
   flex: 0 0 30%;
@@ -2963,11 +3083,29 @@ const levels = [
   font-weight: bold;
 }
 .content {
+  display: flex;
   flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.75rem;
   background: #3b82f6;
   color: white;
   border-radius: 0.5rem;
+}
+.file {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.count {
+  flex: 0 0 auto;
+  padding: 0.3rem 0.5rem;
+  background: #ec4899;
+  color: white;
+  border-radius: 999px;
   font-weight: bold;
 }
 .footer {
@@ -2978,95 +3116,68 @@ const levels = [
   font-weight: bold;
 }`,
         explanation: [
-          {
-            label: 'div.app',
-            text: 'The outer flex container, in <strong>column</strong> direction. It stacks the topbar, the layout and the footer vertically, and the <code>gap</code> keeps them apart.'
-          },
-          {
-            label: 'div.topbar',
-            text: 'A nested flex container. It lays the brand, the menu and the user in a row. <code>justify-content: space-between</code> sends the first item to the left and the last item to the right.'
-          },
-          {
-            label: 'div.layout',
-            text: 'Another nested flex container. It puts the sidebar and the main area side by side. <code>flex: 1</code> makes this whole row eat the free height of the app.'
-          },
-          {
-            label: 'flex: 0 0 30% (.sidebar)',
-            text: 'The sidebar keeps a starting width of 30% and does not grow or shrink. It is a fixed navigator next to a flexible content area.'
-          },
-          {
-            label: 'flex: 1 (.content)',
-            text: 'The main area grows into all the width that is left after the sidebar and the gap. This is what makes the layout responsive without a single pixel value.'
-          },
-          {
-            label: 'footer at the bottom',
-            text: 'The app is a column and the layout grows, so the footer is pushed to the end. If the layout did not grow, <code>margin-top: auto</code> on the footer would do the same job.'
-          },
-          {
-            label: 'The whole interface',
-            text: 'Every level of this app is a flex container: the page is a column, the topbar is a row, the layout is a row, and the menu is a row inside the topbar. That is how real interfaces are assembled.'
-          }
+          { label: 'div.app', text: 'The outer column. Every section inside it is another flex container, which is the main idea of nested flexbox.' },
+          { label: 'display: flex (.topbar)', text: 'From level 12: the brand, menu and user finally become flex items in a row.' },
+          { label: 'flex-direction: row-reverse (.menu)', text: 'From level 18: the whole menu flips, so Tags appears before Levels without changing the HTML.' },
+          { label: 'margin-left: auto (.user)', text: 'From level 17: the automatic margin eats the free space after the menu and pushes the user to the right edge.' },
+          { label: 'display: flex (.content)', text: 'The main area is a nested row: the file name and the counter live side by side.' },
+          { label: 'min-width: 0 (.file)', text: 'From level 19: the long name may shrink below its natural width, and the ellipsis replaces the hidden text.' },
+          { label: 'flex: 1 (.layout and .content)', text: 'The layout eats the free height of the app and the content eats the free width next to the sidebar, so the footer sits at the bottom.' }
         ],
-        tip: 'Real layouts are made of nested flex containers. Start with the biggest direction (the app column), then make each section a row or a column of its own. Use <code>flex: 1</code> for the part that should grow and <code>flex: 0 0 &lt;size&gt;</code> for the parts that should keep their size.'
+        tip: 'This boss is the whole World 5: reverse a row, push one item with an automatic margin, let long text shrink, and keep every level of the interface as a flex container.'
       }
     ],
     validate(iframe) {
       const doc = iframe.contentDocument
-      const win = iframe.contentWindow
-      const app = doc.querySelector('.app')
-      const topbar = doc.querySelector('.topbar')
-      const brand = doc.querySelector('.brand')
-      const user = doc.querySelector('.user')
-      const layout = doc.querySelector('.layout')
-      const sidebar = doc.querySelector('.sidebar')
-      const content = doc.querySelector('.content')
-      const footer = doc.querySelector('.footer')
-      if (!app || !topbar || !brand || !user || !layout || !sidebar || !content || !footer) {
-        return false
-      }
-
-      const appStyle = win.getComputedStyle(app)
-      const topbarStyle = win.getComputedStyle(topbar)
-      const layoutStyle = win.getComputedStyle(layout)
-      if (appStyle.display !== 'flex' || appStyle.flexDirection !== 'column') return false
-      if (topbarStyle.display !== 'flex' || layoutStyle.display !== 'flex') return false
-
-      const appRect = app.getBoundingClientRect()
-      const topbarRect = topbar.getBoundingClientRect()
-      const layoutRect = layout.getBoundingClientRect()
-      const brandRect = brand.getBoundingClientRect()
-      const userRect = user.getBoundingClientRect()
-      const sidebarRect = sidebar.getBoundingClientRect()
-      const contentRect = content.getBoundingClientRect()
-      const footerRect = footer.getBoundingClientRect()
-
-      const topbarContentLeft = topbarRect.left + topbar.clientLeft + parseFloat(topbarStyle.paddingLeft)
-      const topbarContentRight = topbarRect.right - topbar.clientLeft - parseFloat(topbarStyle.paddingRight)
-
-      const brandIsLeft = brandRect.left - topbarContentLeft < 12
-      const userIsRight = topbarContentRight - userRect.right < 12
-      const topbarIsHorizontal = Math.abs(brandRect.top - userRect.top) < 12
-
-      const contentIsRightOfSidebar = contentRect.left >= sidebarRect.right - 2
-      const contentFillsRest = Math.abs(contentRect.right - layoutRect.right) < 12
-      const sidebarAndContentAreSiblings = Math.abs(sidebarRect.top - contentRect.top) < 8
-
-      const appContentBottom = appRect.bottom - app.clientTop - parseFloat(appStyle.paddingBottom)
-      const footerIsAtBottom = appContentBottom - footerRect.bottom < 12
-      const layoutIsAboveFooter = footerRect.top >= layoutRect.bottom - 2
-      const noOverflow = app.scrollHeight <= app.clientHeight + 3
-
-      return (
-        brandIsLeft &&
-        userIsRight &&
-        topbarIsHorizontal &&
-        contentIsRightOfSidebar &&
-        contentFillsRest &&
-        sidebarAndContentAreSiblings &&
-        footerIsAtBottom &&
-        layoutIsAboveFooter &&
-        noOverflow
-      )
+            const win = iframe.contentWindow
+            const app = doc.querySelector('.app')
+            const topbar = doc.querySelector('.topbar')
+            const brand = doc.querySelector('.brand')
+            const menu = doc.querySelector('.menu')
+            const menuItems = [...doc.querySelectorAll('.menu-item')]
+            const user = doc.querySelector('.user')
+            const layout = doc.querySelector('.layout')
+            const sidebar = doc.querySelector('.sidebar')
+            const content = doc.querySelector('.content')
+            const file = doc.querySelector('.file')
+            const count = doc.querySelector('.count')
+            const footer = doc.querySelector('.footer')
+            if (!app || !topbar || !brand || !menu || menuItems.length !== 2 || !user || !layout || !sidebar || !content || !file || !count || !footer) return false
+      
+            const appStyle = win.getComputedStyle(app)
+            const topbarStyle = win.getComputedStyle(topbar)
+            const menuStyle = win.getComputedStyle(menu)
+            const layoutStyle = win.getComputedStyle(layout)
+            const contentStyle = win.getComputedStyle(content)
+            if (appStyle.display !== 'flex' || appStyle.flexDirection !== 'column') return false
+            if (topbarStyle.display !== 'flex' || menuStyle.display !== 'flex') return false
+            if (menuStyle.flexDirection !== 'row-reverse') return false
+            if (parseFloat(win.getComputedStyle(user).marginLeft) <= 0) return false
+            if (layoutStyle.display !== 'flex' || parseFloat(layoutStyle.flexGrow) < 1) return false
+            if (contentStyle.display !== 'flex' || parseFloat(contentStyle.flexGrow) < 1) return false
+            if (parseFloat(win.getComputedStyle(file).minWidth) !== 0) return false
+      
+            const menuRects = menuItems.map(item => item.getBoundingClientRect())
+            if (!(menuRects[1].right < menuRects[0].left)) return false
+            const topbarRect = topbar.getBoundingClientRect()
+            const contentRight = topbarRect.right - topbar.clientLeft - parseFloat(topbarStyle.paddingRight)
+            if (Math.abs(contentRight - user.getBoundingClientRect().right) > 12) return false
+            if (user.getBoundingClientRect().left - menuRects[1].right < 24) return false
+      
+            const fileRect = file.getBoundingClientRect()
+            const countRect = count.getBoundingClientRect()
+            if (!(fileRect.width < file.scrollWidth - 10)) return false
+            if (!(countRect.left >= fileRect.right - 2)) return false
+            if (countRect.right > content.getBoundingClientRect().right + 2) return false
+      
+            const sidebarRect = sidebar.getBoundingClientRect()
+            const contentRect = content.getBoundingClientRect()
+            if (!(contentRect.left >= sidebarRect.right - 2)) return false
+            if (Math.abs(contentRect.right - layout.getBoundingClientRect().right) > 12) return false
+            const appRect = app.getBoundingClientRect()
+            const appBottom = appRect.bottom - app.clientTop - parseFloat(appStyle.paddingBottom)
+            if (Math.abs(appBottom - footer.getBoundingClientRect().bottom) > 12) return false
+            return app.scrollHeight <= app.clientHeight + 3
     }
   },
   {
@@ -3445,20 +3556,24 @@ const levels = [
   {
     id: 24,
     title: 'Boss: The Profile Widget',
-    description: 'Assemble the profile card: the avatar and the name in a row, the status pushed to the right edge, the bio filling the free height, and the footer with tags on the left and the edit button on the right.',
-    hint: 'Four small fixes: make the header a flex row, use an automatic margin on the status, let the bio grow inside the card column, and distribute the footer with justify-content.',
+    description: 'Assemble the profile card with four World 6 ideas: the header lines up text baselines, the tags wrap into two rows with twice as much row gap as column gap, the two stats stretch to equal height, and the status is pushed right inside the nested header.',
+    hint: 'The header needs a text alignment instead of a box alignment and an automatic margin on the status. The tags need wrapping and two gap values. The stats need the default stretch value instead of flex-start.',
     html: `<div class="profile">
-   <div class="header">
-     <div class="avatar">A</div>
-     <div class="name">Ada Lovelace</div>
-     <div class="status">Online</div>
-   </div>
-   <div class="bio">Writes about layouts, flexbox and accessible interfaces. This text makes the card taller.</div>
-   <div class="footer">
-     <div class="tags"><span>CSS</span><span>Flex</span></div>
-     <div class="edit">Edit</div>
-   </div>
- </div>`,
+  <div class="header">
+    <div class="avatar">A</div>
+    <div class="name">Ada Lovelace</div>
+    <div class="status">Online</div>
+  </div>
+  <div class="bio">Writes about layouts, flexbox and accessible interfaces. This text makes the card taller.</div>
+  <div class="stats">
+    <div class="stat">12 quests</div>
+    <div class="stat">A longer statistic that asks for more room than the other one</div>
+  </div>
+  <div class="footer">
+    <div class="tags"><span>CSS</span><span>Flex</span><span>Grid</span><span>HTML</span></div>
+    <div class="edit">Edit</div>
+  </div>
+</div>`,
     starterCSS: `.profile {
   width: 100%;
   max-width: 24rem;
@@ -3472,10 +3587,10 @@ const levels = [
 }
 
 .header {
-  gap: 0.75rem;
   align-items: center;
+  gap: 0.75rem;
 
-  /* ?? avatar and name side by side ?? */
+  /* ?? make a row, align the text and push the status right ?? */
 }
 
 .avatar {
@@ -3486,10 +3601,10 @@ const levels = [
   font-weight: bold;
 }
 
-.name { font-weight: bold; }
-
+.name { font-weight: bold; font-size: 1.05rem; }
 .status {
   padding: 0.35rem 0.6rem;
+  font-size: 0.75rem;
   background: #50fa7b;
   color: #14121f;
   border-radius: 999px;
@@ -3499,11 +3614,26 @@ const levels = [
 }
 
 .bio {
+  flex: 1;
   padding: 0.75rem;
   background: white;
   border-radius: 0.5rem;
+}
 
-  /* ?? fill the free height ?? */
+.stats {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+
+  /* ?? give both boxes the same height ?? */
+}
+
+.stat {
+  flex: 1;
+  padding: 0.6rem;
+  background: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
 }
 
 .footer {
@@ -3513,13 +3643,22 @@ const levels = [
   /* ?? tags left, edit right ?? */
 }
 
-.tags { display: flex; gap: 0.35rem; }
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 9rem;
+  gap: 0.35rem;
+
+  /* ?? rows need twice the column space ?? */
+}
+
 .tags span {
   padding: 0.25rem 0.5rem;
   background: #e2e8f0;
   border-radius: 999px;
   font-weight: bold;
 }
+
 .edit {
   padding: 0.35rem 0.6rem;
   background: #8b5cf6;
@@ -3558,100 +3697,92 @@ const levels = [
 }
 .header {
   display: flex;
+  align-items: baseline;
   gap: 0.75rem;
-  align-items: center;
 }
 .avatar { padding: 0.75rem; background: #3b82f6; color: white; border-radius: 0.5rem; font-weight: bold; }
-.name { font-weight: bold; }
+.name { font-weight: bold; font-size: 1.05rem; }
 .status {
   margin-left: auto;
   padding: 0.35rem 0.6rem;
+  font-size: 0.75rem;
   background: #50fa7b;
   color: #14121f;
   border-radius: 999px;
   font-weight: bold;
 }
-.bio {
-  flex: 1;
-  padding: 0.75rem;
-  background: white;
-  border-radius: 0.5rem;
-}
+.bio { flex: 1; padding: 0.75rem; background: white; border-radius: 0.5rem; }
+.stats { display: flex; align-items: stretch; gap: 0.5rem; }
+.stat { flex: 1; padding: 0.6rem; background: white; border-radius: 0.5rem; font-weight: bold; }
 .footer {
   display: flex;
   justify-content: space-between;
   gap: 0.5rem;
   align-items: center;
 }
-.tags { display: flex; gap: 0.35rem; }
+.tags { display: flex; flex-wrap: wrap; max-width: 9rem; gap: 0.7rem 0.35rem; }
 .tags span { padding: 0.25rem 0.5rem; background: #e2e8f0; border-radius: 999px; font-weight: bold; }
 .edit { padding: 0.35rem 0.6rem; background: #8b5cf6; color: white; border-radius: 0.5rem; font-weight: bold; }`,
         explanation: [
-          {
-            label: 'div.profile',
-            text: 'The outer flex container, in column direction. Its <code>min-height</code> creates free space for the bio to grow into.'
-          },
-          {
-            label: '.header { display: flex }',
-            text: 'The <code>gap</code> and <code>align-items</code> were already written but did nothing, because the header was a normal block. Now the avatar, name and status are flex items in a row.'
-          },
-          {
-            label: 'margin-left: auto (.status)',
-            text: 'The automatic margin eats the free space between the name and the status, so the status touches the right edge of the header.'
-          },
-          {
-            label: 'flex: 1 (.bio)',
-            text: 'In the outer column this makes the bio take all the height that is left. As a result the footer is pushed to the bottom without an auto margin.'
-          },
-          {
-            label: '.footer { display: flex; justify-content: space-between }',
-            text: 'The footer becomes a second nested flex container. <code>space-between</code> sends the tags to the left and the edit button to the right.'
-          },
-          {
-            label: 'div.tags',
-            text: 'A third level of flexbox: its own <code>display: flex</code> and <code>gap</code> keep the two tag pills together as one group.'
-          }
+          { label: 'display: flex (.header and .footer)', text: 'From level 12: both sections become flex containers, so their gap and alignment values finally work.' },
+          { label: 'align-items: baseline (.header)', text: 'From level 22: the name and the status have different font sizes, so aligning the text baselines looks correct instead of centering the boxes.' },
+          { label: 'margin-left: auto (.status)', text: 'From level 17: the automatic margin eats the free space and keeps the status at the right edge.' },
+          { label: 'align-items: stretch (.stats)', text: 'From level 23: the default value makes both stat boxes as tall as the taller one.' },
+          { label: 'flex-wrap: wrap + gap: 0.7rem 0.35rem (.tags)', text: 'From levels 21 and 13: the four pills wrap into two rows and the row gap is twice the column gap.' },
+          { label: 'justify-content: space-between (.footer)', text: 'The tags stay on the left and the edit button on the right in this nested row.' }
         ],
-        tip: 'A boss is just several small puzzles stacked in one layout. Solve it from the outside in: first the outer column, then each nested row, and finally the automatic margins that decide which item gets the free space.'
+        tip: 'Bosses reuse small tricks: baseline for text, two gap values for wrapped items, stretch for equal heights and an automatic margin for the one item that belongs at the edge.'
       }
     ],
     validate(iframe) {
       const doc = iframe.contentDocument
-      const win = iframe.contentWindow
-      const profile = doc.querySelector('.profile')
-      const header = doc.querySelector('.header')
-      const avatar = doc.querySelector('.avatar')
-      const name = doc.querySelector('.name')
-      const status = doc.querySelector('.status')
-      const bio = doc.querySelector('.bio')
-      const footer = doc.querySelector('.footer')
-      const tags = doc.querySelector('.tags')
-      const edit = doc.querySelector('.edit')
-      if (!profile || !header || !avatar || !name || !status || !bio || !footer || !tags || !edit) return false
-      const profileStyle = win.getComputedStyle(profile)
-      const headerStyle = win.getComputedStyle(header)
-      const footerStyle = win.getComputedStyle(footer)
-      if (profileStyle.display !== 'flex' || profileStyle.flexDirection !== 'column') return false
-      if (headerStyle.display !== 'flex' || headerStyle.flexDirection !== 'row') return false
-      if (footerStyle.display !== 'flex' || footerStyle.justifyContent !== 'space-between') return false
-      const headerRect = header.getBoundingClientRect()
-      const headerRight = headerRect.right - header.clientLeft - parseFloat(headerStyle.paddingRight)
-      const footerRect = footer.getBoundingClientRect()
-      const footerRight = footerRect.right - footer.clientLeft - parseFloat(footerStyle.paddingRight)
-      const avatarRect = avatar.getBoundingClientRect()
-      const nameRect = name.getBoundingClientRect()
-      const statusRect = status.getBoundingClientRect()
-      const tagsRect = tags.getBoundingClientRect()
-      const editRect = edit.getBoundingClientRect()
-      if (Math.abs(headerRight - statusRect.right) > 12) return false
-      if (!(nameRect.left >= avatarRect.right - 2 && statusRect.left - nameRect.right > 24)) return false
-      if (tagsRect.left - footerRect.left > 20) return false
-      if (Math.abs(footerRight - editRect.right) > 12) return false
-      const profileRect = profile.getBoundingClientRect()
-      const profileBottom = profileRect.bottom - profile.clientTop - parseFloat(profileStyle.paddingBottom)
-      if (Math.abs(profileBottom - footerRect.bottom) > 12) return false
-      if (bio.getBoundingClientRect().height < 60) return false
-      return profile.scrollHeight <= profile.clientHeight + 3
+            const win = iframe.contentWindow
+            const profile = doc.querySelector('.profile')
+            const header = doc.querySelector('.header')
+            const name = doc.querySelector('.name')
+            const status = doc.querySelector('.status')
+            const stats = doc.querySelector('.stats')
+            const statEls = [...doc.querySelectorAll('.stat')]
+            const footer = doc.querySelector('.footer')
+            const tags = doc.querySelector('.tags')
+            const edit = doc.querySelector('.edit')
+            if (!profile || !header || !name || !status || !stats || statEls.length !== 2 || !footer || !tags || !edit) return false
+      
+            const profileStyle = win.getComputedStyle(profile)
+            const headerStyle = win.getComputedStyle(header)
+            const tagsStyle = win.getComputedStyle(tags)
+            const statsStyle = win.getComputedStyle(stats)
+            const footerStyle = win.getComputedStyle(footer)
+            if (profileStyle.display !== 'flex' || profileStyle.flexDirection !== 'column') return false
+            if (headerStyle.display !== 'flex' || headerStyle.alignItems !== 'baseline') return false
+            if (statsStyle.display !== 'flex' || statsStyle.alignItems !== 'stretch') return false
+            if (footerStyle.display !== 'flex' || footerStyle.justifyContent !== 'space-between') return false
+            if (tagsStyle.display !== 'flex' || tagsStyle.flexWrap !== 'wrap') return false
+            const rowGap = parseFloat(tagsStyle.rowGap)
+            const columnGap = parseFloat(tagsStyle.columnGap)
+            if (!(columnGap > 4 && Math.abs(rowGap - columnGap * 2) < 2)) return false
+            if (parseFloat(win.getComputedStyle(status).marginLeft) <= 0) return false
+      
+            const nameRect = name.getBoundingClientRect()
+            const statusRect = status.getBoundingClientRect()
+            const headerRight = header.getBoundingClientRect().right - header.clientLeft - parseFloat(headerStyle.paddingRight)
+            if (Math.abs(headerRight - statusRect.right) > 12) return false
+      
+            const statRects = statEls.map(stat => stat.getBoundingClientRect())
+            if (Math.abs(statRects[0].height - statRects[1].height) > 6) return false
+            const tagRects = [...tags.querySelectorAll('span')].map(tag => tag.getBoundingClientRect())
+            const rows = new Set(tagRects.map(rect => Math.round(rect.top)))
+            if (rows.size !== 2) return false
+      
+            const footerRect = footer.getBoundingClientRect()
+            const footerRight = footerRect.right - footer.clientLeft - parseFloat(footerStyle.paddingRight)
+            if (tags.getBoundingClientRect().left - footerRect.left > 20) return false
+            if (Math.abs(footerRight - edit.getBoundingClientRect().right) > 12) return false
+            const profileRect = profile.getBoundingClientRect()
+            const profileBottom = profileRect.bottom - profile.clientTop - parseFloat(profileStyle.paddingBottom)
+            if (Math.abs(profileBottom - footerRect.bottom) > 12) return false
+            return profile.scrollHeight <= profile.clientHeight + 3
+      
     }
   },
   {
@@ -4009,22 +4140,44 @@ const levels = [
   {
     id: 28,
     title: 'Boss: The Pricing Table',
-    description: 'The featured plan must fill the whole first row, the other four plans must form two rows of two, the rows must be farther apart than the columns, and all rows must spread across the height.',
-    hint: 'A full-width card is a card with a 100% basis, and order can move it to the first line. The others need a basis that fits two per row. Then set two different gaps and spread the wrapped lines.',
-    html: `<div class="plans">
-   <div class="plan plan-featured">Pro (featured)</div>
-   <div class="plan">Basic</div>
-   <div class="plan">Team</div>
-   <div class="plan">Plus</div>
-   <div class="plan">Max</div>
- </div>`,
-    starterCSS: `.plans {
+    description: 'World 7 finale. The featured plan fills the first row and the other four form two columns with a larger row gap. Inside it, six perks wrap into two vertical columns spread apart, and below the plans a chat-like update list shows the newest message on top, right aligned.',
+    hint: 'Keep the row wrapping, order and calc() from earlier worlds. Then add a fixed-height column with flex-wrap for the perks, and a reversed column with end alignment for the updates.',
+    html: `<div class="catalog">
+  <div class="plans">
+    <div class="plan plan-featured">
+      <div class="plan-name">Pro (featured)</div>
+      <div class="perks">
+        <div class="perk">One</div>
+        <div class="perk">Two</div>
+        <div class="perk">Three</div>
+        <div class="perk">Four</div>
+        <div class="perk">Five</div>
+        <div class="perk">Six</div>
+      </div>
+    </div>
+    <div class="plan">Basic</div>
+    <div class="plan">Team</div>
+    <div class="plan">Plus</div>
+    <div class="plan">Max</div>
+  </div>
+  <div class="updates">
+    <div class="update">Update 1</div>
+    <div class="update">Update 2</div>
+    <div class="update">Update 3 (newest)</div>
+  </div>
+</div>`,
+    starterCSS: `.catalog {
   width: 100%;
   max-width: 26rem;
-  min-height: 18rem;
   padding: 1rem;
   background: #e2e8f0;
   border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.plans {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -4046,7 +4199,38 @@ const levels = [
 .plan-featured {
   background: #8b5cf6;
 
-  /* ?? first row, full width ?? */
+  /* ?? first row, full width, then stack its content ?? */
+}
+
+.plan-name { font-weight: bold; }
+
+.perks {
+  height: 8rem;
+  gap: 0.35rem;
+
+  /* ?? wrap into two vertical columns spread apart ?? */
+}
+
+.perk {
+  padding: 0.4rem 0.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 0.35rem;
+  font-weight: bold;
+}
+
+.updates {
+  min-height: 6rem;
+  gap: 0.35rem;
+
+  /* ?? newest first, messages on the right ?? */
+}
+
+.update {
+  padding: 0.4rem 0.6rem;
+  background: #8b5cf6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
 }`,
     themeCSS: `.plans {
   background: radial-gradient(circle at 50% 30%, rgba(189, 147, 249, 0.18), transparent 60%), linear-gradient(135deg, #1e1b2e, #282a36 60%, #2d2a3e);
@@ -4064,13 +4248,17 @@ const levels = [
 .plan-featured { background: linear-gradient(135deg, #ff79c6, #bd93f9); color: #f8f8f2; }`,
     solutions: [
       {
-        css: `.plans {
+        css: `.catalog {
   width: 100%;
   max-width: 26rem;
-  min-height: 18rem;
   padding: 1rem;
   background: #e2e8f0;
   border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.plans {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem 0.5rem;
@@ -4088,64 +4276,115 @@ const levels = [
 .plan-featured {
   order: -1;
   flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   background: #8b5cf6;
+}
+.plan-name { font-weight: bold; }
+.perks {
+  height: 8rem;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: space-between;
+  gap: 0.35rem;
+}
+.perk {
+  padding: 0.4rem 0.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 0.35rem;
+  font-weight: bold;
+}
+.updates {
+  min-height: 6rem;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+.update {
+  padding: 0.4rem 0.6rem;
+  background: #8b5cf6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
 }`,
         explanation: [
-          {
-            label: 'gap: 1rem 0.5rem',
-            text: 'The row gap is twice the column gap. Because the cards create three wrapped lines, this makes the separation between the plans easy to read.'
-          },
-          {
-            label: 'align-content: space-between',
-            text: 'There are three lines (featured row plus two normal rows). This property sends the first line to the top, the last one to the bottom and shares the remaining height between them.'
-          },
-          {
-            label: 'flex: 0 0 calc(50% - 0.25rem) (.plan)',
-            text: 'Each normal plan takes half of the row minus half of the column gap. Two plans plus one gap fit exactly, so they form two columns.'
-          },
-          {
-            label: 'order: -1 and flex-basis: 100% (.plan-featured)',
-            text: 'The featured plan is first in the HTML already, but <code>order: -1</code> guarantees it stays the first line. Its 100% basis makes it occupy the whole row, pushing all other plans below it.'
-          },
-          {
-            label: 'flex-wrap: wrap',
-            text: 'Already in the starter. Without wrapping, the full-width featured plan would squeeze every other plan into the same line.'
-          }
+          { label: 'display: flex (.plans)', text: 'The plan cards wrap into rows: one full-width featured row and two rows of two cards.' },
+          { label: 'gap: 1rem 0.5rem + align-content: space-between', text: 'The rows are farther apart than the columns and spread across the available height.' },
+          { label: 'order: -1 and flex-basis: 100% (.plan-featured)', text: 'The featured card owns the whole first row, and order guarantees it stays first.' },
+          { label: 'display: flex (.plan-featured)', text: 'The featured card is a nested column, so the name and the perks stack inside it.' },
+          { label: 'flex-direction: column + flex-wrap: wrap (.perks)', text: 'From level 25: the fixed height forces six perks to wrap into two vertical columns.' },
+          { label: 'align-content: space-between (.perks)', text: 'The two perk columns are pushed to the left and right edges of the featured card.' },
+          { label: 'flex-direction: column-reverse + align-items: flex-end (.updates)', text: 'From level 27: the newest update is drawn on top and every message is aligned to the right.' }
         ],
-        tip: 'Combine the small tricks you already know: a 100% basis creates a full-width row, <code>order</code> chooses which one comes first, <code>calc()</code> fits a fixed number of cards per row, and <code>align-content</code> distributes the rows. That is a whole responsive layout with only flexbox.'
+        tip: 'Wrapping follows the main axis: rows for a row container, columns for a column container. Reverse a column when the newest item has to be on top.'
       }
     ],
     validate(iframe) {
       const doc = iframe.contentDocument
-      const win = iframe.contentWindow
-      const plans = doc.querySelector('.plans')
-      const all = [...doc.querySelectorAll('.plan')]
-      const featured = doc.querySelector('.plan-featured')
-      if (!plans || all.length !== 5 || !featured) return false
-      const style = win.getComputedStyle(plans)
-      if (style.display !== 'flex' || style.flexWrap !== 'wrap') return false
-      if (style.alignContent !== 'space-between') return false
-      const rowGap = parseFloat(style.rowGap)
-      const columnGap = parseFloat(style.columnGap)
-      if (!(columnGap > 4 && rowGap > columnGap + 4)) return false
-      if (plans.scrollWidth > plans.clientWidth + 3) return false
-      const planRect = plans.getBoundingClientRect()
-      const contentLeft = planRect.left + plans.clientLeft + parseFloat(style.paddingLeft)
-      const contentRight = planRect.right - plans.clientLeft - parseFloat(style.paddingRight)
-      const contentTop = planRect.top + plans.clientTop + parseFloat(style.paddingTop)
-      const contentBottom = planRect.bottom - plans.clientTop - parseFloat(style.paddingBottom)
-      const featuredRect = featured.getBoundingClientRect()
-      if (Math.abs(featuredRect.width - (contentRight - contentLeft)) > 12) return false
-      if (Math.abs(featuredRect.top - contentTop) > 12) return false
-      const others = all.filter(plan => plan !== featured).map(plan => plan.getBoundingClientRect())
-      const widths = others.map(rect => rect.width)
-      if (Math.max(...widths) - Math.min(...widths) > 8) return false
-      if (Math.abs(widths[0] - (contentRight - contentLeft - columnGap) / 2) > 12) return false
-      const tops = [...new Set(others.map(rect => Math.round(rect.top)))].sort((a, b) => a - b)
-      if (tops.length !== 2) return false
-      if (others.filter(rect => Math.abs(rect.top - tops[0]) < 4).length !== 2) return false
-      if (others.filter(rect => Math.abs(rect.top - tops[1]) < 4).length !== 2) return false
-      return Math.abs(Math.max(...others.map(rect => rect.bottom)) - contentBottom) < 12
+            const win = iframe.contentWindow
+            const catalog = doc.querySelector('.catalog')
+            const plans = doc.querySelector('.plans')
+            const all = [...doc.querySelectorAll('.plan')]
+            const featured = doc.querySelector('.plan-featured')
+            const perks = doc.querySelector('.perks')
+            const perkEls = [...doc.querySelectorAll('.perk')]
+            const updates = doc.querySelector('.updates')
+            const updateEls = [...doc.querySelectorAll('.update')]
+            if (!catalog || !plans || all.length !== 5 || !featured || !perks || perkEls.length !== 6 || !updates || updateEls.length !== 3) return false
+      
+            const plansStyle = win.getComputedStyle(plans)
+            const featuredStyle = win.getComputedStyle(featured)
+            const perksStyle = win.getComputedStyle(perks)
+            const updatesStyle = win.getComputedStyle(updates)
+            if (plansStyle.display !== 'flex' || plansStyle.flexWrap !== 'wrap') return false
+            if (plansStyle.alignContent !== 'space-between') return false
+            const rowGap = parseFloat(plansStyle.rowGap)
+            const columnGap = parseFloat(plansStyle.columnGap)
+            if (!(columnGap > 4 && rowGap > columnGap + 4)) return false
+            if (plans.scrollWidth > plans.clientWidth + 3) return false
+            if (featuredStyle.display !== 'flex' || featuredStyle.flexDirection !== 'column') return false
+            if (perksStyle.display !== 'flex' || perksStyle.flexDirection !== 'column' || perksStyle.flexWrap !== 'wrap') return false
+            if (perksStyle.alignContent !== 'space-between') return false
+            if (updatesStyle.display !== 'flex' || updatesStyle.flexDirection !== 'column-reverse' || updatesStyle.alignItems !== 'flex-end') return false
+      
+            const planRect = plans.getBoundingClientRect()
+            const contentLeft = planRect.left + plans.clientLeft + parseFloat(plansStyle.paddingLeft)
+            const contentRight = planRect.right - plans.clientLeft - parseFloat(plansStyle.paddingRight)
+            const contentTop = planRect.top + plans.clientTop + parseFloat(plansStyle.paddingTop)
+            const featuredRect = featured.getBoundingClientRect()
+            if (Math.abs(featuredRect.width - (contentRight - contentLeft)) > 12) return false
+            if (Math.abs(featuredRect.top - contentTop) > 12) return false
+            const others = all.filter(plan => plan !== featured).map(plan => plan.getBoundingClientRect())
+            const widths = others.map(rect => rect.width)
+            if (Math.max(...widths) - Math.min(...widths) > 8) return false
+            if (Math.abs(widths[0] - (contentRight - contentLeft - columnGap) / 2) > 12) return false
+            const tops = [...new Set(others.map(rect => Math.round(rect.top)))].sort((a, b) => a - b)
+            if (tops.length !== 2) return false
+            if (others.filter(rect => Math.abs(rect.top - tops[0]) < 4).length !== 2) return false
+            if (others.filter(rect => Math.abs(rect.top - tops[1]) < 4).length !== 2) return false
+      
+            const perkRects = perkEls.map(perk => perk.getBoundingClientRect())
+            const perkColumns = []
+            for (const rect of perkRects) {
+              const last = perkColumns[perkColumns.length - 1]
+              if (last && Math.abs(rect.left - last[0].left) < 8) last.push(rect)
+              else perkColumns.push([rect])
+            }
+            if (perkColumns.length !== 2 || perkColumns.some(column => column.length !== 3)) return false
+            const perksRect = perks.getBoundingClientRect()
+            const perksLeft = perksRect.left + perks.clientLeft + parseFloat(perksStyle.paddingLeft)
+            const perksRight = perksRect.right - perks.clientLeft - parseFloat(perksStyle.paddingRight)
+            const perkLefts = perkColumns.map(column => column[0].left).sort((a, b) => a - b)
+            if (Math.abs(perkLefts[0] - perksLeft) > 12) return false
+            if (Math.abs(perksRight - Math.max(...perkRects.map(rect => rect.right))) > 12) return false
+      
+            const updateRects = updateEls.map(update => update.getBoundingClientRect())
+            if (!(updateRects[2].bottom < updateRects[0].top)) return false
+            const updatesRight = updates.getBoundingClientRect().right - updates.clientLeft - parseFloat(updatesStyle.paddingRight)
+            return updateRects.every(rect => Math.abs(updatesRight - rect.right) < 12)
     }
   },
   {
@@ -4347,32 +4586,37 @@ const levels = [
   {
     id: 30,
     title: 'Boss: The Complete Page',
-    description: 'Final boss. Build a page with a brand on the left, a nav in the middle and actions on the right; a hero that grows; four feature cards in two rows with a larger row gap, spread across the height; and a footer with a note on the left and a link on the right.',
-    hint: 'Work from the outside in: the page is a column, the hero grows, the topbar and the footer are rows, the cards wrap two per row, and the card row gap is bigger than its column gap.',
+    description: 'Final boss. Build one page that uses the whole game: a reversed nav in a spread topbar, a growing hero with a fixed file rail and code and preview panes in a 1 to 2 ratio, four wrapped cards with half-sized edge gaps, and a footer with a note left and a link right.',
+    hint: 'Draw the boxes first. The page is a column, the hero grows, the topbar and footer are rows, the nav is reversed, the workspace keeps one fixed rail and two growing panes, and the cards wrap with a larger row gap.',
     html: `<div class="page">
-   <header class="topbar">
-     <div class="brand">CSS Quest</div>
-     <nav class="nav"><span>Learn</span><span>Play</span></nav>
-     <div class="actions">Start</div>
-   </header>
-   <main class="hero">
-     <div class="intro">Master Flexbox</div>
-     <div class="cards">
-       <div class="card">Centering</div>
-       <div class="card">Wrapping</div>
-       <div class="card">Order</div>
-       <div class="card">Spacing</div>
-     </div>
-   </main>
-   <footer class="bottom">
-     <div class="note">Made for students</div>
-     <div class="link">Docs</div>
-   </footer>
- </div>`,
+  <header class="topbar">
+    <div class="brand">CSS Quest</div>
+    <nav class="nav"><span>Learn</span><span>Play</span></nav>
+    <div class="actions">Start</div>
+  </header>
+  <main class="hero">
+    <div class="intro">Master Flexbox</div>
+    <div class="workspace">
+      <aside class="rail">Files</aside>
+      <div class="code">Code editor</div>
+      <div class="preview">Live preview</div>
+    </div>
+    <div class="cards">
+      <div class="card">Centering</div>
+      <div class="card">Wrapping</div>
+      <div class="card">Order</div>
+      <div class="card">Spacing</div>
+    </div>
+  </main>
+  <footer class="bottom">
+    <div class="note">Made for students</div>
+    <div class="link">Docs</div>
+  </footer>
+</div>`,
     starterCSS: `.page {
   width: 100%;
   max-width: 26rem;
-  min-height: 22rem;
+  min-height: 28rem;
   padding: 0.75rem;
   background: #e2e8f0;
   border-radius: 0.5rem;
@@ -4388,11 +4632,16 @@ const levels = [
   background: white;
   border-radius: 0.5rem;
 
-  /* ?? brand left, nav centered, actions right ?? */
+  /* ?? brand left, actions right ?? */
 }
 
 .brand { font-weight: bold; }
-.nav { display: flex; gap: 0.5rem; }
+.nav {
+  display: flex;
+  gap: 0.5rem;
+
+  /* ?? show the nav links in reverse ?? */
+}
 .nav span { color: #475569; font-weight: bold; }
 .actions { padding: 0.35rem 0.6rem; background: #3b82f6; color: white; border-radius: 0.5rem; font-weight: bold; }
 
@@ -4406,23 +4655,59 @@ const levels = [
 
 .intro { padding: 0.5rem; background: #8b5cf6; color: white; border-radius: 0.5rem; font-weight: bold; }
 
+.workspace {
+  min-height: 6rem;
+  gap: 0.5rem;
+
+  /* ?? make this a row ?? */
+}
+
+.rail {
+  flex: 0 0 20%;
+  padding: 0.6rem;
+  background: #8b5cf6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+}
+
+.code {
+  padding: 0.6rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+
+  /* ?? one share of the remaining width ?? */
+}
+
+.preview {
+  padding: 0.6rem;
+  background: #10b981;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+
+  /* ?? two shares of the remaining width ?? */
+}
+
 .cards {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 
-  /* ?? bigger row gap, spread the rows, fill the hero ?? */
+  /* ?? bigger row gap, half-sized edge gaps, fill the hero ?? */
 }
 
 .card {
-  padding: 0.75rem;
+  padding: 0.6rem;
   background: #3b82f6;
   color: white;
   border-radius: 0.5rem;
   font-weight: bold;
   text-align: center;
 
-  /* ?? two cards per row ?? */
+  /* ?? two cards per row with room to distribute ?? */
 }
 
 .bottom {
@@ -4457,7 +4742,7 @@ const levels = [
         css: `.page {
   width: 100%;
   max-width: 26rem;
-  min-height: 22rem;
+  min-height: 28rem;
   padding: 0.75rem;
   background: #e2e8f0;
   border-radius: 0.5rem;
@@ -4475,7 +4760,7 @@ const levels = [
   border-radius: 0.5rem;
 }
 .brand { font-weight: bold; }
-.nav { display: flex; gap: 0.5rem; }
+.nav { display: flex; flex-direction: row-reverse; gap: 0.5rem; }
 .nav span { color: #475569; font-weight: bold; }
 .actions { padding: 0.35rem 0.6rem; background: #3b82f6; color: white; border-radius: 0.5rem; font-weight: bold; }
 .hero {
@@ -4485,16 +4770,21 @@ const levels = [
   gap: 0.5rem;
 }
 .intro { padding: 0.5rem; background: #8b5cf6; color: white; border-radius: 0.5rem; font-weight: bold; }
+.workspace { display: flex; min-height: 6rem; gap: 0.5rem; }
+.rail { flex: 0 0 20%; padding: 0.6rem; background: #8b5cf6; color: white; border-radius: 0.5rem; font-weight: bold; }
+.code { flex: 1; padding: 0.6rem; background: #3b82f6; color: white; border-radius: 0.5rem; font-weight: bold; }
+.preview { flex: 2; padding: 0.6rem; background: #10b981; color: white; border-radius: 0.5rem; font-weight: bold; }
 .cards {
   display: flex;
   flex-wrap: wrap;
   flex: 1;
-  gap: 1.25rem 0.5rem;
+  justify-content: space-around;
   align-content: space-between;
+  gap: 1.25rem 0.5rem;
 }
 .card {
-  flex: 0 0 calc(50% - 0.25rem);
-  padding: 0.75rem;
+  flex: 0 0 calc(40% - 0.25rem);
+  padding: 0.6rem;
   background: #3b82f6;
   color: white;
   border-radius: 0.5rem;
@@ -4512,95 +4802,105 @@ const levels = [
   border-radius: 0.5rem;
 }`,
         explanation: [
-          {
-            label: 'div.page',
-            text: 'The outer column. It stacks the topbar, the hero and the footer, with a gap between them.'
-          },
-          {
-            label: '.topbar { justify-content: space-between }',
-            text: 'Three groups live in this row. <code>space-between</code> puts the brand at the left edge, the actions at the right edge and leaves the nav group in the middle.'
-          },
-          {
-            label: '.hero { flex: 1 }',
-            text: 'The hero grows into the free height of the page, so the footer ends up at the bottom. Inside the hero it stacks the intro and the card area.'
-          },
-          {
-            label: '.cards { flex: 1; gap: 1.25rem 0.5rem; align-content: space-between }',
-            text: 'The card area grows inside the hero, wraps its cards into two lines, uses a larger row gap than column gap, and spreads the two lines from top to bottom.'
-          },
-          {
-            label: '.card { flex: 0 0 calc(50% - 0.25rem) }',
-            text: 'Two cards plus the column gap fit the row exactly. Their width is frozen, so wrapping happens because there are four cards, not because they shrink.'
-          },
-          {
-            label: '.bottom { display: flex; justify-content: space-between }',
-            text: 'The footer is one last nested row, with the note on the left and the link on the right.'
-          }
+          { label: 'div.page', text: 'The outer column, the biggest box in the drawing. It stacks the topbar, the hero and the footer.' },
+          { label: 'justify-content: space-between (.topbar)', text: 'From level 20: the brand goes left and the actions go right. The nav stays in the middle.' },
+          { label: 'flex-direction: row-reverse (.nav)', text: 'From level 18: the nav links appear in reverse visual order without editing the HTML.' },
+          { label: 'flex: 1 (.hero)', text: 'The hero eats the free height, so the footer ends up at the bottom of the page.' },
+          { label: 'display: flex (.workspace)', text: 'From level 12: the rail, the code pane and the preview pane become flex items in a row.' },
+          { label: 'flex: 0 0 20% / flex: 1 / flex: 2', text: 'From level 29: the rail keeps its size, while the two panes share the remaining width in a 1 to 2 ratio.' },
+          { label: 'flex-wrap: wrap + gap: 1.25rem 0.5rem (.cards)', text: 'From levels 21 and 15: two cards per row, larger row gap and outer gaps half of the inner gaps.' },
+          { label: 'justify-content: space-between (.bottom)', text: 'The final nested row keeps the note on the left and the link on the right.' }
         ],
-        tip: 'Every level of this page is a flex container: the page column, the topbar row, the hero column, the wrapped card area and the footer row. When a layout looks too big to solve, draw the boxes first and then choose one direction and one distribution for each box.'
+        tip: 'If a final layout looks impossible, draw the boxes and solve them one at a time: direction first, then growth, then alignment, then gaps. Every trick in this game is a small flexbox property.'
       }
     ],
     validate(iframe) {
       const doc = iframe.contentDocument
-      const win = iframe.contentWindow
-      const page = doc.querySelector('.page')
-      const topbar = doc.querySelector('.topbar')
-      const brand = doc.querySelector('.brand')
-      const nav = doc.querySelector('.nav')
-      const actions = doc.querySelector('.actions')
-      const hero = doc.querySelector('.hero')
-      const cards = doc.querySelector('.cards')
-      const items = [...doc.querySelectorAll('.card')]
-      const bottom = doc.querySelector('.bottom')
-      const note = doc.querySelector('.note')
-      const link = doc.querySelector('.link')
-      if (!page || !topbar || !brand || !nav || !actions || !hero || !cards || items.length !== 4 || !bottom || !note || !link) return false
-      const pageStyle = win.getComputedStyle(page)
-      const topbarStyle = win.getComputedStyle(topbar)
-      const cardsStyle = win.getComputedStyle(cards)
-      const bottomStyle = win.getComputedStyle(bottom)
-      if (pageStyle.display !== 'flex' || pageStyle.flexDirection !== 'column') return false
-      if (topbarStyle.display !== 'flex' || topbarStyle.justifyContent !== 'space-between') return false
-      if (parseFloat(win.getComputedStyle(hero).flexGrow) < 1) return false
-      if (cardsStyle.display !== 'flex' || cardsStyle.flexWrap !== 'wrap') return false
-      if (cardsStyle.alignContent !== 'space-between') return false
-      const rowGap = parseFloat(cardsStyle.rowGap)
-      const columnGap = parseFloat(cardsStyle.columnGap)
-      if (!(columnGap > 4 && rowGap > columnGap + 4)) return false
-      if (bottomStyle.display !== 'flex' || bottomStyle.justifyContent !== 'space-between') return false
-      const topbarRect = topbar.getBoundingClientRect()
-      const brandRect = brand.getBoundingClientRect()
-      const navRect = nav.getBoundingClientRect()
-      const actionsRect = actions.getBoundingClientRect()
-      const topbarRight = topbarRect.right - topbar.clientLeft - parseFloat(topbarStyle.paddingRight)
-      const pageCenter = (page.getBoundingClientRect().left + page.getBoundingClientRect().right) / 2
-      if (brandRect.left - topbarRect.left > 20) return false
-      if (Math.abs(topbarRight - actionsRect.right) > 12) return false
-      if (Math.abs((navRect.left + navRect.right) / 2 - pageCenter) > 24) return false
-      const cardsRect = cards.getBoundingClientRect()
-      const contentLeft = cardsRect.left + cards.clientLeft + parseFloat(cardsStyle.paddingLeft)
-      const contentRight = cardsRect.right - cards.clientLeft - parseFloat(cardsStyle.paddingRight)
-      const contentTop = cardsRect.top + cards.clientTop + parseFloat(cardsStyle.paddingTop)
-      const contentBottom = cardsRect.bottom - cards.clientTop - parseFloat(cardsStyle.paddingBottom)
-      const rects = items.map(item => item.getBoundingClientRect())
-      const widths = rects.map(rect => rect.width)
-      if (Math.max(...widths) - Math.min(...widths) > 8) return false
-      if (Math.abs(widths[0] - (contentRight - contentLeft - columnGap) / 2) > 12) return false
-      const tops = [...new Set(rects.map(rect => Math.round(rect.top)))].sort((a, b) => a - b)
-      if (tops.length !== 2) return false
-      if (rects.filter(rect => Math.abs(rect.top - tops[0]) < 4).length !== 2) return false
-      if (rects.filter(rect => Math.abs(rect.top - tops[1]) < 4).length !== 2) return false
-      if (Math.abs(Math.min(...rects.map(rect => rect.top)) - contentTop) > 12) return false
-      if (Math.abs(Math.max(...rects.map(rect => rect.bottom)) - contentBottom) > 12) return false
-      const bottomRect = bottom.getBoundingClientRect()
-      const bottomRight = bottomRect.right - bottom.clientLeft - parseFloat(bottomStyle.paddingRight)
-      const pageBottom = page.getBoundingClientRect().bottom - page.clientTop - parseFloat(pageStyle.paddingBottom)
-      if (note.getBoundingClientRect().left - bottomRect.left > 20) return false
-      if (Math.abs(bottomRight - link.getBoundingClientRect().right) > 12) return false
-      if (Math.abs(pageBottom - bottomRect.bottom) > 12) return false
-      return page.scrollHeight <= page.clientHeight + 3
+            const win = iframe.contentWindow
+            const page = doc.querySelector('.page')
+            const topbar = doc.querySelector('.topbar')
+            const brand = doc.querySelector('.brand')
+            const nav = doc.querySelector('.nav')
+            const navLinks = [...doc.querySelectorAll('.nav span')]
+            const actions = doc.querySelector('.actions')
+            const hero = doc.querySelector('.hero')
+            const workspace = doc.querySelector('.workspace')
+            const rail = doc.querySelector('.rail')
+            const code = doc.querySelector('.code')
+            const preview = doc.querySelector('.preview')
+            const cards = doc.querySelector('.cards')
+            const items = [...doc.querySelectorAll('.card')]
+            const bottom = doc.querySelector('.bottom')
+            const note = doc.querySelector('.note')
+            const link = doc.querySelector('.link')
+            if (!page || !topbar || !brand || !nav || navLinks.length !== 2 || !actions || !hero || !workspace || !rail || !code || !preview || !cards || items.length !== 4 || !bottom || !note || !link) return false
+      
+            const pageStyle = win.getComputedStyle(page)
+            const topbarStyle = win.getComputedStyle(topbar)
+            const navStyle = win.getComputedStyle(nav)
+            const workspaceStyle = win.getComputedStyle(workspace)
+            const cardsStyle = win.getComputedStyle(cards)
+            const bottomStyle = win.getComputedStyle(bottom)
+            if (pageStyle.display !== 'flex' || pageStyle.flexDirection !== 'column') return false
+            if (topbarStyle.display !== 'flex' || topbarStyle.justifyContent !== 'space-between') return false
+            if (navStyle.display !== 'flex' || navStyle.flexDirection !== 'row-reverse') return false
+            if (parseFloat(win.getComputedStyle(hero).flexGrow) < 1) return false
+            if (workspaceStyle.display !== 'flex') return false
+            if (cardsStyle.display !== 'flex' || cardsStyle.flexWrap !== 'wrap') return false
+            if (cardsStyle.alignContent !== 'space-between' || cardsStyle.justifyContent !== 'space-around') return false
+            if (bottomStyle.display !== 'flex' || bottomStyle.justifyContent !== 'space-between') return false
+            const rowGap = parseFloat(cardsStyle.rowGap)
+            const columnGap = parseFloat(cardsStyle.columnGap)
+            if (!(columnGap > 4 && rowGap > columnGap + 4)) return false
+      
+            const topbarRect = topbar.getBoundingClientRect()
+            const topbarRight = topbarRect.right - topbar.clientLeft - parseFloat(topbarStyle.paddingRight)
+            if (brand.getBoundingClientRect().left - topbarRect.left > 20) return false
+            if (Math.abs(topbarRight - actions.getBoundingClientRect().right) > 12) return false
+            const navRects = navLinks.map(item => item.getBoundingClientRect())
+            if (!(navRects[1].right < navRects[0].left)) return false
+      
+            const workspaceRect = workspace.getBoundingClientRect()
+            const workspaceWidth = workspaceRect.width
+            const railRect = rail.getBoundingClientRect()
+            const codeRect = code.getBoundingClientRect()
+            const previewRect = preview.getBoundingClientRect()
+            if (Math.abs(railRect.width - workspaceWidth * 0.2) > 12) return false
+            if (!(previewRect.width > codeRect.width * 1.7 && previewRect.width < codeRect.width * 2.3)) return false
+            if (codeRect.left < railRect.right - 2 || previewRect.left < codeRect.right - 2) return false
+      
+            const cardsRect = cards.getBoundingClientRect()
+            const contentLeft = cardsRect.left + cards.clientLeft + parseFloat(cardsStyle.paddingLeft)
+            const contentRight = cardsRect.right - cards.clientLeft - parseFloat(cardsStyle.paddingRight)
+            const contentTop = cardsRect.top + cards.clientTop + parseFloat(cardsStyle.paddingTop)
+            const contentBottom = cardsRect.bottom - cards.clientTop - parseFloat(cardsStyle.paddingBottom)
+            const rects = items.map(item => item.getBoundingClientRect())
+            const widths = rects.map(rect => rect.width)
+            if (Math.max(...widths) - Math.min(...widths) > 8) return false
+            const tops = [...new Set(rects.map(rect => Math.round(rect.top)))].sort((a, b) => a - b)
+            if (tops.length !== 2) return false
+            for (const top of tops) {
+              const row = rects.filter(rect => Math.abs(rect.top - top) < 4).sort((a, b) => a.left - b.left)
+              if (row.length !== 2) return false
+              const inner = row[1].left - row[0].right
+              const leftEdge = row[0].left - contentLeft
+              const rightEdge = contentRight - row[1].right
+              if (inner <= columnGap + 4) return false
+              if (Math.abs(leftEdge - rightEdge) > 12) return false
+              if (Math.abs((inner - columnGap) - leftEdge * 2) > 16) return false
+            }
+            if (Math.abs(Math.min(...rects.map(rect => rect.top)) - contentTop) > 12) return false
+      
+            const bottomRect = bottom.getBoundingClientRect()
+            const bottomRight = bottomRect.right - bottom.clientLeft - parseFloat(bottomStyle.paddingRight)
+            if (note.getBoundingClientRect().left - bottomRect.left > 20) return false
+            if (Math.abs(bottomRight - link.getBoundingClientRect().right) > 12) return false
+            const pageRect = page.getBoundingClientRect()
+            const pageBottom = pageRect.bottom - page.clientTop - parseFloat(pageStyle.paddingBottom)
+            if (Math.abs(pageBottom - bottomRect.bottom) > 12) return false
+            return page.scrollHeight <= page.clientHeight + 3 && Math.abs(Math.max(...rects.map(rect => rect.bottom)) - contentBottom) < 12
     }
-  }
+  },
 ]
 
 export { cssTagsGuide }

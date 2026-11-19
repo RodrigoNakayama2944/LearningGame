@@ -3,6 +3,10 @@ CSS QUEST - PROJECT SUMMARY
 
 PROMPT LOG (newest first)
 -------------------------
+2026-11-19 — "make the boss level of each world be a mixture of everything taught on the level"
+  Status: COMPLETED
+  Outcome: Reworked all 8 boss levels (4, 8, 12, 16, 20, 24, 28, 30) in src/levels.js and src/levels-pt-BR.js so each combines the flexbox ideas from its own world, with new starter CSS, solution, explanation, tip and geometry validator. All 30 levels remain present; headless Chrome checks pass starter-fails/solution-passes for every boss at three preview sizes and npm run build passes. Note: pre-existing levels 13 and 15 starters also pass their own validators.
+
 2026-11-17 — "have the chosen logo be besides the title in the game"
   Status: COMPLETED
   Outcome: Moved the chosen logo from the HUD controls to immediately beside the challenge title. It still returns to the main menu and follows the selected main/alt logo. npm run build and headless Chrome checks passed.
