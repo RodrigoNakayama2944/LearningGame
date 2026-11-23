@@ -975,9 +975,9 @@ function escapeHtml(text) {
 }
 
 function showResult(kind, messageKey, showNext, detail, openPanel, params = {}, context = {}, extra = null) {
-  resultBanner.classList.remove('hidden', 'success', 'error', 'info')
+  resultBanner.classList.remove('hidden', 'success', 'error')
   resultBanner.classList.add(kind)
-  resultIcon.textContent = kind === 'success' ? '\u2713' : kind === 'error' ? '\u2717' : '\u2139'
+  resultIcon.textContent = kind === 'success' ? '\u2713' : '\u2717'
   resultText.textContent = t(messageKey, params)
 
   lastResult = {
@@ -1007,12 +1007,16 @@ function showResult(kind, messageKey, showNext, detail, openPanel, params = {}, 
   renderResultActions(kind, showNext)
 }
 
+function clearResultExtras() {
+  resultStars.classList.add('hidden')
+  resultMeta.classList.add('hidden')
+  resultStars.innerHTML = ''
+  resultMeta.innerHTML = ''
+}
+
 function renderResultExtras(extra) {
   if (!extra) {
-    resultStars.classList.add('hidden')
-    resultMeta.classList.add('hidden')
-    resultStars.innerHTML = ''
-    resultMeta.innerHTML = ''
+    clearResultExtras()
     return
   }
 
@@ -1056,7 +1060,7 @@ function renderResultActions(kind, showNext) {
 
   addResultAction(t('replay'), 'btn-replay', resetLevel)
 
-  if (showNext && currentLevelIndex + 1 < levels.length) {
+  if (showNext) {
     addResultAction(t('nextLevel'), 'btn-next', () => loadLevel(currentLevelIndex + 1))
   }
 
@@ -1086,7 +1090,7 @@ function renderExplanation(detail) {
     ? `<p class="explanation-tip"><span class="explanation-tip-label">${t('keyIdea')}:</span> ${detail.tip}</p>`
     : ''
 
-  return `<ul class="explanation-list">${items}</ul>${tip}`
+  return `<ul>${items}</ul>${tip}`
 }
 
 function hideResult() {
@@ -1094,10 +1098,7 @@ function hideResult() {
   explanationPanel.classList.add('hidden')
   explanationPanel.classList.remove('explanation-collapsed')
   explanationBody.innerHTML = ''
-  resultStars.classList.add('hidden')
-  resultMeta.classList.add('hidden')
-  resultStars.innerHTML = ''
-  resultMeta.innerHTML = ''
+  clearResultExtras()
   resultActions.innerHTML = ''
   previewFrame.parentElement.classList.remove('success-glow', 'fail-flash')
   editorContainer.classList.remove('shake')
@@ -1119,7 +1120,7 @@ function applyStamp(host, kind, text) {
   const stamp = document.createElement('div')
   stamp.className = 'stamp ' + kind
   const icon = kind === 'pass' ? '\u2713' : '\u2717'
-  stamp.innerHTML = `<span class="stamp-icon">${icon}</span><span class="stamp-text">${text}</span>`
+  stamp.innerHTML = `<span class="stamp-icon">${icon}</span><span>${text}</span>`
   host.appendChild(stamp)
   setTimeout(() => stamp.remove(), 1700)
 }
@@ -1178,7 +1179,7 @@ function closeLanguageMenu() {
 function buildLanguageMenu() {
   languageMenu.innerHTML = languages.map(language => `
     <button class="language-option${language.code === getLanguage() ? ' active' : ''}" data-lang="${language.code}" role="menuitem">
-      <span class="language-option-name">${language.name}</span>
+      <span>${language.name}</span>
       <span class="language-option-check">${language.code === getLanguage() ? '&#10003;' : ''}</span>
     </button>
   `).join('')

@@ -80,7 +80,7 @@ function normalize(saved) {
   }
 }
 
-export function loadProgress() {
+function loadProgress() {
   if (progress) return progress
 
   try {
@@ -91,7 +91,7 @@ export function loadProgress() {
   return progress
 }
 
-export function saveProgress() {
+function saveProgress() {
   if (!progress) return
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(progress))
@@ -182,7 +182,6 @@ export function grantAllStars(coinAmount = 1000) {
 
   state.coinStars = Math.max(safeCount(state.coinStars), safeCount(coinAmount))
   saveProgress()
-  return levelCount
 }
 
 export function setLastLevelId(levelId) {
@@ -223,9 +222,7 @@ export function recordLevelResult(levelId, result) {
 
   return {
     firstSolve,
-    improved,
     bestStars,
-    earnedStars: stars,
     coinGained,
     xpGained: (bestStars - previous.bestStars) * STAR_XP
   }

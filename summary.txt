@@ -3,6 +3,14 @@ CSS QUEST - PROJECT SUMMARY
 
 PROMPT LOG (newest first)
 -------------------------
+2026-11-23 — "you can push the changes"
+  Status: COMPLETED
+  Outcome: Committed the cleanup (unused markup/classes/exports/fields/CSS and stale summary facts) and pushed it to origin/main.
+
+2026-11-23 — "read the summary.txt and agents.md and proof read the code, remove anything that isnt needed from it, to make the code overall cleaner"
+  Status: COMPLETED
+  Outcome: Removed unused IDs/classes from index.html and JS templates, obsolete 'info' result state, duplicate clear-result code, unused rank/result fields, unnecessary exports and unused CSS variables/hidden rules from src/main.js, src/progress.js, src/quest-map.js, src/i18n.js and src/styles.css. Also fixed three stale facts in this summary (20-level heading, 26 CSS tags, 2-4s skeleton). Behavior unchanged: npm run build, node --check and a headless Chrome load test all passed. No lint/typecheck script exists in package.json.
+
 2026-11-19 — "make the boss level of each world be a mixture of everything taught on the level"
   Status: COMPLETED
   Outcome: Reworked all 8 boss levels (4, 8, 12, 16, 20, 24, 28, 30) in src/levels.js and src/levels-pt-BR.js so each combines the flexbox ideas from its own world, with new starter CSS, solution, explanation, tip and geometry validator. All 30 levels remain present; headless Chrome checks pass starter-fails/solution-passes for every boss at three preview sizes and npm run build passes. Note: pre-existing levels 13 and 15 starters also pass their own validators.
@@ -144,7 +152,7 @@ GAME FEATURES
 - Dracula theme throughout (bg #282A36, cyan #8BE9FD, green #50FA7B ...)
 - "Next Level ->" green button (no auto-advance)
 - CSS Tags modal (replaces the old "CSS Reference" modal): a clickable
-  guide with 26 CSS properties grouped in Layout, Flexbox, Box model and
+  guide with 28 CSS properties grouped in Layout, Flexbox, Box model and
   Color and text. Every tag is a button: clicking it expands a panel with
   what the property does, the most common values and a code example.
   Clicking it again collapses it. The modal closes with the X, by clicking
@@ -222,8 +230,7 @@ RARE EASTER EGG
 - Each run picks horizontal, vertical or diagonal movement, a random start
   and end along opposite screen edges, and starts/ends fully off-screen.
 - The skeleton rotates to face the path; leftward paths are mirrored.
-- It crosses once in roughly 2-4s, fades out and removes itself after the
-  animation.
+- It crosses once in 750ms, fades out and removes itself after the animation.
 - The runner is larger (clamp(150px, 20vw, 300px)), has a drop shadow and is
   pointer-events-free while hidden or running.
 
@@ -240,8 +247,8 @@ HIDDEN DEV TOOL
   for the current page session and resets on reload.
 - The tool is intentionally not linked anywhere in the interface.
 
-LEVELS (20)
------------
+LEVELS (1-20)
+-------------
 1.  Flexbox Centering (justify-content + align-items)
 2.  Flexbox Column Layout (flex-direction: column)
 3.  Flexbox Spacing with gap

@@ -11,18 +11,11 @@
   --bg-secondary: #21222C;
   --bg-tertiary: #343746;
   --bg-hover: #44475A;
-  --border: #44475A;
-  --border-bright: #6272A4;
   --text-primary: #F8F8F2;
   --text-secondary: #CCC;
   --text-muted: #6272A4;
-  --accent: #BD93F9;
-  --accent-dim: #6C3FBF;
   --success: #50FA7B;
-  --success-dim: #2D8B4E;
   --error: #FF5555;
-  --error-dim: #CC3333;
-  --warning: #F1FA8C;
   --radius: 8px;
   --radius-lg: 12px;
   --font-display: 'Space Grotesk', sans-serif;
@@ -121,10 +114,6 @@ html, body {
   padding: 4px;
   z-index: 50;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-}
-
-.language-menu.hidden {
-  display: none;
 }
 
 .language-option {
@@ -466,10 +455,6 @@ html, body {
   transition: all 0.3s ease;
 }
 
-.result-banner.hidden {
-  display: none;
-}
-
 .result-heading {
   display: flex;
   align-items: center;
@@ -485,10 +470,6 @@ html, body {
   border-left: 3px solid var(--dracula-purple);
   border-radius: var(--radius);
   background: rgba(189, 147, 249, 0.06);
-}
-
-.explanation-panel.hidden {
-  display: none;
 }
 
 .explanation-header {
@@ -850,10 +831,6 @@ html, body {
   backdrop-filter: blur(4px);
 }
 
-.tags-modal.hidden {
-  display: none;
-}
-
 .tags-content {
   background: var(--dracula-bg);
   border: 1px solid var(--dracula-current);
@@ -981,10 +958,6 @@ html, body {
 .tag-detail {
   padding: 10px 12px 12px;
   border-top: 1px solid var(--dracula-current);
-}
-
-.tag-detail.hidden {
-  display: none;
 }
 
 .tag-text {
@@ -2542,7 +2515,7 @@ html, body {
   }
 }
 
-/* Responsive layout for the new HUD and map */
+/* Responsive layout for the HUD and map */
 @media (max-width: 1100px) {
   .subtitle {
     display: none;
