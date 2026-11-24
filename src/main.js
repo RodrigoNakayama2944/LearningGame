@@ -197,6 +197,7 @@ let questTab = 'map'
 let isDailyMode = false
 let dailyLevelId = null
 let finalShown = false
+let checkToken = 0
 let timerId = null
 let previewStatusTimeout = null
 let skeletonTimeout = null
@@ -225,14 +226,15 @@ function init() {
   if (savedLanguage) setLanguage(savedLanguage)
   recordLanguageTried(getLanguage())
 
+  const newAchievements = checkNewAchievements()
+  if (newAchievements.includes('coinThousandStars')) setLogoChoice('alt')
+
   setSoundEnabled(getSoundOn())
   setupEventListeners()
   loadLevelById(getResumeLevelId())
-  updateSoundButton()
-  updateHeader()
   applyLanguage(false)
-  applyLogoReward()
-  renderCoinFlip()
+  updateSoundButton()
+  newAchievements.forEach(id => showAchievementToast(id))
   btnStartGame.focus()
 }
 
@@ -313,8 +315,18 @@ function setCoinBet(value) {
 }
 
 function showCoinResult(kind, face, detail) {
-  coinResult.className = `coin-result ${kind}`
+  coinResult.classList.remove('hidden', 'win', 'loss', 'error')
   coinResult.textContent = `${face} ${detail}`
+  coinResult.style.animation = 'none'
+  void coinResult.offsetWidth
+  coinResult.style.animation = ''
+  coinResult.classList.add(kind)
+}
+
+function clearCoinResult() {
+  coinResult.classList.add('hidden')
+  coinResult.classList.remove('win', 'loss', 'error')
+  coinResult.textContent = ''
 }
 
 function flipCoin() {
@@ -367,6 +379,7 @@ function hintsAllowed() {
 
 function startGame() {
   startMenu.classList.add('hidden')
+  finalShown = false
   hardcoreRunOver = false
   if (isHardcoreMode()) {
     hardcoreCleared = 0
@@ -433,6 +446,7 @@ function restartHardcoreRun() {
 }
 
 function showMainMenu() {
+  resetRun()
   hardcoreOverlay.classList.add('hidden')
   showMenuPage('home')
   startMenu.classList.remove('hidden')
@@ -466,6 +480,9 @@ function loadLevel(index, options = {}) {
   const level = levels[index]
   if (!level) return
 
+  checkToken += 1
+  btnCheck.disabled = false
+
   if (!isLevelUnlocked(level.id)) {
     showToast(t('lockedLevel'), t('lockedLevelToast', { n: level.id - 1 }), 'error')
     return
@@ -488,7 +505,6 @@ function loadLevel(index, options = {}) {
   updateTarget(targetFrame, level.html, text.solutions[0].css, level.themeCSS)
   targetWrapper.classList.add('visible')
 
-  hintText.textContent = text.hint
   hintBox.classList.remove('visible')
   closeTagsGuide()
   hideResult()
@@ -510,6 +526,7 @@ function setupEventListeners() {
   btnMenuConfig.addEventListener('click', () => showMenuPage('config'))
   btnConfigBack.addEventListener('click', () => showMenuPage('home'))
   btnMenuCoin.addEventListener('click', () => {
+    clearCoinResult()
     renderCoinFlip()
     showMenuPage('coin')
   })
@@ -687,16 +704,21 @@ function checkAnswer() {
   if (hardcoreRunOver) return
   startTimerIfNeeded()
   const level = levels[currentLevelIndex]
+  const token = checkToken
   const startedAt = Date.now()
 
+  btnCheck.disabled = true
   renderPreview(currentCSS)
 
   const tryCheck = () => {
-    if (isIframeReady(previewFrame) || Date.now() - startedAt > 2000) {
-      applyCheckResult(level)
+    if (!isIframeReady(previewFrame) && Date.now() - startedAt <= 2000) {
+      setTimeout(tryCheck, 60)
       return
     }
-    setTimeout(tryCheck, 60)
+
+    btnCheck.disabled = false
+    if (token !== checkToken) return
+    applyCheckResult(level)
   }
 
   setTimeout(tryCheck, 50)
@@ -755,17 +777,14 @@ function applyCheckResult(level) {
     wrongChecks: run.wrongChecks,
     timeMs: run.elapsedMs
   }
-  let newAchievements = checkNewAchievements(lastRun)
 
-  if (isDailyMode && level.id === dailyLevelId) {
-    if (completeDailyChallenge(level.id)) {
-      const daily = getDailyChallenge()
-      showToast(t('dailyTitle'), t('toastDailyDone', { n: daily.streak }), 'daily')
-      playAchievement()
-      newAchievements = [...new Set([...newAchievements, ...checkNewAchievements(lastRun)])]
-    }
+  if (isDailyMode && level.id === dailyLevelId && completeDailyChallenge(level.id)) {
+    const daily = getDailyChallenge()
+    showToast(t('dailyTitle'), t('toastDailyDone', { n: daily.streak }), 'daily')
+    playAchievement()
   }
 
+  const newAchievements = checkNewAchievements(lastRun)
   const rankAfter = getRank(getTotalXp())
   const rankUp = rankAfter.key !== rankBefore
 
@@ -847,6 +866,9 @@ function getExplanationFor(level, css) {
 }
 
 function resetLevel() {
+  if (hardcoreRunOver) return
+  checkToken += 1
+  btnCheck.disabled = false
   const level = levels[currentLevelIndex]
   const text = getLevelText(level)
   currentCSS = text.starterCSS
@@ -1220,6 +1242,9 @@ function applyLanguage(editorHasStarter = true) {
   document.documentElement.lang = getLanguage()
   btnLanguage.textContent = getLanguageName()
   btnLanguage.title = t('languageButton')
+  const closeLabel = t('closeButton')
+  tagsClose.setAttribute('aria-label', closeLabel)
+  questClose.setAttribute('aria-label', closeLabel)
   btnCloseExplanation.title = t('removeExplanation')
   btnCloseExplanation.setAttribute('aria-label', t('removeExplanation'))
   devClose.title = t('devClose')
@@ -1446,6 +1471,7 @@ function renderMissionStrip(resultStars = null) {
 function resetRun() {
   stopTimer()
   run = createRun()
+  btnCheck.disabled = false
   updateTimerDisplay(0)
   renderMissionStrip()
 }
@@ -1511,7 +1537,7 @@ function toggleSound() {
 function updateSoundButton() {
   btnSound.classList.toggle('active', isSoundEnabled())
   btnSound.setAttribute('aria-pressed', String(isSoundEnabled()))
-  btnSound.textContent = isSoundEnabled() ? 'SFX ON' : 'SFX OFF'
+  btnSound.textContent = isSoundEnabled() ? t('sfxOn') : t('sfxOff')
   btnSound.title = `${t('toggleSound')} (${t(isSoundEnabled() ? 'soundOn' : 'soundOff')})`
   updateStartMenu()
 }
@@ -1761,8 +1787,12 @@ function switchQuestTab(tab) {
 }
 
 function updateQuestTabs() {
-  questTabMap.classList.toggle('active', questTab === 'map')
-  questTabAchievements.classList.toggle('active', questTab === 'achievements')
+  const isMap = questTab === 'map'
+  questTabMap.classList.toggle('active', isMap)
+  questTabAchievements.classList.toggle('active', !isMap)
+  questTabMap.setAttribute('aria-selected', String(isMap))
+  questTabAchievements.setAttribute('aria-selected', String(!isMap))
+  questBody.setAttribute('aria-labelledby', isMap ? 'questTabMap' : 'questTabAchievements')
 }
 
 function onQuestBodyClick(event) {

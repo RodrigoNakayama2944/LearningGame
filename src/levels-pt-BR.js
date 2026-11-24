@@ -792,7 +792,7 @@ export const levelTranslationsPtBR = {
   },
   13: {
     title: 'Alinhando Linhas com Wrap',
-    description: 'Os blocos já estão quebrando em várias linhas, mas as linhas ficam coladas no topo. Distribua as linhas pela altura do tabuleiro, mantendo a primeira linha no topo e a última embaixo.',
+    description: 'Os blocos já estão quebrando em várias linhas, mas o espaço entre elas não está controlado. Distribua as linhas pela altura do tabuleiro, mantendo a primeira linha no topo e a última embaixo.',
     hint: 'Quando os itens quebram, eles criam várias linhas. Existe uma propriedade que distribui essas linhas no eixo cruzado. Sem ela, as linhas ficam sempre juntas no início.',
     starterCSS: `.board {
   width: 100%;

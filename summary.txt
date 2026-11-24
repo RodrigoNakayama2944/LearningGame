@@ -3,6 +3,11 @@ CSS QUEST - PROJECT SUMMARY
 
 PROMPT LOG (newest first)
 -------------------------
+
+2026-11-24 — "now debug the whole code, remove any dead code and run tests to remove any possible malfunctions or bugs"
+  Status: COMPLETED
+  Outcome: Audited every source file with static checks and a headless Chrome CDP harness. Removed dead data-mission/data-tab attributes and duplicate hint assignment; fixed stale timer/final overlay state, missing startup achievement evaluation, async check races, hardcore reset soft-lock, stale coin result, dev tool hidden behind the menu, three pre-solved/loose validators, a boss false negative, disabled-button styling, and several accessibility labels/dialog states. All 30 solutions pass and all starters fail their validators, key game flows and console are clean; npm run build, node --check and git diff --check pass. No lint/typecheck script exists in package.json.
+
 2026-11-23 — "you can push the changes"
   Status: COMPLETED
   Outcome: Committed the cleanup (unused markup/classes/exports/fields/CSS and stale summary facts) and pushed it to origin/main.

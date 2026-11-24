@@ -736,9 +736,9 @@ html, body {
 }
 
 @keyframes stampShake {
-  0%, 100% { transform: translate(-50%, -50%) rotate(-7deg); }
-  25% { transform: translate(calc(-50% - 8px), -50%) rotate(-5deg); }
-  75% { transform: translate(calc(-50% + 8px), -50%) rotate(-9deg); }
+  0%, 100% { transform: translate(-50%, -50%) rotate(-7deg) scale(1); }
+  25% { transform: translate(calc(-50% - 8px), -50%) rotate(-5deg) scale(1); }
+  75% { transform: translate(calc(-50% + 8px), -50%) rotate(-9deg) scale(1); }
 }
 
 /* Full-screen color flash */
@@ -2368,7 +2368,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1400;
+  z-index: 1600;
   backdrop-filter: blur(5px);
 }
 
@@ -2635,7 +2635,8 @@ html, body {
 }
 
 .btn-hint:disabled,
-.daily-play:disabled {
+.daily-play:disabled,
+.coin-flip-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }

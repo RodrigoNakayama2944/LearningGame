@@ -463,6 +463,7 @@ const levels = [
       if (!container || boxes.length !== 3) return false
       const style = iframe.contentWindow.getComputedStyle(container)
       if (style.display !== 'flex' || style.flexDirection !== 'column') return false
+      if (style.justifyContent !== 'space-evenly') return false
       const cRect = container.getBoundingClientRect()
       const centerX = (cRect.left + cRect.right) / 2
       const rects = [...boxes].map(box => box.getBoundingClientRect())
@@ -714,7 +715,8 @@ const levels = [
             if (!board || badges.length !== 6) return false
             const style = win.getComputedStyle(board)
             if (style.display !== 'flex' || style.flexDirection !== 'column' || style.flexWrap !== 'wrap') return false
-            if (style.justifyContent !== 'center' || style.alignItems !== 'center') return false
+            const centeredValues = ['center', 'space-around', 'space-evenly']
+            if (!centeredValues.includes(style.justifyContent) || style.alignItems !== 'center') return false
             if (!(parseFloat(style.rowGap) > 0)) return false
             if (board.scrollWidth > board.clientWidth + 3 || board.scrollHeight > board.clientHeight + 3) return false
       
@@ -1866,7 +1868,7 @@ const levels = [
   {
     id: 13,
     title: 'Aligning Wrapped Rows',
-    description: 'The tiles are already wrapping into several rows, but the rows are glued to the top. Spread the rows across the height of the board, keeping the first row at the top and the last one at the bottom.',
+    description: 'The tiles are already wrapping into several rows, but their spacing is not controlled. Spread the rows across the height of the board, keeping the first row at the top and the last one at the bottom.',
     hint: 'When items wrap, they create several lines. There is a property that distributes those lines on the cross axis. Without it, the lines always stay together at the start.',
     html: `<div class="board">
   <div class="tile">Tile A</div>
@@ -1985,6 +1987,7 @@ const levels = [
 
       const style = win.getComputedStyle(board)
       if (style.display !== 'flex' || style.flexWrap !== 'wrap') return false
+      if (style.alignContent !== 'space-between') return false
 
       const boardRect = board.getBoundingClientRect()
       const contentTop = boardRect.top + board.clientTop + parseFloat(style.paddingTop)
@@ -2254,6 +2257,7 @@ const levels = [
 
       const style = win.getComputedStyle(row)
       if (style.display !== 'flex') return false
+      if (style.justifyContent !== 'space-around') return false
 
       const rowRect = row.getBoundingClientRect()
       const contentLeft = rowRect.left + row.clientLeft + parseFloat(style.paddingLeft)

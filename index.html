@@ -187,15 +187,15 @@
       </div>
       <p class="challenge-description" id="challengeDescription"></p>
       <div class="mission-strip" id="missionStrip">
-        <div class="mission-star" data-mission="solved">
+        <div class="mission-star">
           <span class="mission-star-icon">&#9733;</span>
           <span id="missionSolveLabel">Solve</span>
         </div>
-        <div class="mission-star" data-mission="nohint">
+        <div class="mission-star">
           <span class="mission-star-icon">&#9733;</span>
           <span id="missionNoHintLabel">No hint</span>
         </div>
-        <div class="mission-star" data-mission="firsttry">
+        <div class="mission-star">
           <span class="mission-star-icon">&#9733;</span>
           <span id="missionFirstTryLabel">First try</span>
         </div>
@@ -236,11 +236,11 @@
       </div>
     </section>
 
-    <div class="tags-modal hidden" id="tagsModal">
+    <div class="tags-modal hidden" id="tagsModal" role="dialog" aria-modal="true" aria-labelledby="tagsModalTitle">
       <div class="tags-content">
         <div class="tags-header">
-          <h3 data-i18n="tagsTitle">CSS Tags</h3>
-          <button class="tags-close" id="tagsClose">&times;</button>
+          <h3 id="tagsModalTitle" data-i18n="tagsTitle">CSS Tags</h3>
+          <button class="tags-close" id="tagsClose" aria-label="Close">&times;</button>
         </div>
         <p class="tags-intro" data-i18n="tagsIntro">Click a tag to see what it does, the most common values and an example.</p>
         <div class="tags-body" id="tagsBody"></div>
@@ -254,12 +254,12 @@
       </div>
       <div class="preview-container">
         <div class="preview-frame-wrapper">
-          <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+          <iframe id="previewFrame" title="Live preview" sandbox="allow-scripts allow-same-origin"></iframe>
         </div>
         <div class="target-wrapper" id="targetWrapper">
           <span class="target-label" data-i18n="target">Target</span>
           <div class="target-frame-wrapper">
-            <iframe id="targetFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+            <iframe id="targetFrame" title="Target layout" sandbox="allow-scripts allow-same-origin"></iframe>
           </div>
         </div>
       </div>
@@ -275,27 +275,27 @@
     </section>
   </main>
 
-  <div class="quest-modal hidden" id="questModal">
+  <div class="quest-modal hidden" id="questModal" role="dialog" aria-modal="true" aria-labelledby="questModalTitle">
     <div class="quest-content">
       <div class="quest-header">
-        <h3 data-i18n="questTitle">Quest Map</h3>
+        <h3 id="questModalTitle" data-i18n="questTitle">Quest Map</h3>
         <button class="tags-close" id="questClose" aria-label="Close">&times;</button>
       </div>
       <div class="quest-tabs" role="tablist">
-        <button class="quest-tab active" id="questTabMap" data-tab="map" role="tab" data-i18n="mapTab">Levels</button>
-        <button class="quest-tab" id="questTabAchievements" data-tab="achievements" role="tab" data-i18n="achievementsTab">Achievements</button>
+        <button class="quest-tab active" id="questTabMap" role="tab" aria-selected="true" aria-controls="questBody" data-i18n="mapTab">Levels</button>
+        <button class="quest-tab" id="questTabAchievements" role="tab" aria-selected="false" aria-controls="questBody" data-i18n="achievementsTab">Achievements</button>
       </div>
-      <div class="quest-body" id="questBody"></div>
+      <div class="quest-body" id="questBody" role="tabpanel" aria-labelledby="questTabMap"></div>
       <div class="quest-footer">
         <button class="btn btn-reset" id="btnResetProgress" data-i18n="resetProgress">Reset progress</button>
       </div>
     </div>
   </div>
 
-  <div class="dev-modal hidden" id="devModal">
+  <div class="dev-modal hidden" id="devModal" role="dialog" aria-modal="true" aria-labelledby="devModalTitle">
     <div class="dev-card">
       <div class="dev-header">
-        <h3 data-i18n="devTitle">Dev Tool</h3>
+        <h3 id="devModalTitle" data-i18n="devTitle">Dev Tool</h3>
         <button class="tags-close" id="devClose" aria-label="Close">&times;</button>
       </div>
       <form class="dev-login" id="devLogin" autocomplete="off">
@@ -319,7 +319,7 @@
     </div>
   </div>
 
-  <div class="boss-overlay hidden" id="bossOverlay">
+  <div class="boss-overlay hidden" id="bossOverlay" role="dialog" aria-modal="true" aria-labelledby="bossTitle">
     <div class="boss-card">
       <span class="boss-kicker" data-i18n="bossLevel">Boss Level</span>
       <h2 class="boss-title" id="bossTitle"></h2>
@@ -328,10 +328,10 @@
     </div>
   </div>
 
-  <div class="final-overlay hidden" id="finalOverlay">
+  <div class="final-overlay hidden" id="finalOverlay" role="dialog" aria-modal="true" aria-labelledby="finalOverlayTitle">
     <div class="final-card">
       <span class="final-kicker" data-i18n="questTitle">Quest Map</span>
-      <h2 class="final-title" data-i18n="finalTitle">Quest Complete!</h2>
+      <h2 class="final-title" id="finalOverlayTitle" data-i18n="finalTitle">Quest Complete!</h2>
       <p class="final-text" data-i18n="finalText"></p>
       <p class="final-stats" id="finalStats"></p>
       <div class="final-actions">
@@ -341,10 +341,10 @@
     </div>
   </div>
 
-  <div class="final-overlay hidden" id="hardcoreOverlay">
+  <div class="final-overlay hidden" id="hardcoreOverlay" role="dialog" aria-modal="true" aria-labelledby="hardcoreOverlayTitle">
     <div class="final-card run-over-card">
       <span class="final-kicker" data-i18n="modeHardcore">Hardcore</span>
-      <h2 class="final-title" data-i18n="runOverTitle">Run Over!</h2>
+      <h2 class="final-title" id="hardcoreOverlayTitle" data-i18n="runOverTitle">Run Over!</h2>
       <p class="final-text" id="runOverText"></p>
       <div class="final-actions">
         <button class="btn btn-check" id="btnRestartRun" data-i18n="runOverRestart">Restart from level 1</button>
