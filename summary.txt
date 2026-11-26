@@ -4,6 +4,38 @@ CSS QUEST - PROJECT SUMMARY
 PROMPT LOG (newest first)
 -------------------------
 
+2026-11-26 — "push the changes"
+  Status: COMPLETED
+  Outcome: Committed the verified audit and coinflip changes and pushed them to origin/main. The commit includes index.html, src/i18n.js, src/levels.js, src/main.js, src/progress.js, src/styles.css and this summary log. npm run build, node --check, git diff --check and headless Chrome checks passed before pushing.
+
+2026-11-26 — "Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed."
+  Status: COMPLETED
+  Outcome: Continued and finished the audit fixes. index.html now uses sandbox="allow-same-origin" on both iframes, marks resultBanner and toastStack as live regions, gives the start nav an id and translates its aria-label, and fixes the dev answer default text. src/styles.css starts the coin spin from the chosen face rotation and explicitly centers the win/loss glow. src/main.js adds safe language storage helpers, closes the dev modal on Escape before menu handling, hides revealed hints when hard/hardcore is selected, guards resetCoinStage during a pending flip, keeps the landed face rotation in settleCoinFlip, filters animationend to the coin, stops the timer on hardcore failure, counts only first solves toward hardcoreCleared, resets the explanation state, refreshes preview status when loading a level, clears seen boss intros on start/restart, makes Play Again restart without erasing progress, and updates the collapse button plus nav label in applyLanguage. src/progress.js removes dead version/checks data and recordBadCheck, and validates daily completion against today's date and level. src/levels.js removes two unused getBoundingClientRect assignments. Headless Chrome verified coin rotation races, sandbox script injection, language accessibility, Escape, hard-mode hints and Play Again; npm run build, node --check on all JS files and git diff --check pass.
+
+2026-11-26 — "review the code, searching for any bugs or deadcode and either remove or substitute"
+  Status: COMPLETED
+  Outcome: Audited src/main.js, src/progress.js, src/levels.js, src/achievements.js, src/tags-pt-BR.js, src/preview.js, src/i18n.js, index.html and src/styles.css with two explore agents plus direct verification. Applied the confirmed fixes listed in the following log entry. Several reported candidates were false positives in the current codebase and were left unchanged: src/tags-pt-BR.js is imported by src/i18n.js, there is no exported Achievement type in src/achievements.js, and src/levels.js has no levelLogo/coinIntro/projectBanner/bossVisual artifacts or coinStarsFromLevels field. Verified with npm run build, node --check, git diff --check and headless Chrome CDP scripts /tmp/opencode/coin-test.mjs and /tmp/opencode/audit-check.mjs.
+
+2026-11-26 — "when the player loses the coinflip, the chosen face of the coin stays, but inverted, when the player chooses the wrong face keep the one that won the flip. i.e player chooses heads, coin ends on tails, tails stays"
+  Status: COMPLETED
+  Outcome: Root cause was the win/loss drop-shadow filter on .coin-3d: a CSS filter flattens the 3D rendering context, so backface-visibility stopped hiding the chosen face and the coin looked inverted on a loss. Removed those filters and moved the green/red feedback to a radial-gradient glow on .coin-stage::before behind the coin. The resting rotation was already the landed face (1440deg heads, 1260deg tails). Headless Chrome confirmed filter is none, transform-style stays preserve-3d, landed-face transforms are correct after wins and losses, and results/balances/labels still pass; npm run build, node --check and git diff --check pass.
+
+2026-11-26 — "remove the fear and hunger inspiration, dont make the coin jump, spin in place quickly and slow it down little by little unitl its reveal, just like the google chrome coinflip minigame"
+  Status: COMPLETED
+  Outcome: Removed the toss, jump, shadow, edge-standing and topple sequence. The coin now spins in place with one 2.2s CSS animation driven by a strong ease-out curve, so it rotates fast at first and slows gradually until the landed face stops in view; src/main.js keeps the final rotation per outcome and the timeout fallback was raised to 2400ms. index.html lost the unused shadow element. Headless Chrome confirmed no vertical translation, correct delayed results/balances, disabled controls, EN/PT labels and final face transform; sampled rotation steps fell from about 150deg to 1deg near the end. npm run build, node --check and git diff --check pass.
+
+2026-11-26 — "make the animation smoother, starting the flip the coin is fast and it slows down when getting close to the end"
+  Status: COMPLETED
+  Outcome: Retuned the coin animation in src/styles.css to 1.8s with per-keyframe easing: a fast spin at the start, progressively slower rotation while landing, an edge wobble, and a slow 90deg topple/final settle. src/main.js now sets a face-dependent --coin-edge-rotation so both outcomes topple by the same short angle, and the timeout fallback was raised to 2100ms. Headless Chrome rechecked results, balances, disabled controls, EN/PT labels, edge transform (rotateY 90deg) and final tails transform (rotateY 180deg); sampled transforms show large early steps and tiny final steps. npm run build, node --check and git diff --check pass.
+
+2026-11-26 — "could you make the coinflip animation like fear and hunger, where the coin is tossed falls sideways facing up and then gets up showing the correct side to the user"
+  Status: COMPLETED
+  Outcome: Added a CSS 3D coin in index.html (two faces plus an edge) and a 1.8s animation in src/styles.css: toss/spin, land standing on its edge, wobble, then topple to the landed face. src/main.js now picks the random face at click time, animates first, and only settles the bet, result banner, sounds and achievements when the animation ends (with a timeout fallback and controls disabled during the flip). The chosen face is shown while idle; EN/PT coin face labels are translated through data-i18n. Headless Chrome confirmed the edge transform (rotateY 90deg), final tails transform (rotateY 180deg), delayed results, balances, stage win/loss classes and translated labels; npm run build, node --check and git diff --check pass. Screenshots were captured but could not be visually inspected by this model.
+
+2026-11-26 — "when doing the coinflip give the choice of heads or tails to the player, creating a button where he picks the face of the coin"
+  Status: COMPLETED
+  Outcome: Added a Heads/Tails button pair to the Coin Flip panel in index.html. The player now picks a face before flipping; the coin is still random, but the bet pays only when the landing face matches the choice. Selection state, pressed/active styling and translated labels are handled in src/main.js, src/styles.css and src/i18n.js. Headless Chrome checks confirmed selection, win/loss outcomes, balance changes and EN/PT labels; npm run build, node --check and git diff --check pass.
+
 2026-11-24 — "push the changes"
   Status: COMPLETED
   Outcome: Committed the debugging and cleanup changes as 10bf67f ("Fix game state bugs and remove dead code") and pushed them to origin/main.
@@ -207,12 +239,17 @@ GAME LAYER (STARS, XP, MAP, ACHIEVEMENTS)
   check opens a Run Over screen whose restart button goes back to level 1.
   Choosing Hard or Hardcore unlocks its own achievement.
 - Coin Flip: stars earned by improving a level's best result also go to a
-  separate coin balance. The player bets stars on heads/tails; a win pays
-  bet x multiplier, and each consecutive win increases the multiplier up to 5x.
-   Losses reset the streak. Achievements unlock for the first win, 3 and 5 wins
-   in a row, and reaching 1000 coin stars. Reaching 1000 coin stars reveals the
-   logo choice in the Coin Flip tab and shows the chosen logo beside the game
-   title as a Back to menu button.
+  separate coin balance. The player picks Heads or Tails with two buttons,
+  then bets stars; the coin still lands randomly and the bet pays only when
+  the chosen face comes up. A 3D coin spins in place, fast at first and then
+  gradually slower, until the landed face stops in view before the result
+  banner appears; win/loss feedback is a glow behind the coin, never a filter
+  on it, so backface hiding keeps showing the landed face after a loss.
+  A win pays bet x multiplier, and each consecutive win
+  increases the multiplier up to 5x. Losses reset the streak. Achievements
+  unlock for the first win, 3 and 5 wins in a row, and reaching 1000 coin stars.
+  Reaching 1000 coin stars reveals the logo choice in the Coin Flip tab and
+  shows the chosen logo beside the game title as a Back to menu button.
 - Logo selector: deadlocklockkcol.jpeg is the main menu logo by default. After
   the 1000-star achievement, two small logo buttons appear in the Coin Flip
   tab so the player can switch between the main logo and logo2.png; the choice

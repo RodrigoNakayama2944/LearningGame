@@ -19,7 +19,7 @@
           <h1 class="start-title" id="startTitle">CSS QUEST</h1>
           <p class="start-tagline" data-i18n="menuTagline">Solve puzzles. Master Flexbox.</p>
         </div>
-        <nav class="start-nav" aria-label="Main menu">
+        <nav class="start-nav" id="startNav" aria-label="Main menu">
           <button class="start-nav-btn primary" id="btnStartGame">
             <span data-i18n="menuStartGame">Start Game</span>
             <span class="start-nav-arrow" aria-hidden="true">&#8594;</span>
@@ -98,7 +98,7 @@
             <span aria-hidden="true">&#8592;</span> <span data-i18n="menuBack">Back</span>
           </button>
         </div>
-        <p class="coin-intro" data-i18n="coinIntro">Bet stars on a coin flip. A win pays your bet times the current multiplier.</p>
+        <p class="coin-intro" data-i18n="coinIntro">Choose heads or tails, then bet stars. A win pays your bet times the current multiplier.</p>
         <div class="coin-balance-row">
           <span data-i18n="coinBalance">Coin balance</span>
           <strong id="coinBalance">0</strong>
@@ -110,6 +110,20 @@
           <button class="coin-quick" type="button" data-bet="5">5</button>
           <button class="coin-quick" type="button" data-bet="10">10</button>
           <button class="coin-quick" type="button" data-bet="max" data-i18n="coinMax">Max</button>
+        </div>
+        <div class="coin-face-row">
+          <span class="coin-face-label" data-i18n="coinChooseFace">Choose a face</span>
+          <div class="coin-face-switch" id="coinFaceSwitch" role="group">
+            <button class="coin-face-option active" type="button" data-face="heads" aria-pressed="true" data-i18n="coinHeads">Heads</button>
+            <button class="coin-face-option" type="button" data-face="tails" aria-pressed="false" data-i18n="coinTails">Tails</button>
+          </div>
+        </div>
+        <div class="coin-stage" id="coinStage">
+          <div class="coin-3d" id="coin3d" aria-hidden="true">
+            <div class="coin-face coin-face-heads" data-i18n="coinHeads">Heads</div>
+            <div class="coin-face coin-face-tails" data-i18n="coinTails">Tails</div>
+            <div class="coin-edge"></div>
+          </div>
         </div>
         <div class="coin-stats">
           <div><span data-i18n="coinStreak">Win streak</span><strong id="coinStreak">0</strong></div>
@@ -254,16 +268,16 @@
       </div>
       <div class="preview-container">
         <div class="preview-frame-wrapper">
-          <iframe id="previewFrame" title="Live preview" sandbox="allow-scripts allow-same-origin"></iframe>
+          <iframe id="previewFrame" title="Live preview" sandbox="allow-same-origin"></iframe>
         </div>
         <div class="target-wrapper" id="targetWrapper">
           <span class="target-label" data-i18n="target">Target</span>
           <div class="target-frame-wrapper">
-            <iframe id="targetFrame" title="Target layout" sandbox="allow-scripts allow-same-origin"></iframe>
+            <iframe id="targetFrame" title="Target layout" sandbox="allow-same-origin"></iframe>
           </div>
         </div>
       </div>
-      <div class="result-banner hidden" id="resultBanner">
+      <div class="result-banner hidden" id="resultBanner" role="status" aria-live="polite">
         <div class="result-heading">
           <span class="result-icon" id="resultIcon"></span>
           <span id="resultText"></span>
@@ -309,7 +323,7 @@
       <div class="dev-panel hidden" id="devPanel">
         <p class="dev-level" id="devLevel"></p>
         <div class="dev-solutions" id="devSolutions"></div>
-        <label class="dev-label" for="devAnswer" data-i18n="devAnswer">Answer</label>
+        <label class="dev-label" for="devAnswer" data-i18n="devAnswer">Answer CSS</label>
         <textarea class="dev-answer" id="devAnswer" readonly spellcheck="false"></textarea>
         <div class="dev-actions">
           <button class="btn btn-tags" id="devGiveStars" data-i18n="devGiveStars">Give all stars</button>
@@ -357,7 +371,7 @@
     <img class="skeleton-image" src="/src/assets/running-skeleton.gif" alt="" />
   </div>
 
-  <div class="toast-stack" id="toastStack"></div>
+  <div class="toast-stack" id="toastStack" role="status" aria-live="polite"></div>
 
   <script type="module" src="/src/main.js"></script>
 </body>

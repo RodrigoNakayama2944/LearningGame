@@ -10,7 +10,6 @@ const STORAGE_KEY = 'cssquest-progress-v1'
 
 function createDefaultProgress() {
   return {
-    version: 1,
     levels: {},
     lastLevelId: 1,
     soundOn: false,
@@ -120,8 +119,7 @@ function emptyLevel() {
     solved: false,
     bestStars: 0,
     bestTimeMs: 0,
-    solvedAt: null,
-    checks: 0
+    solvedAt: null
   }
 }
 
@@ -175,8 +173,7 @@ export function grantAllStars(coinAmount = 1000) {
       solved: true,
       bestStars: 3,
       bestTimeMs: previous.bestTimeMs > 0 ? previous.bestTimeMs : 60000,
-      solvedAt: previous.solvedAt || new Date().toISOString(),
-      checks: previous.checks || 1
+      solvedAt: previous.solvedAt || new Date().toISOString()
     }
   }
 
@@ -215,8 +212,7 @@ export function recordLevelResult(levelId, result) {
     solved: true,
     bestStars,
     bestTimeMs,
-    solvedAt: previous.solvedAt || new Date().toISOString(),
-    checks: (previous.checks || 0) + 1
+    solvedAt: previous.solvedAt || new Date().toISOString()
   }
   saveProgress()
 
@@ -226,16 +222,6 @@ export function recordLevelResult(levelId, result) {
     coinGained,
     xpGained: (bestStars - previous.bestStars) * STAR_XP
   }
-}
-
-export function recordBadCheck(levelId) {
-  const state = getProgress()
-  const previous = getLevelProgress(levelId)
-  state.levels[levelId] = {
-    ...previous,
-    checks: (previous.checks || 0) + 1
-  }
-  saveProgress()
 }
 
 export function setSoundOn(value) {
@@ -420,7 +406,7 @@ export function completeDailyChallenge(levelId) {
   const today = getDateKey()
   const daily = state.daily
 
-  if (daily.lastDoneDate === today) return false
+  if (daily.lastDoneDate === today || daily.date !== today || daily.levelId !== levelId) return false
 
   const streak = daily.lastDoneDate === getYesterdayKey()
     ? (daily.streak || 0) + 1

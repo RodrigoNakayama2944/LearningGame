@@ -2074,6 +2074,137 @@ html, body {
   border-color: var(--dracula-orange);
 }
 
+.coin-face-row {
+  margin-bottom: 14px;
+}
+
+.coin-face-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.coin-face-switch {
+  display: flex;
+  gap: 8px;
+}
+
+.coin-face-option {
+  flex: 1;
+  padding: 10px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--dracula-current);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.coin-face-option:hover,
+.coin-face-option.active {
+  color: var(--dracula-orange);
+  border-color: var(--dracula-orange);
+  box-shadow: 0 0 0 1px rgba(255, 184, 108, 0.35);
+}
+
+.coin-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 116px;
+  margin: 6px 0 14px;
+  perspective: 700px;
+}
+
+.coin-3d {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  transform-style: preserve-3d;
+  transform: rotateY(var(--coin-idle-rotation, 0deg));
+}
+
+.coin-face,
+.coin-edge {
+  position: absolute;
+}
+
+.coin-face {
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--dracula-yellow);
+  border-radius: 50%;
+  backface-visibility: hidden;
+  box-shadow: inset 0 0 0 3px rgba(189, 147, 249, 0.35), 0 6px 12px rgba(0, 0, 0, 0.35);
+  color: var(--bg-primary);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.coin-face-heads {
+  transform: translateZ(3px);
+  background: linear-gradient(135deg, #ffb86c, #f1fa8c);
+}
+
+.coin-face-tails {
+  transform: rotateY(180deg) translateZ(3px);
+  background: linear-gradient(135deg, #bd93f9, #ff79c6);
+}
+
+.coin-edge {
+  top: 0;
+  left: 50%;
+  width: 6px;
+  height: 100%;
+  margin-left: -3px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #f1fa8c, #ffb86c 50%, #bd93f9);
+  transform: rotateY(90deg);
+}
+
+.coin-stage.spinning .coin-3d {
+  animation: coinSpin 2.2s cubic-bezier(0.06, 0.82, 0.16, 1) both;
+}
+
+.coin-stage.win::before,
+.coin-stage.loss::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.coin-stage.win::before {
+  background: radial-gradient(circle, rgba(80, 250, 123, 0.22), transparent 68%);
+}
+
+.coin-stage.loss::before {
+  background: radial-gradient(circle, rgba(255, 85, 85, 0.18), transparent 68%);
+}
+
+@keyframes coinSpin {
+  from {
+    transform: rotateY(var(--coin-start-rotation, 0deg));
+  }
+  to {
+    transform: rotateY(var(--coin-final-rotation));
+  }
+}
+
 .coin-stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2147,6 +2278,7 @@ html, body {
 .mode-btn:focus-visible,
 .coin-bet-row input:focus-visible,
 .coin-quick:focus-visible,
+.coin-face-option:focus-visible,
 .coin-flip-btn:focus-visible,
 .logo-option:focus-visible,
 .btn-game-logo:focus-visible {
@@ -2636,6 +2768,7 @@ html, body {
 
 .btn-hint:disabled,
 .daily-play:disabled,
+.coin-face-option:disabled,
 .coin-flip-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;

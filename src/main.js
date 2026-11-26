@@ -36,7 +36,6 @@ import {
   getLastLevelId,
   setLastLevelId,
   recordLevelResult,
-  recordBadCheck,
   setSoundOn,
   getSoundOn,
   setMode,
@@ -140,6 +139,7 @@ const btnPlayAgain = document.getElementById('btnPlayAgain')
 const btnReviewLevels = document.getElementById('btnReviewLevels')
 const skeletonRunner = document.getElementById('skeletonRunner')
 const startMenu = document.getElementById('startMenu')
+const startNav = document.getElementById('startNav')
 const startEmblem = document.getElementById('startEmblem')
 const logoSection = document.getElementById('logoSection')
 const logoSwitch = document.getElementById('logoSwitch')
@@ -156,6 +156,9 @@ const btnMenuCredits = document.getElementById('btnMenuCredits')
 const btnCreditsBack = document.getElementById('btnCreditsBack')
 const coinBalance = document.getElementById('coinBalance')
 const coinBet = document.getElementById('coinBet')
+const coinFaceSwitch = document.getElementById('coinFaceSwitch')
+const coinStage = document.getElementById('coinStage')
+const coin3d = document.getElementById('coin3d')
 const coinStreak = document.getElementById('coinStreak')
 const coinMultiplier = document.getElementById('coinMultiplier')
 const coinBestStreak = document.getElementById('coinBestStreak')
@@ -189,6 +192,8 @@ const SKELETON_CHANCE = 0.000001
 const SKELETON_DURATION_MS = 750
 
 let currentLevelIndex = 0
+let chosenCoinFace = 'heads'
+let coinFlipPending = false
 let currentCSS = ''
 let explanationCollapsed = false
 let lastResult = null
@@ -221,8 +226,24 @@ function createRun() {
   }
 }
 
+function getSavedLanguage() {
+  try {
+    return localStorage.getItem(LANGUAGE_KEY)
+  } catch {
+    return null
+  }
+}
+
+function saveLanguage(code) {
+  try {
+    localStorage.setItem(LANGUAGE_KEY, code)
+  } catch {
+    return
+  }
+}
+
 function init() {
-  const savedLanguage = localStorage.getItem(LANGUAGE_KEY)
+  const savedLanguage = getSavedLanguage()
   if (savedLanguage) setLanguage(savedLanguage)
   recordLanguageTried(getLanguage())
 
@@ -303,9 +324,36 @@ function renderCoinFlip() {
   coinBet.max = String(Math.max(1, balance))
   if (Number(coinBet.value) > balance) coinBet.value = String(Math.max(1, balance))
   btnCoinFlip.disabled = balance < 1
+  coinFaceSwitch.setAttribute('aria-label', t('coinChooseFace'))
+  coinFaceSwitch.querySelectorAll('[data-face]').forEach(button => {
+    const isActive = button.dataset.face === chosenCoinFace
+    button.classList.toggle('active', isActive)
+    button.setAttribute('aria-pressed', String(isActive))
+    button.title = t(button.dataset.face === 'heads' ? 'coinHeads' : 'coinTails')
+  })
+}
+
+function coinRotationForFace(face) {
+  return face === 'heads' ? '1440deg' : '1260deg'
+}
+
+function resetCoinStage() {
+  if (coinFlipPending) return
+  coinStage.classList.remove('spinning', 'win', 'loss')
+  coin3d.style.setProperty('--coin-idle-rotation', chosenCoinFace === 'heads' ? '0deg' : '180deg')
+  coin3d.style.setProperty('--coin-final-rotation', '0deg')
+}
+
+function setCoinFace(face) {
+  if (coinFlipPending || (face !== 'heads' && face !== 'tails')) return
+  chosenCoinFace = face
+  renderCoinFlip()
+  resetCoinStage()
+  playClick()
 }
 
 function setCoinBet(value) {
+  if (coinFlipPending) return
   if (value === 'max') {
     coinBet.value = String(getCoinStars())
   } else {
@@ -329,32 +377,26 @@ function clearCoinResult() {
   coinResult.textContent = ''
 }
 
-function flipCoin() {
-  const bet = Math.floor(Number(coinBet.value))
-  const balance = getCoinStars()
-
-  if (bet < 1) {
-    showCoinResult('error', '', t('coinNeedStars', { n: 1 }))
-    return
-  }
-  if (bet > balance) {
-    showCoinResult('error', '', t('coinTooMany'))
+function settleCoinFlip(bet, multiplier, landedFace, chosenFace) {
+  const face = t(landedFace === 'heads' ? 'coinHeads' : 'coinTails')
+  const finalRotation = coinRotationForFace(landedFace)
+  coin3d.style.setProperty('--coin-final-rotation', finalRotation)
+  coin3d.style.setProperty('--coin-idle-rotation', finalRotation)
+  if (!spendCoinStars(bet)) {
+    renderCoinFlip()
     return
   }
 
-  const multiplier = getCoinMultiplier()
-  const isHeads = Math.random() < 0.5
-  const face = t(isHeads ? 'coinHeads' : 'coinTails')
-  if (!spendCoinStars(bet)) return
-
-  if (isHeads) {
+  if (landedFace === chosenFace) {
     const payout = bet * multiplier
     recordCoinFlipResult(true, payout)
     showCoinResult('win', face, t('coinWin', { n: payout, m: multiplier }))
+    coinStage.classList.add('win')
     playSuccess()
   } else {
     recordCoinFlipResult(false, 0)
     showCoinResult('loss', face, t('coinLose'))
+    coinStage.classList.add('loss')
     playError()
   }
 
@@ -369,6 +411,64 @@ function flipCoin() {
   updateHeader()
 }
 
+function flipCoin() {
+  if (coinFlipPending) return
+  const bet = Math.floor(Number(coinBet.value))
+  const balance = getCoinStars()
+
+  if (bet < 1) {
+    showCoinResult('error', '', t('coinNeedStars', { n: 1 }))
+    return
+  }
+  if (bet > balance) {
+    showCoinResult('error', '', t('coinTooMany'))
+    return
+  }
+
+  const multiplier = getCoinMultiplier()
+  const landedFace = Math.random() < 0.5 ? 'heads' : 'tails'
+  const chosenFace = chosenCoinFace
+  const finalRotation = coinRotationForFace(landedFace)
+  const startRotation = chosenFace === 'heads' ? '0deg' : '180deg'
+
+  coinFlipPending = true
+  clearCoinResult()
+  coinStage.classList.remove('spinning', 'win', 'loss')
+  coin3d.style.setProperty('--coin-start-rotation', startRotation)
+  coin3d.style.setProperty('--coin-final-rotation', finalRotation)
+  coin3d.style.setProperty('--coin-idle-rotation', finalRotation)
+  void coinStage.offsetWidth
+  coinStage.classList.add('spinning')
+  btnCoinFlip.disabled = true
+  coinBet.disabled = true
+  coinFaceSwitch.querySelectorAll('[data-face]').forEach(button => {
+    button.disabled = true
+  })
+  playClick()
+
+  let settled = false
+  const finish = () => {
+    if (settled) return
+    settled = true
+    clearTimeout(fallback)
+    coin3d.removeEventListener('animationend', onAnimationEnd)
+    coinStage.classList.remove('spinning')
+    coinFlipPending = false
+    coinBet.disabled = false
+    btnCoinFlip.disabled = false
+    coinFaceSwitch.querySelectorAll('[data-face]').forEach(button => {
+      button.disabled = false
+    })
+    settleCoinFlip(bet, multiplier, landedFace, chosenFace)
+  }
+
+  const fallback = setTimeout(finish, 2400)
+  const onAnimationEnd = event => {
+    if (event.target === coin3d) finish()
+  }
+  coin3d.addEventListener('animationend', onAnimationEnd)
+}
+
 function isHardcoreMode() {
   return getMode() === 'hardcore'
 }
@@ -381,6 +481,7 @@ function startGame() {
   startMenu.classList.add('hidden')
   finalShown = false
   hardcoreRunOver = false
+  seenBossIntros.clear()
   if (isHardcoreMode()) {
     hardcoreCleared = 0
     loadLevelById(levels[0].id)
@@ -397,6 +498,10 @@ function setDifficulty(mode) {
   hardcoreCleared = 0
   hardcoreRunOver = false
   hardcoreOverlay.classList.add('hidden')
+  if (!hintsAllowed()) {
+    hintBox.classList.remove('visible')
+    run.hintRevealed = false
+  }
   updateStartMenu()
   updateHintButton()
   renderMissionStrip()
@@ -434,13 +539,16 @@ function showHardcoreOverlay(levelId) {
   btnRestartRun.focus()
 }
 
-function restartHardcoreRun() {
+function restartRun() {
   hardcoreOverlay.classList.add('hidden')
+  finalOverlay.classList.add('hidden')
   hardcoreRunOver = false
   hardcoreCleared = 0
   finalShown = false
   seenBossIntros.clear()
   loadLevelById(levels[0].id)
+  updateHintButton()
+  updateHeader()
   playClick()
   editorInput.focus()
 }
@@ -502,6 +610,7 @@ function loadLevel(index, options = {}) {
   setLastLevelId(level.id)
 
   renderPreview(text.starterCSS)
+  scheduleLiveStatus()
   updateTarget(targetFrame, level.html, text.solutions[0].css, level.themeCSS)
   targetWrapper.classList.add('visible')
 
@@ -527,6 +636,7 @@ function setupEventListeners() {
   btnConfigBack.addEventListener('click', () => showMenuPage('home'))
   btnMenuCoin.addEventListener('click', () => {
     clearCoinResult()
+    resetCoinStage()
     renderCoinFlip()
     showMenuPage('coin')
   })
@@ -545,6 +655,8 @@ function setupEventListeners() {
     if (modeButton) setDifficulty(modeButton.dataset.mode)
     const betButton = event.target.closest('[data-bet]')
     if (betButton) setCoinBet(betButton.dataset.bet)
+    const faceButton = event.target.closest('[data-face]')
+    if (faceButton) setCoinFace(faceButton.dataset.face)
     const logoButton = event.target.closest('[data-logo]')
     if (logoButton) {
       setLogoChoice(logoButton.dataset.logo)
@@ -553,7 +665,7 @@ function setupEventListeners() {
       showToast(t('logoSwitchLabel'), t('toastLogoChanged'), 'achievement')
     }
   })
-  btnRestartRun.addEventListener('click', restartHardcoreRun)
+  btnRestartRun.addEventListener('click', restartRun)
   btnRunOverMenu.addEventListener('click', showMainMenu)
   btnCheck.addEventListener('click', checkAnswer)
   btnReset.addEventListener('click', resetLevel)
@@ -580,7 +692,7 @@ function setupEventListeners() {
     bossOverlay.classList.add('hidden')
     editorInput.focus()
   })
-  btnPlayAgain.addEventListener('click', resetGame)
+  btnPlayAgain.addEventListener('click', restartRun)
   btnReviewLevels.addEventListener('click', () => {
     finalOverlay.classList.add('hidden')
     openQuestModal('map')
@@ -616,6 +728,7 @@ function setupEventListeners() {
 
     if (e.key === 'Escape') {
       if (!hardcoreOverlay.classList.contains('hidden')) return
+      closeDevModal()
       if (!startMenu.classList.contains('hidden')) {
         showMenuPage('home')
         return
@@ -623,7 +736,6 @@ function setupEventListeners() {
       closeTagsGuide()
       closeLanguageMenu()
       closeQuestModal()
-      closeDevModal()
       bossOverlay.classList.add('hidden')
       finalOverlay.classList.add('hidden')
     }
@@ -742,7 +854,6 @@ function applyCheckResult(level) {
 
   if (!isCorrect) {
     run.wrongChecks += 1
-    recordBadCheck(level.id)
     renderMissionStrip()
     flashScreen('fail')
     applyStamp(previewFrame.parentElement, 'fail', 'Try again')
@@ -751,15 +862,13 @@ function applyCheckResult(level) {
     showResult('error', 'resultError', false, null, false)
     if (isHardcoreMode() && !hardcoreRunOver) {
       hardcoreRunOver = true
+      stopTimer()
       setTimeout(() => showHardcoreOverlay(level.id), 450)
     }
     return
   }
 
   stopTimer()
-  if (run.elapsedMs <= 0 && run.startedAt) {
-    run.elapsedMs = Date.now() - run.startedAt
-  }
 
   const earnedStars = 1 +
     (run.hintsUsed === 0 ? 1 : 0) +
@@ -770,7 +879,7 @@ function applyCheckResult(level) {
     stars: earnedStars,
     timeMs: run.elapsedMs
   })
-  if (isHardcoreMode()) hardcoreCleared += 1
+  if (isHardcoreMode() && result.firstSolve) hardcoreCleared += 1
 
   const lastRun = {
     correct: true,
@@ -1119,6 +1228,8 @@ function hideResult() {
   resultBanner.classList.add('hidden')
   explanationPanel.classList.add('hidden')
   explanationPanel.classList.remove('explanation-collapsed')
+  explanationCollapsed = false
+  updateCollapseButton()
   explanationBody.innerHTML = ''
   clearResultExtras()
   resultActions.innerHTML = ''
@@ -1221,13 +1332,12 @@ function changeLanguage(code) {
   const editorHasStarter = editorInput.value.trim() === previousStarter.trim()
 
   setLanguage(code)
-  localStorage.setItem(LANGUAGE_KEY, code)
+  saveLanguage(code)
   recordLanguageTried(code)
   closeLanguageMenu()
 
   const newAchievements = checkNewAchievements(null)
   applyLanguage(editorHasStarter)
-  updateHeader()
   if (newAchievements.length) {
     playAchievement()
     newAchievements.forEach(id => showAchievementToast(id))
@@ -1242,6 +1352,8 @@ function applyLanguage(editorHasStarter = true) {
   document.documentElement.lang = getLanguage()
   btnLanguage.textContent = getLanguageName()
   btnLanguage.title = t('languageButton')
+  startNav.setAttribute('aria-label', t('runOverMenu'))
+  updateCollapseButton()
   const closeLabel = t('closeButton')
   tagsClose.setAttribute('aria-label', closeLabel)
   questClose.setAttribute('aria-label', closeLabel)

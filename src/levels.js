@@ -3766,8 +3766,7 @@ const levels = [
             const columnGap = parseFloat(tagsStyle.columnGap)
             if (!(columnGap > 4 && Math.abs(rowGap - columnGap * 2) < 2)) return false
             if (parseFloat(win.getComputedStyle(status).marginLeft) <= 0) return false
-      
-            const nameRect = name.getBoundingClientRect()
+
             const statusRect = status.getBoundingClientRect()
             const headerRight = header.getBoundingClientRect().right - header.clientLeft - parseFloat(headerStyle.paddingRight)
             if (Math.abs(headerRight - statusRect.right) > 12) return false
@@ -4573,7 +4572,6 @@ const levels = [
       const toolsRect = tools.getBoundingClientRect()
       if (titleRect.left - barRect.left > 20) return false
       if (Math.abs(barRight - toolsRect.right) > 12) return false
-      const mainRect = main.getBoundingClientRect()
       const contentWidth = main.clientWidth - parseFloat(mainStyle.paddingLeft) - parseFloat(mainStyle.paddingRight)
       const railRect = rail.getBoundingClientRect()
       const codeRect = code.getBoundingClientRect()
